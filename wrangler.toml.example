@@ -4,7 +4,7 @@ compatibility_date = "2026-08-25"
 
 [[kv_namespaces]]
 binding = "ASSET_STORE"
-id = "ここにKVのID"
+id = "0e839f63e1504cdf81098617b17a22f7"
 
 [vars]
 ALLOWED_ORIGIN = "https://あなたのPagesドメイン.pages.dev"
