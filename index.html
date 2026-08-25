@@ -554,11 +554,18 @@ table{color:#fff} th,td{border-color:rgba(255,255,255,.14)}
 </style>
 
 <style id="server-sync-and-history-longpress">
-.server-save-fab{
+.server-sync-fabs{
   position:fixed;
   right:14px;
   bottom:calc(var(--navh) + 16px + env(safe-area-inset-bottom));
   z-index:28;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  align-items:flex-end;
+}
+.server-save-fab,.server-load-fab{
+  position:relative;
   min-height:46px;
   padding:10px 14px;
   border-radius:16px;
@@ -569,9 +576,14 @@ table{color:#fff} th,td{border-color:rgba(255,255,255,.14)}
   backdrop-filter:blur(12px);
   -webkit-backdrop-filter:blur(12px);
   font-weight:900;
+  white-space:nowrap;
 }
-.server-save-fab.saving{opacity:.68;pointer-events:none}
-.server-save-fab.saved{border-color:rgba(53,229,210,.75)!important;color:#8ff7ea!important}
+.server-load-fab{
+  border-color:rgba(53,229,210,.62)!important;
+  color:#8ff7ea!important;
+}
+.server-save-fab.saving,.server-load-fab.saving{opacity:.68;pointer-events:none}
+.server-save-fab.saved,.server-load-fab.saved{border-color:rgba(53,229,210,.75)!important;color:#8ff7ea!important}
 .history-date{
   cursor:pointer;
   user-select:none;
@@ -589,9 +601,12 @@ table{color:#fff} th,td{border-color:rgba(255,255,255,.14)}
   margin-top:2px;
 }
 @media(max-width:560px){
-  .server-save-fab{
+  .server-sync-fabs{
     right:12px;
     bottom:calc(var(--navh) + 12px + env(safe-area-inset-bottom));
+    gap:6px;
+  }
+  .server-save-fab,.server-load-fab{
     font-size:12px;
     min-height:42px;
     padding:8px 12px;
@@ -664,7 +679,10 @@ table{color:#fff} th,td{border-color:rgba(255,255,255,.14)}
       </div>
       <div id="assetRows"></div>
     </div>
-    <button id="serverSaveFab" class="server-save-fab" type="button" aria-label="サーバーへ保存">☁ サーバー保存</button>
+    <div class="server-sync-fabs" aria-label="サーバーデータ操作">
+      <button id="serverLoadFab" class="server-load-fab" type="button" aria-label="サーバーからデータ取得">☁ データ取得</button>
+      <button id="serverSaveFab" class="server-save-fab" type="button" aria-label="サーバーへデータ送信">☁ データ送信</button>
+    </div>
   </section>
 
   <section id="page-debts" class="tabpage">
@@ -1158,65 +1176,73 @@ function bindHistoryLongPress(){
 /* ---- Server sync ---- */
 const SERVER_URL_KEY='asset_tracker_server_url';
 const SERVER_TOKEN_KEY='asset_tracker_server_token';
+const DEFAULT_SERVER_URL='https://assets-management.45kikurage.workers.dev';
 
 function getServerConfig(){
  return {
-   url:(localStorage.getItem(SERVER_URL_KEY)||'').replace(/\/+$/,''),
+   url:(localStorage.getItem(SERVER_URL_KEY)||DEFAULT_SERVER_URL).replace(/\/+$/,''),
    token:localStorage.getItem(SERVER_TOKEN_KEY)||''
  };
 }
 function configureServer(){
  const current=getServerConfig();
- const url=prompt('Cloudflare Worker のURLを入力してください',current.url||'https://xxxxx.workers.dev');
- if(url===null)return null;
- const token=prompt('サーバー保存用キーを入力してください',current.token||'');
+ const token=prompt('初回設定：サーバー接続キーを入力してください',current.token||'');
  if(token===null)return null;
- const clean=url.trim().replace(/\/+$/,'');
- if(!/^https?:\/\//i.test(clean)||!token.trim()){
-   alert('URLとキーを正しく入力してください');
+ if(!token.trim()){
+   alert('サーバー接続キーを入力してください');
    return null;
  }
- localStorage.setItem(SERVER_URL_KEY,clean);
+ localStorage.setItem(SERVER_URL_KEY,DEFAULT_SERVER_URL);
  localStorage.setItem(SERVER_TOKEN_KEY,token.trim());
- return {url:clean,token:token.trim()};
+ return {url:DEFAULT_SERVER_URL,token:token.trim()};
 }
 async function serverRequest(method,body){
  let cfg=getServerConfig();
- if(!cfg.url||!cfg.token){cfg=configureServer();if(!cfg)throw new Error('サーバー設定をキャンセルしました')}
+ if(!cfg.token){cfg=configureServer();if(!cfg)throw new Error('サーバー設定をキャンセルしました')}
  const res=await fetch(cfg.url+'/api/state',{
    method,
    headers:{'Content-Type':'application/json','Authorization':'Bearer '+cfg.token},
    body:body?JSON.stringify(body):undefined,
    cache:'no-store'
  });
- if(res.status===401)throw new Error('サーバー保存用キーが違います');
+ if(res.status===401)throw new Error('サーバー接続キーが一致しません。データ送信ボタンを長押しして再設定してください');
  if(!res.ok)throw new Error('サーバー通信エラー '+res.status);
  return await res.json();
 }
 async function saveStateToServer(){
  const btn=$('serverSaveFab');
+ if(!confirm('現在の資産管理データをサーバーへ送信しますか？'))return;
  try{
-   btn.classList.add('saving');btn.classList.remove('saved');btn.textContent='☁ 保存中…';
+   btn.classList.add('saving');btn.classList.remove('saved');btn.textContent='☁ 送信中…';
    const payload={
      state:clone(state),
      monthGoal:Number(localStorage.getItem('asset_tracker_month_goal')||0),
      clientSavedAt:new Date().toISOString()
    };
-   const data=await serverRequest('PUT',payload);
-   btn.classList.remove('saving');btn.classList.add('saved');btn.textContent='✓ 保存済み';
-   toast('サーバーへ保存しました');
-   setTimeout(()=>{btn.classList.remove('saved');btn.textContent='☁ サーバー保存'},1800);
+   await serverRequest('PUT',payload);
+   btn.classList.remove('saving');btn.classList.add('saved');btn.textContent='✓ 送信済み';
+   toast('サーバーへデータを送信しました');
+   setTimeout(()=>{btn.classList.remove('saved');btn.textContent='☁ データ送信'},1800);
  }catch(e){
-   btn.classList.remove('saving');btn.textContent='☁ サーバー保存';
-   alert(e.message||'サーバー保存に失敗しました');
+   btn.classList.remove('saving');btn.textContent='☁ データ送信';
+   alert(e.message||'データ送信に失敗しました');
  }
 }
-async function loadStateFromServer(){
+async function loadStateFromServer(options={}){
+ const {manual=false,silent=false}=options;
  const cfg=getServerConfig();
- if(!cfg.url||!cfg.token)return;
+ if(!cfg.token){
+   if(!manual)return;
+ }
+ if(manual && !confirm('サーバーに保存されているデータをこの端末へ反映しますか？\n現在の端末データはサーバーデータで上書きされます。'))return;
+ const btn=$('serverLoadFab');
  try{
+   if(btn && manual){btn.classList.add('saving');btn.classList.remove('saved');btn.textContent='☁ 取得中…'}
    const data=await serverRequest('GET');
-   if(!data||!data.exists||!data.payload||!data.payload.state)return;
+   if(!data||!data.exists||!data.payload||!data.payload.state){
+     if(manual)alert('サーバーに保存データがまだありません');
+     return;
+   }
    state=normalize(data.payload.state);
    if(Number.isFinite(Number(data.payload.monthGoal))){
      localStorage.setItem('asset_tracker_month_goal',String(Number(data.payload.monthGoal)));
@@ -1225,9 +1251,15 @@ async function loadStateFromServer(){
    syncCalendarMonth();
    renderAll();
    renderTransferCheck();
-   toast('サーバーのデータを読み込みました');
+   if(btn && manual){
+     btn.classList.remove('saving');btn.classList.add('saved');btn.textContent='✓ 取得済み';
+     setTimeout(()=>{btn.classList.remove('saved');btn.textContent='☁ データ取得'},1800);
+   }
+   if(!silent)toast('サーバーのデータを読み込みました');
  }catch(e){
-   console.warn('Server load skipped:',e);
+   if(btn){btn.classList.remove('saving');btn.textContent='☁ データ取得'}
+   if(manual)alert(e.message||'データ取得に失敗しました');
+   else console.warn('Server load skipped:',e);
  }
 }
 
@@ -1376,7 +1408,7 @@ function renderAll(){renderHomeGoal();renderInputs();renderLenders();renderHisto
 $('addAsset').onclick=()=>{state.assets.push({id:uid(),name:'新しい資産',value:0});persist();renderInputs()};
 $('addDebt').onclick=()=>{state.debts.push({id:uid(),name:'新しい借入',value:0,source:'manual'});persist();renderInputs()};
 $('addLender').onclick=()=>{if(state.lenders.length>=MAX_LENDERS){toast('借入先は13件までです');return}state.lenders.push({id:uid(),name:'',account:'',totalRepayment:0,monthlyPayment:0,remaining:0,finishMonth:'',repayMonth:ymNow(),paidMonths:[],schedule:{}});persist();renderLenders()};
-$('syncDebts').onclick=syncDebts;$('saveRecord').onclick=saveRecord;$('serverSaveFab').onclick=saveStateToServer;
+$('syncDebts').onclick=syncDebts;$('saveRecord').onclick=saveRecord;$('serverSaveFab').onclick=saveStateToServer;$('serverLoadFab').onclick=()=>loadStateFromServer({manual:true});
 $('assetSaveRecord').onclick=()=>{
  const d=$('assetRecordDate').value||today();
  $('recordDate').value=d;
@@ -1401,13 +1433,14 @@ let serverFabTimer=null;
 $('serverSaveFab').addEventListener('pointerdown',()=>{
  serverFabTimer=setTimeout(()=>{
    serverFabTimer=null;
-   if(confirm('サーバー接続設定を変更しますか？'))configureServer();
+   if(confirm('サーバー接続キーを再設定しますか？'))configureServer();
  },900);
 });
 ['pointerup','pointercancel','pointerleave'].forEach(ev=>$('serverSaveFab').addEventListener(ev,()=>{if(serverFabTimer){clearTimeout(serverFabTimer);serverFabTimer=null}}));
 
 $('recordDate').value=today();$('assetRecordDate').value=today();$('todayLabel').textContent=today();$('verifyMonth').value=transferCheck.month||ymNow();renderAll();renderTransferCheck();showTab(state.activeTab||'home');
-setTimeout(loadStateFromServer,250);
+// 接続キー設定済みの端末だけ、起動時にサーバーの最新データを静かに取得します。
+setTimeout(()=>loadStateFromServer({silent:true}),250);
 
 function refreshForNewMonth(){
  if(syncCalendarMonth()){
