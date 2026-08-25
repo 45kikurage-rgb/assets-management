@@ -1,0 +1,10 @@
+name = "asset-manager-api"
+main = "worker.js"
+compatibility_date = "2026-08-25"
+
+[[kv_namespaces]]
+binding = "ASSET_STORE"
+id = "ここにKVのID"
+
+[vars]
+ALLOWED_ORIGIN = "https://あなたのPagesドメイン.pages.dev"
