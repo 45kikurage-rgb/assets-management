@@ -752,27 +752,25 @@ table{color:#fff} th,td{border-color:rgba(255,255,255,.14)}
   }
 }
 
-/* Per-page server sync controls */
-.page-sync-bar{display:flex;justify-content:flex-end;gap:8px;margin:0 0 10px;position:relative;z-index:3}
-.page-sync-bar button{min-height:38px;padding:7px 11px;font-size:12px;border-radius:11px;white-space:nowrap}
-.page-sync-bar .js-server-load{background:rgba(72,90,135,.48);color:#eef3ff;border:1px solid rgba(255,255,255,.20)}
-.page-sync-bar .js-server-save{background:rgba(47,111,237,.84);color:#fff;border:1px solid rgba(255,255,255,.12)}
+/* Bottom server sync controls: hidden on Home, shown above bottom tabs elsewhere */
+.page-sync-bar{position:fixed;right:max(8px,env(safe-area-inset-right));bottom:calc(var(--navh) + env(safe-area-inset-bottom));z-index:31;width:50vw;max-width:460px;display:none;grid-template-columns:1fr 1fr;gap:6px;padding:6px 0}
+body:not(.home-active) .page-sync-bar{display:grid}
+.page-sync-bar button{min-width:0;min-height:48px;padding:8px 6px;font-size:13px;border-radius:12px;white-space:nowrap;box-shadow:0 6px 18px rgba(0,0,0,.24)}
+.page-sync-bar .js-server-load{background:rgba(72,90,135,.96);color:#eef3ff;border:1px solid rgba(255,255,255,.20)}
+.page-sync-bar .js-server-save{background:rgba(47,111,237,.96);color:#fff;border:1px solid rgba(255,255,255,.12)}
 .page-sync-bar button.saving{opacity:.68;pointer-events:none}
 .page-sync-bar button.saved{border-color:rgba(53,229,210,.75)!important;color:#8ff7ea!important}
-@media(max-width:560px){.page-sync-bar{margin-bottom:8px}.page-sync-bar button{flex:1;min-width:0;padding:7px 8px}}
+body:not(.home-active) .wrap{padding-bottom:calc(var(--navh) + 72px + env(safe-area-inset-bottom))}
+@media(max-width:560px){.page-sync-bar{width:50vw}.page-sync-bar button{font-size:12px;padding:7px 4px}}
 
 </style>
 
 </head>
-<body>
+<body class="home-active">
 <div class="wrap">
   <h1>資産残高管理</h1>
 
   <section id="page-home" class="tabpage active">
-    <div class="page-sync-bar" aria-label="サーバーデータ操作">
-      <button class="js-server-load" type="button" aria-label="サーバーからデータ取得">☁ データ取得</button>
-      <button class="js-server-save" type="button" aria-label="サーバーへデータ送信">☁ データ送信</button>
-    </div>
     <div class="home-head">
       <div class="home-brand"><span class="ball-icon" aria-hidden="true"></span><div class="home-brand-text">資産管理</div><span class="ball-icon" aria-hidden="true"></span></div>
       <div class="home-head-right"><span id="homeUpdated" class="home-updated"></span><button class="home-refresh" id="homeRefresh" type="button" aria-label="更新">↻</button></div>
@@ -820,10 +818,6 @@ table{color:#fff} th,td{border-color:rgba(255,255,255,.14)}
   </section>
 
   <section id="page-assets" class="tabpage">
-    <div class="page-sync-bar" aria-label="サーバーデータ操作">
-      <button class="js-server-load" type="button" aria-label="サーバーからデータ取得">☁ データ取得</button>
-      <button class="js-server-save" type="button" aria-label="サーバーへデータ送信">☁ データ送信</button>
-    </div>
     <div class="card">
       <div class="section-head"><h2>資産</h2><button class="small" id="addAsset">＋ 項目追加</button></div>
       <div class="subtot" style="border-top:0;border-bottom:1px solid var(--line);padding:0 0 12px;margin:0 0 12px"><span>資産合計</span><span id="assetSub">¥0</span></div>
@@ -839,10 +833,6 @@ table{color:#fff} th,td{border-color:rgba(255,255,255,.14)}
   </section>
 
   <section id="page-debts" class="tabpage">
-    <div class="page-sync-bar" aria-label="サーバーデータ操作">
-      <button class="js-server-load" type="button" aria-label="サーバーからデータ取得">☁ データ取得</button>
-      <button class="js-server-save" type="button" aria-label="サーバーへデータ送信">☁ データ送信</button>
-    </div>
     <div class="card">
       <div class="section-head"><h2>借入</h2><button class="small" id="addDebt">＋ 項目追加</button></div>
       <div class="subtot" style="border-top:0;border-bottom:1px solid var(--line);padding:0 0 12px;margin:0 0 12px"><span>借入合計</span><span id="debtSub">¥0</span></div>
@@ -852,10 +842,6 @@ table{color:#fff} th,td{border-color:rgba(255,255,255,.14)}
   </section>
 
   <section id="page-lenders" class="tabpage">
-    <div class="page-sync-bar" aria-label="サーバーデータ操作">
-      <button class="js-server-load" type="button" aria-label="サーバーからデータ取得">☁ データ取得</button>
-      <button class="js-server-save" type="button" aria-label="サーバーへデータ送信">☁ データ送信</button>
-    </div>
     <div class="card">
       <div class="section-head"><h2>借入先一覧 <span class="pill" id="lenderCount">0/13</span></h2><button class="small" id="addLender">＋ 借入先追加</button></div>
       <div class="actions" style="margin-bottom:12px"><button class="primary" id="syncDebts">返済残額を借入タブに反映</button></div>
@@ -866,10 +852,6 @@ table{color:#fff} th,td{border-color:rgba(255,255,255,.14)}
   </section>
 
   <section id="page-transfer" class="tabpage">
-    <div class="page-sync-bar" aria-label="サーバーデータ操作">
-      <button class="js-server-load" type="button" aria-label="サーバーからデータ取得">☁ データ取得</button>
-      <button class="js-server-save" type="button" aria-label="サーバーへデータ送信">☁ データ送信</button>
-    </div>
     <div class="card">
       <div class="section-head"><h2>振込確認</h2><span class="pill" id="transferMonthLabel">未読込</span></div>
       <div class="uploadbox">
@@ -893,10 +875,6 @@ table{color:#fff} th,td{border-color:rgba(255,255,255,.14)}
   </section>
 
   <section id="page-trend" class="tabpage">
-    <div class="page-sync-bar" aria-label="サーバーデータ操作">
-      <button class="js-server-load" type="button" aria-label="サーバーからデータ取得">☁ データ取得</button>
-      <button class="js-server-save" type="button" aria-label="サーバーへデータ送信">☁ データ送信</button>
-    </div>
     <div class="card">
       <div class="section-head"><h2>純資産の推移（残高）</h2><select id="range" style="width:auto;min-width:120px"><option value="30">30日</option><option value="90">90日</option><option value="365">1年</option><option value="all">全期間</option></select></div>
       <div class="chartbox"><canvas id="chart"></canvas></div>
@@ -905,16 +883,17 @@ table{color:#fff} th,td{border-color:rgba(255,255,255,.14)}
   </section>
 
   <section id="page-history" class="tabpage">
-    <div class="page-sync-bar" aria-label="サーバーデータ操作">
-      <button class="js-server-load" type="button" aria-label="サーバーからデータ取得">☁ データ取得</button>
-      <button class="js-server-save" type="button" aria-label="サーバーへデータ送信">☁ データ送信</button>
-    </div>
     <div class="card">
       <div class="section-head"><h2>記録履歴</h2><div class="actions"><button class="small" id="exportCsv">CSV出力</button><label class="btn small" style="display:inline-flex;align-items:center">CSV読込<input id="importCsv" type="file" accept=".csv,text/csv" hidden></label></div></div>
       <div class="tablewrap"><table><thead><tr><th>日付</th><th>資産</th><th>借入</th><th>純資産</th><th></th></tr></thead><tbody id="historyBody"></tbody></table></div>
       <p class="note">日付を長押しすると、その日の記録を削除できます。端末内にも保存し、サーバー保存ボタンからクラウドへバックアップできます。</p>
     </div>
   </section>
+</div>
+
+<div class="page-sync-bar" aria-label="サーバーデータ操作">
+  <button class="js-server-load" type="button" aria-label="サーバーからデータ取得">☁ データ取得</button>
+  <button class="js-server-save" type="button" aria-label="サーバーへデータ送信">☁ データ送信</button>
 </div>
 
 <nav class="bottom-nav" aria-label="メインメニュー"><div class="bottom-nav-inner">
@@ -1653,6 +1632,11 @@ if('serviceWorker' in navigator && location.protocol!=='file:'){
 
 })();
 
+
+// Show bottom sync controls on every tab except Home.
+document.querySelectorAll('.navbtn[data-tab]').forEach(btn=>btn.addEventListener('click',()=>{
+ document.body.classList.toggle('home-active',btn.dataset.tab==='home');
+}));
 </script>
 </body>
 </html>
