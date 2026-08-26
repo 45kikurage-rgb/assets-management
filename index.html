@@ -898,6 +898,29 @@ table{color:#fff} th,td{border-color:rgba(255,255,255,.14)}
 }
 
 
+/* ===== STEP 6: final audit fixes ===== */
+/* 履歴: スマホでは横スクロールさせず、前回比を日付の下に表示 */
+.history-mobile-diff{display:none}
+@media(max-width:560px){
+  #page-history .tablewrap{overflow-x:hidden!important}
+  #page-history table{min-width:0!important;width:100%!important;table-layout:fixed}
+  #page-history th:nth-child(1),#page-history td:nth-child(1){width:40%;text-align:left}
+  #page-history th:nth-child(2),#page-history td:nth-child(2){width:30%;text-align:right}
+  #page-history th:nth-child(3),#page-history td:nth-child(3){width:30%;text-align:right}
+  #page-history th:nth-child(n+4),#page-history td:nth-child(n+4){display:none!important}
+  #page-history th,#page-history td{padding-left:6px;padding-right:6px}
+  #page-history .history-mobile-diff{
+    display:block;
+    margin-top:3px;
+    font-size:10px;
+    font-weight:800;
+    color:var(--muted);
+    white-space:nowrap;
+  }
+  #page-history .history-date.longpress-ready::after{margin-top:1px}
+}
+
+
 </style>
 </head>
 <body>
@@ -1024,7 +1047,7 @@ table{color:#fff} th,td{border-color:rgba(255,255,255,.14)}
 <div class="global-actionbar" id="globalActionbar" aria-label="データ操作">
   <div class="global-actionbar-inner" id="globalActionbarInner">
     <button class="global-context-btn primary" id="assetSaveRecord" type="button"><span>残高</span><span>記録</span></button>
-    <button class="global-context-btn primary" id="syncDebts" type="button"><span>借入タブに</span><span>反映</span></button>
+    <button class="global-context-btn primary" id="syncDebts" type="button"><span>借入タブ</span><span>反映</span></button>
     <button id="serverLoadFab" class="global-sync-btn server-load-fab" type="button" aria-label="サーバーからデータ取得">取得</button>
     <button id="serverSaveFab" class="global-sync-btn server-save-fab" type="button" aria-label="サーバーへデータ送信">送信</button>
   </div>
@@ -1452,7 +1475,7 @@ function renderHistory(){
    const idx=state.records.findIndex(x=>x.date===r.date);
    const diff=prevByDate.get(r.date);
    const diffHtml=diff===null?'—':`<span class="history-diff ${diff>=0?'pos':'neg'}">${diff>=0?'+':''}${fmt(diff)}</span>`;
-   return `<tr><td class="history-date longpress-ready" data-i="${idx}" data-date="${esc(r.date)}">${r.date}</td><td>${fmt(r.asset)}</td><td>${fmt(r.debt)}</td><td>${fmt(r.net)}</td><td>${diffHtml}</td><td><button class="small edit" data-i="${idx}">編集</button></td></tr>`
+   return `<tr><td class="history-date longpress-ready" data-i="${idx}" data-date="${esc(r.date)}">${r.date}<span class="history-mobile-diff">前回比 ${diff===null?'—':`${diff>=0?'+':''}${fmt(diff)}`}</span></td><td>${fmt(r.asset)}</td><td>${fmt(r.debt)}</td><td>${fmt(r.net)}</td><td>${diffHtml}</td><td><button class="small edit" data-i="${idx}">編集</button></td></tr>`
  }).join(''):`<tr><td colspan="6" class="muted" style="text-align:center;padding:18px">まだ記録がありません</td></tr>`;
  $('historyBody').querySelectorAll('.edit').forEach(b=>b.onclick=()=>openEdit(Number(b.dataset.i)));
  bindHistoryLongPress();
