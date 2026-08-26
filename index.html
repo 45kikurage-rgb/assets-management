@@ -753,15 +753,20 @@ table{color:#fff} th,td{border-color:rgba(255,255,255,.14)}
 }
 
 /* Bottom server sync controls: hidden on Home, shown above bottom tabs elsewhere */
-.page-sync-bar{position:fixed;right:max(8px,env(safe-area-inset-right));bottom:calc(var(--navh) + env(safe-area-inset-bottom));z-index:31;width:50vw;max-width:460px;display:none;grid-template-columns:1fr 1fr;gap:6px;padding:6px 0}
+.page-sync-bar{position:fixed;left:50%;right:auto;transform:translateX(-50%);bottom:calc(var(--navh) + env(safe-area-inset-bottom));z-index:31;width:100%;max-width:920px;display:none;grid-template-columns:1fr 1fr;gap:8px;padding:6px max(8px,env(safe-area-inset-right)) 6px max(8px,env(safe-area-inset-left));background:rgba(13,10,35,.92);border-top:1px solid rgba(255,255,255,.14);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
 body:not(.home-active) .page-sync-bar{display:grid}
-.page-sync-bar button{min-width:0;min-height:48px;padding:8px 6px;font-size:13px;border-radius:12px;white-space:nowrap;box-shadow:0 6px 18px rgba(0,0,0,.24)}
+.sync-status-area{min-width:0;display:flex;align-items:center;padding:0 6px}
+.sync-status{font-size:12px;font-weight:800;color:#d8d4e4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sync-status.dirty{color:#ffd83d}.sync-status.ok{color:#8ff7ea}.sync-status.error{color:#ff9da4}
+.sync-actions{min-width:0;display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.page-sync-bar button{min-width:0;min-height:48px;padding:8px 4px;font-size:13px;border-radius:12px;white-space:nowrap;box-shadow:0 6px 18px rgba(0,0,0,.24)}
 .page-sync-bar .js-server-load{background:rgba(72,90,135,.96);color:#eef3ff;border:1px solid rgba(255,255,255,.20)}
 .page-sync-bar .js-server-save{background:rgba(47,111,237,.96);color:#fff;border:1px solid rgba(255,255,255,.12)}
+.page-sync-bar .js-server-save.needs-sync{box-shadow:0 0 0 1px rgba(246,199,25,.75),0 0 18px rgba(246,199,25,.25)}
 .page-sync-bar button.saving{opacity:.68;pointer-events:none}
 .page-sync-bar button.saved{border-color:rgba(53,229,210,.75)!important;color:#8ff7ea!important}
 body:not(.home-active) .wrap{padding-bottom:calc(var(--navh) + 72px + env(safe-area-inset-bottom))}
-@media(max-width:560px){.page-sync-bar{width:50vw}.page-sync-bar button{font-size:12px;padding:7px 4px}}
+@media(max-width:560px){.page-sync-bar button{font-size:12px;padding:7px 2px}.sync-status{font-size:11px}}
 
 </style>
 
@@ -892,8 +897,13 @@ body:not(.home-active) .wrap{padding-bottom:calc(var(--navh) + 72px + env(safe-a
 </div>
 
 <div class="page-sync-bar" aria-label="サーバーデータ操作">
-  <button class="js-server-load" type="button" aria-label="サーバーからデータ取得">☁ データ取得</button>
-  <button class="js-server-save" type="button" aria-label="サーバーへデータ送信">☁ データ送信</button>
+  <div class="sync-status-area" aria-live="polite">
+    <span id="syncStatus" class="sync-status">同期状態 未確認</span>
+  </div>
+  <div class="sync-actions">
+    <button class="js-server-load" type="button" aria-label="サーバーからデータ取得">☁ 取得</button>
+    <button class="js-server-save" type="button" aria-label="サーバーへデータ送信">☁ 送信</button>
+  </div>
 </div>
 
 <nav class="bottom-nav" aria-label="メインメニュー"><div class="bottom-nav-inner">
@@ -1028,7 +1038,42 @@ function normalize(raw){
  return s;
 }
 let state=normalize(loadRaw());
-function persist(){localStorage.setItem(K,JSON.stringify(state))}
+const SYNC_HASH_KEY='asset_tracker_last_sync_hash';
+const SYNC_TIME_KEY='asset_tracker_last_sync_time';
+const SYNC_DIRTY_KEY='asset_tracker_sync_dirty';
+function syncComparable(){
+ const s=clone(state);
+ delete s.activeTab;delete s.lastAutoMonth;
+ if(Array.isArray(s.lenders))s.lenders.forEach(x=>{delete x.repayMonth});
+ return {state:s,monthGoal:Number(localStorage.getItem('asset_tracker_month_goal')||0)};
+}
+function syncHash(){
+ const str=JSON.stringify(syncComparable());let h=2166136261;
+ for(let i=0;i<str.length;i++){h^=str.charCodeAt(i);h=Math.imul(h,16777619)}
+ return (h>>>0).toString(16);
+}
+function isSyncDirty(){return localStorage.getItem(SYNC_DIRTY_KEY)==='1'}
+function updateSyncStatus(){
+ const el=document.getElementById('syncStatus');if(!el)return;
+ const saves=[...document.querySelectorAll('.js-server-save')];
+ if(isSyncDirty()){
+  el.textContent='● 未送信';el.className='sync-status dirty';saves.forEach(b=>b.classList.add('needs-sync'));return;
+ }
+ saves.forEach(b=>b.classList.remove('needs-sync'));
+ const iso=localStorage.getItem(SYNC_TIME_KEY);
+ if(iso){const d=new Date(iso);const hh=String(d.getHours()).padStart(2,'0'),mm=String(d.getMinutes()).padStart(2,'0');el.textContent=`✓ 同期済 ${hh}:${mm}`;el.className='sync-status ok'}
+ else{el.textContent='同期状態 未確認';el.className='sync-status'}
+}
+function refreshSyncDirty(){
+ const cur=syncHash(),base=localStorage.getItem(SYNC_HASH_KEY);
+ if(!base){localStorage.setItem(SYNC_HASH_KEY,cur);localStorage.setItem(SYNC_DIRTY_KEY,'0')}
+ else localStorage.setItem(SYNC_DIRTY_KEY,cur===base?'0':'1');
+ updateSyncStatus();
+}
+function markSyncClean(){localStorage.setItem(SYNC_HASH_KEY,syncHash());localStorage.setItem(SYNC_DIRTY_KEY,'0');localStorage.setItem(SYNC_TIME_KEY,new Date().toISOString());updateSyncStatus()}
+function markSyncDirty(){localStorage.setItem(SYNC_DIRTY_KEY,'1');updateSyncStatus()}
+function showSyncError(text='同期エラー'){const el=document.getElementById('syncStatus');if(!el)return;el.textContent='⚠ '+text;el.className='sync-status error'}
+function persist(){localStorage.setItem(K,JSON.stringify(state));refreshSyncDirty()}
 
 // 月が変わった最初の起動時に、各借入先の返済対象月を自動で当月へ進める。
 // 同じ月の中ではユーザーが過去月を手動選択して確認できるよう、その選択を維持する。
@@ -1390,12 +1435,15 @@ async function saveStateToServer(){
      clientSavedAt:new Date().toISOString()
    };
    await serverRequest('PUT',payload);
-   buttons.forEach(btn=>{btn.classList.remove('saving');btn.classList.add('saved');btn.textContent='✓ 送信済み'});
+   buttons.forEach(btn=>{btn.classList.remove('saving');btn.classList.add('saved');btn.textContent='✓ 送信済'});
+   markSyncClean();
    toast('サーバーへデータを送信しました');
-   setTimeout(()=>buttons.forEach(btn=>{btn.classList.remove('saved');btn.textContent='☁ データ送信'}),1800);
+   setTimeout(()=>buttons.forEach(btn=>{btn.classList.remove('saved');btn.textContent='☁ 送信'}),1800);
  }catch(e){
-   buttons.forEach(btn=>{btn.classList.remove('saving');btn.textContent='☁ データ送信'});
+   buttons.forEach(btn=>{btn.classList.remove('saving');btn.textContent='☁ 送信'});
+   showSyncError('送信失敗');
    alert(e.message||'データ送信に失敗しました');
+   setTimeout(updateSyncStatus,2200);
  }
 }
 async function loadStateFromServer(options={}){
@@ -1404,7 +1452,7 @@ async function loadStateFromServer(options={}){
  if(!cfg.token){
    if(!manual)return;
  }
- if(manual && !confirm('サーバーに保存されているデータをこの端末へ反映しますか？\n現在の端末データはサーバーデータで上書きされます。'))return;
+ if(manual){const msg=isSyncDirty()?'● 未送信の変更があります。\nデータ取得すると端末の未送信内容はサーバーデータで上書きされます。\n取得しますか？':'サーバーに保存されているデータをこの端末へ反映しますか？\n現在の端末データはサーバーデータで上書きされます。';if(!confirm(msg))return;}
  const buttons=[...document.querySelectorAll('.js-server-load')];
  try{
    if(manual)buttons.forEach(btn=>{btn.classList.add('saving');btn.classList.remove('saved');btn.textContent='☁ 取得中…'});
@@ -1421,14 +1469,15 @@ async function loadStateFromServer(options={}){
    syncCalendarMonth();
    renderAll();
    renderTransferCheck();
+   markSyncClean();
    if(manual){
-     buttons.forEach(btn=>{btn.classList.remove('saving');btn.classList.add('saved');btn.textContent='✓ 取得済み'});
-     setTimeout(()=>buttons.forEach(btn=>{btn.classList.remove('saved');btn.textContent='☁ データ取得'}),1800);
+     buttons.forEach(btn=>{btn.classList.remove('saving');btn.classList.add('saved');btn.textContent='✓ 取得済'});
+     setTimeout(()=>buttons.forEach(btn=>{btn.classList.remove('saved');btn.textContent='☁ 取得'}),1800);
    }
    if(!silent)toast('サーバーのデータを読み込みました');
  }catch(e){
-   buttons.forEach(btn=>{btn.classList.remove('saving');btn.textContent='☁ データ取得'});
-   if(manual)alert(e.message||'データ取得に失敗しました');
+   buttons.forEach(btn=>{btn.classList.remove('saving');btn.textContent='☁ 取得'});
+   if(manual){showSyncError('取得失敗');alert(e.message||'データ取得に失敗しました');setTimeout(updateSyncStatus,2200);}
    else console.warn('Server load skipped:',e);
  }
 }
@@ -1592,7 +1641,7 @@ function renderHomeGoal(){
  if(!ga)return; if(goal>0){const pct=Math.max(0,Math.min(100,a/goal*100));ga.textContent=fmt(goal);gr.textContent=fmt(Math.max(0,goal-a));gp.textContent=pct.toFixed(1)+'%';gf.style.width=pct+'%'}else{ga.textContent='未設定';gr.textContent='—';gp.textContent='—';gf.style.width='0%'}
 }
 document.querySelectorAll('[data-goto]').forEach(b=>b.addEventListener('click',()=>{const t=b.dataset.goto;document.querySelector('.navbtn[data-tab="'+t+'"]').click()}));
-document.getElementById('editGoal')?.addEventListener('click',()=>{const cur=localStorage.getItem('asset_tracker_month_goal')||'';const v=prompt('今月の資産目標額を入力してください',cur);if(v===null)return;const n=Number(String(v).replace(/[^0-9.-]/g,''))||0;localStorage.setItem('asset_tracker_month_goal',String(n));renderHomeGoal()});
+document.getElementById('editGoal')?.addEventListener('click',()=>{const cur=localStorage.getItem('asset_tracker_month_goal')||'';const v=prompt('今月の資産目標額を入力してください',cur);if(v===null)return;const n=Number(String(v).replace(/[^0-9.-]/g,''))||0;localStorage.setItem('asset_tracker_month_goal',String(n));markSyncDirty();renderHomeGoal()});
 document.getElementById('homeRefresh')?.addEventListener('click',()=>{renderAll();toast('最新の表示に更新しました')});
 document.querySelector('.goal-card')?.addEventListener('click',()=>document.getElementById('editGoal')?.click());
 document.querySelectorAll('#homeRangeBtns [data-days]').forEach(b=>b.addEventListener('click',()=>{homeTrendDays=Number(b.dataset.days)||90;document.querySelectorAll('#homeRangeBtns [data-days]').forEach(x=>x.classList.toggle('active',x===b));drawHomeTrendChart()}));
@@ -1610,7 +1659,7 @@ document.querySelectorAll('.js-server-save').forEach(saveBtn=>{
  ['pointerup','pointercancel','pointerleave'].forEach(ev=>saveBtn.addEventListener(ev,()=>{if(serverFabTimer){clearTimeout(serverFabTimer);serverFabTimer=null}}));
 });
 
-$('recordDate').value=today();$('assetRecordDate').value=today();$('todayLabel').textContent=today();$('verifyMonth').value=transferCheck.month||ymNow();renderAll();renderTransferCheck();showTab(state.activeTab||'home');
+$('recordDate').value=today();$('assetRecordDate').value=today();$('todayLabel').textContent=today();$('verifyMonth').value=transferCheck.month||ymNow();renderAll();renderTransferCheck();showTab(state.activeTab||'home');updateSyncStatus();
 // 接続キー設定済みの端末だけ、起動時にサーバーの最新データを静かに取得します。
 setTimeout(()=>loadStateFromServer({silent:true}),250);
 
