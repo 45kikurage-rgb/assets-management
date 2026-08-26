@@ -794,6 +794,39 @@ table{color:#fff} th,td{border-color:rgba(255,255,255,.14)}
  #page-home .home-range{gap:2px!important}
  #page-home .home-range button{font-size:8px!important;padding:5px 1px!important}
 }
+
+/* ===== 共通下部操作バー：下段ナビ直上 ===== */
+.global-actionbar{
+  position:fixed;left:0;right:0;bottom:var(--navh);z-index:29;
+  display:none;padding:7px max(12px,env(safe-area-inset-right)) 7px max(12px,env(safe-area-inset-left));
+  background:linear-gradient(180deg,rgba(18,15,43,.20),rgba(18,15,43,.96) 32%);
+  pointer-events:none;
+}
+.global-actionbar.show{display:block}
+.global-actionbar-inner{
+  max-width:920px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:8px;
+  align-items:stretch;pointer-events:auto;
+}
+.global-actionbar-inner.has-context{grid-template-columns:1.12fr 1fr 1fr}
+.global-actionbar button{
+  width:100%;height:58px;min-height:58px!important;margin:0!important;padding:6px 10px!important;
+  border-radius:15px!important;font-size:15px!important;font-weight:900!important;box-shadow:0 6px 18px rgba(0,0,0,.18);
+}
+.global-context-btn{display:none!important;flex-direction:column;align-items:center;justify-content:center;line-height:1.05}
+.global-context-btn.visible{display:flex!important}
+.global-sync-btn{background:rgba(44,36,79,.96)!important}
+.global-actionbar .server-load-fab{border:1px solid rgba(53,229,210,.62)!important;color:#8ff7ea!important}
+.global-actionbar .server-save-fab{border:1px solid rgba(246,199,25,.68)!important;color:#ffe25c!important}
+#page-assets .asset-record-box{padding-bottom:10px!important}
+#page-assets .asset-record-note{margin-top:0!important}
+.tabpage:not(#page-home){padding-bottom:74px}
+@media(max-width:420px){
+ .global-actionbar{padding-left:8px;padding-right:8px}
+ .global-actionbar-inner{gap:6px}
+ .global-actionbar button{height:54px;min-height:54px!important;font-size:14px!important;padding:5px 6px!important}
+ .global-actionbar-inner.has-context{grid-template-columns:1.08fr 1fr 1fr}
+}
+
 </style>
 </head>
 <body>
@@ -853,11 +886,6 @@ table{color:#fff} th,td{border-color:rgba(255,255,255,.14)}
       <div class="subtot" style="border-top:0;border-bottom:1px solid var(--line);padding:0 0 12px;margin:0 0 12px"><span>資産合計</span><span id="assetSub">¥0</span></div>
       <div class="asset-record-box">
         <input type="date" id="assetRecordDate" class="asset-record-date" aria-label="記録日">
-        <div class="asset-action-row" aria-label="残高・サーバーデータ操作">
-          <button class="primary asset-record-action" id="assetSaveRecord" type="button"><span>残高</span><span>記録</span></button>
-          <button id="serverLoadFab" class="asset-sync-action server-load-fab" type="button" aria-label="サーバーからデータ取得">取得</button>
-          <button id="serverSaveFab" class="asset-sync-action server-save-fab" type="button" aria-label="サーバーへデータ送信">送信</button>
-        </div>
         <div class="asset-record-note">資産・借入・純資産を選択日の記録として履歴へ保存します。</div>
       </div>
       <div id="assetRows"></div>
@@ -876,7 +904,6 @@ table{color:#fff} th,td{border-color:rgba(255,255,255,.14)}
   <section id="page-lenders" class="tabpage">
     <div class="card">
       <div class="section-head"><h2>借入先一覧 <span class="pill" id="lenderCount">0/13</span></h2><button class="small" id="addLender">＋ 借入先追加</button></div>
-      <div class="actions" style="margin-bottom:12px"><button class="primary" id="syncDebts">返済残額を借入タブに反映</button></div>
       <div id="lenderRows"></div>
       <div class="subtot"><span>返済総額 合計</span><span id="lenderGrandTotal">¥0</span></div><div class="subtot"><span>返済残額 合計</span><span id="lenderRemainTotal">¥0</span></div>
       <p class="note">「今月返済済み」を押すと、その月の返済金額を返済残額から1回だけ減算します。反映ボタンを押すと最新の返済残額を借入タブへ同期します。</p>
@@ -921,6 +948,15 @@ table{color:#fff} th,td{border-color:rgba(255,255,255,.14)}
       <p class="note">日付を長押しすると、その日の記録を削除できます。端末内にも保存し、サーバー保存ボタンからクラウドへバックアップできます。</p>
     </div>
   </section>
+</div>
+
+<div class="global-actionbar" id="globalActionbar" aria-label="データ操作">
+  <div class="global-actionbar-inner" id="globalActionbarInner">
+    <button class="global-context-btn primary" id="assetSaveRecord" type="button"><span>残高</span><span>記録</span></button>
+    <button class="global-context-btn primary" id="syncDebts" type="button"><span>借入タブに</span><span>反映</span></button>
+    <button id="serverLoadFab" class="global-sync-btn server-load-fab" type="button" aria-label="サーバーからデータ取得">取得</button>
+    <button id="serverSaveFab" class="global-sync-btn server-save-fab" type="button" aria-label="サーバーへデータ送信">送信</button>
+  </div>
 </div>
 
 <nav class="bottom-nav" aria-label="メインメニュー"><div class="bottom-nav-inner">
@@ -1676,10 +1712,21 @@ function drawChart(){
  ctx.strokeStyle='#2563eb';ctx.lineWidth=3;ctx.beginPath();arr.forEach((r,i)=>{const x=pad.l+w*i/(arr.length-1),y=pad.t+h*(max-r.net)/(max-min);i?ctx.lineTo(x,y):ctx.moveTo(x,y)});ctx.stroke();
  ctx.fillStyle='#6b7280';[0,Math.floor((arr.length-1)/2),arr.length-1].forEach(i=>{const x=pad.l+w*i/(arr.length-1);ctx.fillText(arr[i].date.slice(5),Math.max(pad.l,x-16),rect.height-10)});
 }
+function updateGlobalActionbar(name){
+ const bar=$('globalActionbar'), inner=$('globalActionbarInner');
+ const assetBtn=$('assetSaveRecord'), lenderBtn=$('syncDebts');
+ // ホームは1画面表示を優先し、共通操作バーを表示しない。
+ const showBar=name!=='home';
+ bar.classList.toggle('show',showBar);
+ assetBtn.classList.toggle('visible',name==='assets');
+ lenderBtn.classList.toggle('visible',name==='lenders');
+ inner.classList.toggle('has-context',name==='assets'||name==='lenders');
+}
 function showTab(name){
  state.activeTab=name;persist();
  document.querySelectorAll('.tabpage').forEach(p=>p.classList.toggle('active',p.id===`page-${name}`));
  document.querySelectorAll('.navbtn').forEach(b=>b.classList.toggle('active',b.dataset.tab===name));
+ updateGlobalActionbar(name);
  window.scrollTo({top:0,behavior:'auto'});if(name==='home')setTimeout(()=>{drawHomeTrendChart();updateHomeTimestamp()},0);if(name==='trend')setTimeout(drawChart,0);if(name==='transfer')setTimeout(renderTransferCheck,0);
 }
 function csvEscape(v){v=String(v??'');return /[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v}
