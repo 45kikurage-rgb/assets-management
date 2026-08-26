@@ -751,6 +751,16 @@ table{color:#fff} th,td{border-color:rgba(255,255,255,.14)}
     margin-top:8px !important;
   }
 }
+
+/* Per-page server sync controls */
+.page-sync-bar{display:flex;justify-content:flex-end;gap:8px;margin:0 0 10px;position:relative;z-index:3}
+.page-sync-bar button{min-height:38px;padding:7px 11px;font-size:12px;border-radius:11px;white-space:nowrap}
+.page-sync-bar .js-server-load{background:rgba(72,90,135,.48);color:#eef3ff;border:1px solid rgba(255,255,255,.20)}
+.page-sync-bar .js-server-save{background:rgba(47,111,237,.84);color:#fff;border:1px solid rgba(255,255,255,.12)}
+.page-sync-bar button.saving{opacity:.68;pointer-events:none}
+.page-sync-bar button.saved{border-color:rgba(53,229,210,.75)!important;color:#8ff7ea!important}
+@media(max-width:560px){.page-sync-bar{margin-bottom:8px}.page-sync-bar button{flex:1;min-width:0;padding:7px 8px}}
+
 </style>
 
 </head>
@@ -759,6 +769,10 @@ table{color:#fff} th,td{border-color:rgba(255,255,255,.14)}
   <h1>資産残高管理</h1>
 
   <section id="page-home" class="tabpage active">
+    <div class="page-sync-bar" aria-label="サーバーデータ操作">
+      <button class="js-server-load" type="button" aria-label="サーバーからデータ取得">☁ データ取得</button>
+      <button class="js-server-save" type="button" aria-label="サーバーへデータ送信">☁ データ送信</button>
+    </div>
     <div class="home-head">
       <div class="home-brand"><span class="ball-icon" aria-hidden="true"></span><div class="home-brand-text">資産管理</div><span class="ball-icon" aria-hidden="true"></span></div>
       <div class="home-head-right"><span id="homeUpdated" class="home-updated"></span><button class="home-refresh" id="homeRefresh" type="button" aria-label="更新">↻</button></div>
@@ -806,6 +820,10 @@ table{color:#fff} th,td{border-color:rgba(255,255,255,.14)}
   </section>
 
   <section id="page-assets" class="tabpage">
+    <div class="page-sync-bar" aria-label="サーバーデータ操作">
+      <button class="js-server-load" type="button" aria-label="サーバーからデータ取得">☁ データ取得</button>
+      <button class="js-server-save" type="button" aria-label="サーバーへデータ送信">☁ データ送信</button>
+    </div>
     <div class="card">
       <div class="section-head"><h2>資産</h2><button class="small" id="addAsset">＋ 項目追加</button></div>
       <div class="subtot" style="border-top:0;border-bottom:1px solid var(--line);padding:0 0 12px;margin:0 0 12px"><span>資産合計</span><span id="assetSub">¥0</span></div>
@@ -818,13 +836,13 @@ table{color:#fff} th,td{border-color:rgba(255,255,255,.14)}
       </div>
       <div id="assetRows"></div>
     </div>
-    <div class="server-sync-fabs" aria-label="サーバーデータ操作">
-      <button id="serverLoadFab" class="server-load-fab" type="button" aria-label="サーバーからデータ取得">☁ データ取得</button>
-      <button id="serverSaveFab" class="server-save-fab" type="button" aria-label="サーバーへデータ送信">☁ データ送信</button>
-    </div>
   </section>
 
   <section id="page-debts" class="tabpage">
+    <div class="page-sync-bar" aria-label="サーバーデータ操作">
+      <button class="js-server-load" type="button" aria-label="サーバーからデータ取得">☁ データ取得</button>
+      <button class="js-server-save" type="button" aria-label="サーバーへデータ送信">☁ データ送信</button>
+    </div>
     <div class="card">
       <div class="section-head"><h2>借入</h2><button class="small" id="addDebt">＋ 項目追加</button></div>
       <div class="subtot" style="border-top:0;border-bottom:1px solid var(--line);padding:0 0 12px;margin:0 0 12px"><span>借入合計</span><span id="debtSub">¥0</span></div>
@@ -834,6 +852,10 @@ table{color:#fff} th,td{border-color:rgba(255,255,255,.14)}
   </section>
 
   <section id="page-lenders" class="tabpage">
+    <div class="page-sync-bar" aria-label="サーバーデータ操作">
+      <button class="js-server-load" type="button" aria-label="サーバーからデータ取得">☁ データ取得</button>
+      <button class="js-server-save" type="button" aria-label="サーバーへデータ送信">☁ データ送信</button>
+    </div>
     <div class="card">
       <div class="section-head"><h2>借入先一覧 <span class="pill" id="lenderCount">0/13</span></h2><button class="small" id="addLender">＋ 借入先追加</button></div>
       <div class="actions" style="margin-bottom:12px"><button class="primary" id="syncDebts">返済残額を借入タブに反映</button></div>
@@ -844,6 +866,10 @@ table{color:#fff} th,td{border-color:rgba(255,255,255,.14)}
   </section>
 
   <section id="page-transfer" class="tabpage">
+    <div class="page-sync-bar" aria-label="サーバーデータ操作">
+      <button class="js-server-load" type="button" aria-label="サーバーからデータ取得">☁ データ取得</button>
+      <button class="js-server-save" type="button" aria-label="サーバーへデータ送信">☁ データ送信</button>
+    </div>
     <div class="card">
       <div class="section-head"><h2>振込確認</h2><span class="pill" id="transferMonthLabel">未読込</span></div>
       <div class="uploadbox">
@@ -867,6 +893,10 @@ table{color:#fff} th,td{border-color:rgba(255,255,255,.14)}
   </section>
 
   <section id="page-trend" class="tabpage">
+    <div class="page-sync-bar" aria-label="サーバーデータ操作">
+      <button class="js-server-load" type="button" aria-label="サーバーからデータ取得">☁ データ取得</button>
+      <button class="js-server-save" type="button" aria-label="サーバーへデータ送信">☁ データ送信</button>
+    </div>
     <div class="card">
       <div class="section-head"><h2>純資産の推移（残高）</h2><select id="range" style="width:auto;min-width:120px"><option value="30">30日</option><option value="90">90日</option><option value="365">1年</option><option value="all">全期間</option></select></div>
       <div class="chartbox"><canvas id="chart"></canvas></div>
@@ -875,6 +905,10 @@ table{color:#fff} th,td{border-color:rgba(255,255,255,.14)}
   </section>
 
   <section id="page-history" class="tabpage">
+    <div class="page-sync-bar" aria-label="サーバーデータ操作">
+      <button class="js-server-load" type="button" aria-label="サーバーからデータ取得">☁ データ取得</button>
+      <button class="js-server-save" type="button" aria-label="サーバーへデータ送信">☁ データ送信</button>
+    </div>
     <div class="card">
       <div class="section-head"><h2>記録履歴</h2><div class="actions"><button class="small" id="exportCsv">CSV出力</button><label class="btn small" style="display:inline-flex;align-items:center">CSV読込<input id="importCsv" type="file" accept=".csv,text/csv" hidden></label></div></div>
       <div class="tablewrap"><table><thead><tr><th>日付</th><th>資産</th><th>借入</th><th>純資産</th><th></th></tr></thead><tbody id="historyBody"></tbody></table></div>
@@ -911,7 +945,7 @@ function clone(v){return JSON.parse(JSON.stringify(v))}
 function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
 function toast(t){const f=$('flash');f.textContent=t;f.classList.add('show');clearTimeout(toast._t);toast._t=setTimeout(()=>f.classList.remove('show'),1600)}
 const DEFAULT_ASSET_NAMES=['住信SBIネット銀行','横浜銀行','PayPay','PayPayサブ','えらぺい'];
-const SEED_LENDERS=[{"id":"seed-01","name":"両親","account":"横浜銀行 厚木支店 1565579 ヨコタ マユミ","totalRepayment":5050000,"monthlyPayment":450000,"remaining":3700000,"finishMonth":"2027-05","repayMonth":"2026-08","paidMonths":["2026-06","2026-07","2026-08"],"schedule":{"2026-06":500000,"2026-07":400000,"2026-08":450000,"2026-09":450000,"2026-10":450000,"2026-11":450000,"2026-12":450000,"2027-01":450000,"2027-02":450000,"2027-03":450000,"2027-04":450000,"2027-05":100000}},{"id":"seed-02","name":"楽天カード(株)（楽天銀行分）","account":"三井住友銀行 すずらん支店 普通 9468564 ラクテンカード(カ","totalRepayment":2287407,"monthlyPayment":20910,"remaining":711057,"finishMonth":"2029-05","repayMonth":"2026-08","paidMonths":["2026-06","2026-07"],"schedule":{"2026-06":1555440,"2026-07":20910,"2026-08":20910,"2026-09":20910,"2026-10":20910,"2026-11":20910,"2026-12":20910,"2027-01":20910,"2027-02":20910,"2027-03":20910,"2027-04":20910,"2027-05":20910,"2027-06":20910,"2027-07":20910,"2027-08":20910,"2027-09":20910,"2027-10":20910,"2027-11":20910,"2027-12":20910,"2028-01":20910,"2028-02":20910,"2028-03":20910,"2028-04":20910,"2028-05":20910,"2028-06":20910,"2028-07":20910,"2028-08":20910,"2028-09":20910,"2028-10":20910,"2028-11":20910,"2028-12":20910,"2029-01":20910,"2029-02":20910,"2029-03":20910,"2029-04":20910,"2029-05":21027}},{"id":"seed-03","name":"合同会社紫雲","account":"北海道銀行 本店営業部 普通 3387021 ベンミズクラブ ウゴウホククリッジ ムショ アズカリグチ","totalRepayment":1526277,"monthlyPayment":13950,"remaining":474457,"finishMonth":"2029-05","repayMonth":"2026-08","paidMonths":["2026-06","2026-07"],"schedule":{"2026-06":1037870,"2026-07":13950,"2026-08":13950,"2026-09":13950,"2026-10":13950,"2026-11":13950,"2026-12":13950,"2027-01":13950,"2027-02":13950,"2027-03":13950,"2027-04":13950,"2027-05":13950,"2027-06":13950,"2027-07":13950,"2027-08":13950,"2027-09":13950,"2027-10":13950,"2027-11":13950,"2027-12":13950,"2028-01":13950,"2028-02":13950,"2028-03":13950,"2028-04":13950,"2028-05":13950,"2028-06":13950,"2028-07":13950,"2028-08":13950,"2028-09":13950,"2028-10":13950,"2028-11":13950,"2028-12":13950,"2029-01":13950,"2029-02":13950,"2029-03":13950,"2029-04":13950,"2029-05":14107}},{"id":"seed-04","name":"SMBCコンシューマーファイナンス(株)","account":"三井住友銀行 あじさい支店 普通 6332838 SMBCコンシューマーファイナンス(カ","totalRepayment":1354167,"monthlyPayment":12380,"remaining":420947,"finishMonth":"2029-05","repayMonth":"2026-08","paidMonths":["2026-06","2026-07"],"schedule":{"2026-06":920840,"2026-07":12380,"2026-08":12380,"2026-09":12380,"2026-10":12380,"2026-11":12380,"2026-12":12380,"2027-01":12380,"2027-02":12380,"2027-03":12380,"2027-04":12380,"2027-05":12380,"2027-06":12380,"2027-07":12380,"2027-08":12380,"2027-09":12380,"2027-10":12380,"2027-11":12380,"2027-12":12380,"2028-01":12380,"2028-02":12380,"2028-03":12380,"2028-04":12380,"2028-05":12380,"2028-06":12380,"2028-07":12380,"2028-08":12380,"2028-09":12380,"2028-10":12380,"2028-11":12380,"2028-12":12380,"2029-01":12380,"2029-02":12380,"2029-03":12380,"2029-04":12380,"2029-05":12407}},{"id":"seed-05","name":"楽天カード(株)（プロパー分）","account":"楽天銀行 楽天第一支店 普通 6390498 ラクテンカード(カ","totalRepayment":1335501,"monthlyPayment":12210,"remaining":415151,"finishMonth":"2029-05","repayMonth":"2026-08","paidMonths":["2026-06","2026-07"],"schedule":{"2026-06":908140,"2026-07":12210,"2026-08":12210,"2026-09":12210,"2026-10":12210,"2026-11":12210,"2026-12":12210,"2027-01":12210,"2027-02":12210,"2027-03":12210,"2027-04":12210,"2027-05":12210,"2027-06":12210,"2027-07":12210,"2027-08":12210,"2027-09":12210,"2027-10":12210,"2027-11":12210,"2027-12":12210,"2028-01":12210,"2028-02":12210,"2028-03":12210,"2028-04":12210,"2028-05":12210,"2028-06":12210,"2028-07":12210,"2028-08":12210,"2028-09":12210,"2028-10":12210,"2028-11":12210,"2028-12":12210,"2029-01":12210,"2029-02":12210,"2029-03":12210,"2029-04":12210,"2029-05":12221}},{"id":"seed-06","name":"アビリオ債権回収(株)","account":"三井住友銀行 はまゆう支店 普通 9453877 アビリオサイケンカイシュウ(カ","totalRepayment":1219268,"monthlyPayment":11140,"remaining":379018,"finishMonth":"2029-05","repayMonth":"2026-08","paidMonths":["2026-06","2026-07"],"schedule":{"2026-06":829110,"2026-07":11140,"2026-08":11140,"2026-09":11140,"2026-10":11140,"2026-11":11140,"2026-12":11140,"2027-01":11140,"2027-02":11140,"2027-03":11140,"2027-04":11140,"2027-05":11140,"2027-06":11140,"2027-07":11140,"2027-08":11140,"2027-09":11140,"2027-10":11140,"2027-11":11140,"2027-12":11140,"2028-01":11140,"2028-02":11140,"2028-03":11140,"2028-04":11140,"2028-05":11140,"2028-06":11140,"2028-07":11140,"2028-08":11140,"2028-09":11140,"2028-10":11140,"2028-11":11140,"2028-12":11140,"2029-01":11140,"2029-02":11140,"2029-03":11140,"2029-04":11140,"2029-05":11398}},{"id":"seed-07","name":"セゾン債権回収(株)","account":"GMOあおぞらネット銀行 法人第二営業部 普通 3787613 セゾンサイケンカイシュウ(カ)CSカイトリグチ","totalRepayment":1136707,"monthlyPayment":10390,"remaining":353357,"finishMonth":"2029-05","repayMonth":"2026-08","paidMonths":["2026-06","2026-07"],"schedule":{"2026-06":772960,"2026-07":10390,"2026-08":10390,"2026-09":10390,"2026-10":10390,"2026-11":10390,"2026-12":10390,"2027-01":10390,"2027-02":10390,"2027-03":10390,"2027-04":10390,"2027-05":10390,"2027-06":10390,"2027-07":10390,"2027-08":10390,"2027-09":10390,"2027-10":10390,"2027-11":10390,"2027-12":10390,"2028-01":10390,"2028-02":10390,"2028-03":10390,"2028-04":10390,"2028-05":10390,"2028-06":10390,"2028-07":10390,"2028-08":10390,"2028-09":10390,"2028-10":10390,"2028-11":10390,"2028-12":10390,"2029-01":10390,"2029-02":10390,"2029-03":10390,"2029-04":10390,"2029-05":10487}},{"id":"seed-08","name":"(株)ジャックス","account":"みずほ銀行 ジャックス支店 普通 8373778 カ)ジャックス","totalRepayment":630488,"monthlyPayment":5760,"remaining":195988,"finishMonth":"2029-05","repayMonth":"2026-08","paidMonths":["2026-06","2026-07"],"schedule":{"2026-06":428740,"2026-07":5760,"2026-08":5760,"2026-09":5760,"2026-10":5760,"2026-11":5760,"2026-12":5760,"2027-01":5760,"2027-02":5760,"2027-03":5760,"2027-04":5760,"2027-05":5760,"2027-06":5760,"2027-07":5760,"2027-08":5760,"2027-09":5760,"2027-10":5760,"2027-11":5760,"2027-12":5760,"2028-01":5760,"2028-02":5760,"2028-03":5760,"2028-04":5760,"2028-05":5760,"2028-06":5760,"2028-07":5760,"2028-08":5760,"2028-09":5760,"2028-10":5760,"2028-11":5760,"2028-12":5760,"2029-01":5760,"2029-02":5760,"2029-03":5760,"2029-04":5760,"2029-05":5908}},{"id":"seed-09","name":"藤沢市職員福利厚生会","account":"スルガ銀行 藤沢支店 普通 3688830 フジサワシショクインフクリコウセイカイ","totalRepayment":261107,"monthlyPayment":2380,"remaining":81167,"finishMonth":"2029-05","repayMonth":"2026-08","paidMonths":["2026-06","2026-07"],"schedule":{"2026-06":177560,"2026-07":2380,"2026-08":2380,"2026-09":2380,"2026-10":2380,"2026-11":2380,"2026-12":2380,"2027-01":2380,"2027-02":2380,"2027-03":2380,"2027-04":2380,"2027-05":2380,"2027-06":2380,"2027-07":2380,"2027-08":2380,"2027-09":2380,"2027-10":2380,"2027-11":2380,"2027-12":2380,"2028-01":2380,"2028-02":2380,"2028-03":2380,"2028-04":2380,"2028-05":2380,"2028-06":2380,"2028-07":2380,"2028-08":2380,"2028-09":2380,"2028-10":2380,"2028-11":2380,"2028-12":2380,"2029-01":2380,"2029-02":2380,"2029-03":2380,"2029-04":2380,"2029-05":2627}},{"id":"seed-10","name":"(株)アプラス","account":"三菱UFJ銀行 関西中央支店 普通 1268516 カ)アプラス","totalRepayment":172916,"monthlyPayment":1580,"remaining":53746,"finishMonth":"2029-05","repayMonth":"2026-08","paidMonths":["2026-06","2026-07"],"schedule":{"2026-06":117590,"2026-07":1580,"2026-08":1580,"2026-09":1580,"2026-10":1580,"2026-11":1580,"2026-12":1580,"2027-01":1580,"2027-02":1580,"2027-03":1580,"2027-04":1580,"2027-05":1580,"2027-06":1580,"2027-07":1580,"2027-08":1580,"2027-09":1580,"2027-10":1580,"2027-11":1580,"2027-12":1580,"2028-01":1580,"2028-02":1580,"2028-03":1580,"2028-04":1580,"2028-05":1580,"2028-06":1580,"2028-07":1580,"2028-08":1580,"2028-09":1580,"2028-10":1580,"2028-11":1580,"2028-12":1580,"2029-01":1580,"2029-02":1580,"2029-03":1580,"2029-04":1580,"2029-05":1606}},{"id":"seed-11","name":"(株)エポスカード","account":"三菱UFJ銀行 めいけつ支店 普通 5119009 カ)エポスカード","totalRepayment":160907,"monthlyPayment":1470,"remaining":50017,"finishMonth":"2029-05","repayMonth":"2026-08","paidMonths":["2026-06","2026-07"],"schedule":{"2026-06":109420,"2026-07":1470,"2026-08":1470,"2026-09":1470,"2026-10":1470,"2026-11":1470,"2026-12":1470,"2027-01":1470,"2027-02":1470,"2027-03":1470,"2027-04":1470,"2027-05":1470,"2027-06":1470,"2027-07":1470,"2027-08":1470,"2027-09":1470,"2027-10":1470,"2027-11":1470,"2027-12":1470,"2028-01":1470,"2028-02":1470,"2028-03":1470,"2028-04":1470,"2028-05":1470,"2028-06":1470,"2028-07":1470,"2028-08":1470,"2028-09":1470,"2028-10":1470,"2028-11":1470,"2028-12":1470,"2029-01":1470,"2029-02":1470,"2029-03":1470,"2029-04":1470,"2029-05":1507}},{"id":"seed-12","name":"イオンフィナンシャルサービス(株)","account":"三井住友銀行 関東第三支店 普通 8200073 イオンフィナンシャルサービス(カ","totalRepayment":72947,"monthlyPayment":0,"remaining":0,"finishMonth":"2026-06","repayMonth":"2026-08","paidMonths":["2026-06","2026-07"],"schedule":{"2026-06":72947,"2026-07":0,"2026-08":0,"2026-09":0,"2026-10":0,"2026-11":0,"2026-12":0,"2027-01":0,"2027-02":0,"2027-03":0,"2027-04":0,"2027-05":0,"2027-06":0,"2027-07":0,"2027-08":0,"2027-09":0,"2027-10":0,"2027-11":0,"2027-12":0,"2028-01":0,"2028-02":0,"2028-03":0,"2028-04":0,"2028-05":0,"2028-06":0,"2028-07":0,"2028-08":0,"2028-09":0,"2028-10":0,"2028-11":0,"2028-12":0,"2029-01":0,"2029-02":0,"2029-03":0,"2029-04":0,"2029-05":0}},{"id":"seed-13","name":"(株)メルペイ","account":"GMOあおぞらネット銀行 ワシ支店 普通 1816688 カ)メルペイ ヨコタヒロカズ","totalRepayment":60966,"monthlyPayment":0,"remaining":0,"finishMonth":"2026-06","repayMonth":"2026-08","paidMonths":["2026-06","2026-07"],"schedule":{"2026-06":60966,"2026-07":0,"2026-08":0,"2026-09":0,"2026-10":0,"2026-11":0,"2026-12":0,"2027-01":0,"2027-02":0,"2027-03":0,"2027-04":0,"2027-05":0,"2027-06":0,"2027-07":0,"2027-08":0,"2027-09":0,"2027-10":0,"2027-11":0,"2027-12":0,"2028-01":0,"2028-02":0,"2028-03":0,"2028-04":0,"2028-05":0,"2028-06":0,"2028-07":0,"2028-08":0,"2028-09":0,"2028-10":0,"2028-11":0,"2028-12":0,"2029-01":0,"2029-02":0,"2029-03":0,"2029-04":0,"2029-05":0}}];
+const SEED_LENDERS=[{"id":"seed-01","name":"両親","account":"横浜銀行 厚木支店 1565579 ヨコタ マユミ","totalRepayment":5194000,"monthlyPayment":124000,"remaining":3844000,"finishMonth":"2029-03","repayMonth":"2026-08","paidMonths":["2026-06","2026-07","2026-08"],"schedule":{"2026-06":500000,"2026-07":400000,"2026-08":450000,"2026-09":124000,"2026-10":124000,"2026-11":124000,"2026-12":124000,"2027-01":124000,"2027-02":124000,"2027-03":124000,"2027-04":124000,"2027-05":124000,"2027-06":124000,"2027-07":124000,"2027-08":124000,"2027-09":124000,"2027-10":124000,"2027-11":124000,"2027-12":124000,"2028-01":124000,"2028-02":124000,"2028-03":124000,"2028-04":124000,"2028-05":124000,"2028-06":124000,"2028-07":124000,"2028-08":124000,"2028-09":124000,"2028-10":124000,"2028-11":124000,"2028-12":124000,"2029-01":124000,"2029-02":124000,"2029-03":124000}},{"id":"seed-02","name":"楽天カード(株)（楽天銀行分）","account":"三井住友銀行 すずらん支店 普通 9468564 ラクテンカード(カ","totalRepayment":2287407,"monthlyPayment":20910,"remaining":711057,"finishMonth":"2029-05","repayMonth":"2026-08","paidMonths":["2026-06","2026-07"],"schedule":{"2026-06":1555440,"2026-07":20910,"2026-08":20910,"2026-09":20910,"2026-10":20910,"2026-11":20910,"2026-12":20910,"2027-01":20910,"2027-02":20910,"2027-03":20910,"2027-04":20910,"2027-05":20910,"2027-06":20910,"2027-07":20910,"2027-08":20910,"2027-09":20910,"2027-10":20910,"2027-11":20910,"2027-12":20910,"2028-01":20910,"2028-02":20910,"2028-03":20910,"2028-04":20910,"2028-05":20910,"2028-06":20910,"2028-07":20910,"2028-08":20910,"2028-09":20910,"2028-10":20910,"2028-11":20910,"2028-12":20910,"2029-01":20910,"2029-02":20910,"2029-03":20910,"2029-04":20910,"2029-05":21027}},{"id":"seed-03","name":"合同会社紫雲","account":"北海道銀行 本店営業部 普通 3387021 ベンミズクラブ ウゴウホククリッジ ムショ アズカリグチ","totalRepayment":1526277,"monthlyPayment":13950,"remaining":474457,"finishMonth":"2029-05","repayMonth":"2026-08","paidMonths":["2026-06","2026-07"],"schedule":{"2026-06":1037870,"2026-07":13950,"2026-08":13950,"2026-09":13950,"2026-10":13950,"2026-11":13950,"2026-12":13950,"2027-01":13950,"2027-02":13950,"2027-03":13950,"2027-04":13950,"2027-05":13950,"2027-06":13950,"2027-07":13950,"2027-08":13950,"2027-09":13950,"2027-10":13950,"2027-11":13950,"2027-12":13950,"2028-01":13950,"2028-02":13950,"2028-03":13950,"2028-04":13950,"2028-05":13950,"2028-06":13950,"2028-07":13950,"2028-08":13950,"2028-09":13950,"2028-10":13950,"2028-11":13950,"2028-12":13950,"2029-01":13950,"2029-02":13950,"2029-03":13950,"2029-04":13950,"2029-05":14107}},{"id":"seed-04","name":"SMBCコンシューマーファイナンス(株)","account":"三井住友銀行 あじさい支店 普通 6332838 SMBCコンシューマーファイナンス(カ","totalRepayment":1354167,"monthlyPayment":12380,"remaining":420947,"finishMonth":"2029-05","repayMonth":"2026-08","paidMonths":["2026-06","2026-07"],"schedule":{"2026-06":920840,"2026-07":12380,"2026-08":12380,"2026-09":12380,"2026-10":12380,"2026-11":12380,"2026-12":12380,"2027-01":12380,"2027-02":12380,"2027-03":12380,"2027-04":12380,"2027-05":12380,"2027-06":12380,"2027-07":12380,"2027-08":12380,"2027-09":12380,"2027-10":12380,"2027-11":12380,"2027-12":12380,"2028-01":12380,"2028-02":12380,"2028-03":12380,"2028-04":12380,"2028-05":12380,"2028-06":12380,"2028-07":12380,"2028-08":12380,"2028-09":12380,"2028-10":12380,"2028-11":12380,"2028-12":12380,"2029-01":12380,"2029-02":12380,"2029-03":12380,"2029-04":12380,"2029-05":12407}},{"id":"seed-05","name":"楽天カード(株)（プロパー分）","account":"楽天銀行 楽天第一支店 普通 6390498 ラクテンカード(カ","totalRepayment":1335501,"monthlyPayment":12210,"remaining":415151,"finishMonth":"2029-05","repayMonth":"2026-08","paidMonths":["2026-06","2026-07"],"schedule":{"2026-06":908140,"2026-07":12210,"2026-08":12210,"2026-09":12210,"2026-10":12210,"2026-11":12210,"2026-12":12210,"2027-01":12210,"2027-02":12210,"2027-03":12210,"2027-04":12210,"2027-05":12210,"2027-06":12210,"2027-07":12210,"2027-08":12210,"2027-09":12210,"2027-10":12210,"2027-11":12210,"2027-12":12210,"2028-01":12210,"2028-02":12210,"2028-03":12210,"2028-04":12210,"2028-05":12210,"2028-06":12210,"2028-07":12210,"2028-08":12210,"2028-09":12210,"2028-10":12210,"2028-11":12210,"2028-12":12210,"2029-01":12210,"2029-02":12210,"2029-03":12210,"2029-04":12210,"2029-05":12221}},{"id":"seed-06","name":"アビリオ債権回収(株)","account":"三井住友銀行 はまゆう支店 普通 9453877 アビリオサイケンカイシュウ(カ","totalRepayment":1219268,"monthlyPayment":11140,"remaining":379018,"finishMonth":"2029-05","repayMonth":"2026-08","paidMonths":["2026-06","2026-07"],"schedule":{"2026-06":829110,"2026-07":11140,"2026-08":11140,"2026-09":11140,"2026-10":11140,"2026-11":11140,"2026-12":11140,"2027-01":11140,"2027-02":11140,"2027-03":11140,"2027-04":11140,"2027-05":11140,"2027-06":11140,"2027-07":11140,"2027-08":11140,"2027-09":11140,"2027-10":11140,"2027-11":11140,"2027-12":11140,"2028-01":11140,"2028-02":11140,"2028-03":11140,"2028-04":11140,"2028-05":11140,"2028-06":11140,"2028-07":11140,"2028-08":11140,"2028-09":11140,"2028-10":11140,"2028-11":11140,"2028-12":11140,"2029-01":11140,"2029-02":11140,"2029-03":11140,"2029-04":11140,"2029-05":11398}},{"id":"seed-07","name":"セゾン債権回収(株)","account":"GMOあおぞらネット銀行 法人第二営業部 普通 3787613 セゾンサイケンカイシュウ(カ)CSカイトリグチ","totalRepayment":1136707,"monthlyPayment":10390,"remaining":353357,"finishMonth":"2029-05","repayMonth":"2026-08","paidMonths":["2026-06","2026-07"],"schedule":{"2026-06":772960,"2026-07":10390,"2026-08":10390,"2026-09":10390,"2026-10":10390,"2026-11":10390,"2026-12":10390,"2027-01":10390,"2027-02":10390,"2027-03":10390,"2027-04":10390,"2027-05":10390,"2027-06":10390,"2027-07":10390,"2027-08":10390,"2027-09":10390,"2027-10":10390,"2027-11":10390,"2027-12":10390,"2028-01":10390,"2028-02":10390,"2028-03":10390,"2028-04":10390,"2028-05":10390,"2028-06":10390,"2028-07":10390,"2028-08":10390,"2028-09":10390,"2028-10":10390,"2028-11":10390,"2028-12":10390,"2029-01":10390,"2029-02":10390,"2029-03":10390,"2029-04":10390,"2029-05":10487}},{"id":"seed-08","name":"(株)ジャックス","account":"みずほ銀行 ジャックス支店 普通 8373778 カ)ジャックス","totalRepayment":630488,"monthlyPayment":5760,"remaining":195988,"finishMonth":"2029-05","repayMonth":"2026-08","paidMonths":["2026-06","2026-07"],"schedule":{"2026-06":428740,"2026-07":5760,"2026-08":5760,"2026-09":5760,"2026-10":5760,"2026-11":5760,"2026-12":5760,"2027-01":5760,"2027-02":5760,"2027-03":5760,"2027-04":5760,"2027-05":5760,"2027-06":5760,"2027-07":5760,"2027-08":5760,"2027-09":5760,"2027-10":5760,"2027-11":5760,"2027-12":5760,"2028-01":5760,"2028-02":5760,"2028-03":5760,"2028-04":5760,"2028-05":5760,"2028-06":5760,"2028-07":5760,"2028-08":5760,"2028-09":5760,"2028-10":5760,"2028-11":5760,"2028-12":5760,"2029-01":5760,"2029-02":5760,"2029-03":5760,"2029-04":5760,"2029-05":5908}},{"id":"seed-09","name":"藤沢市職員福利厚生会","account":"スルガ銀行 藤沢支店 普通 3688830 フジサワシショクインフクリコウセイカイ","totalRepayment":261107,"monthlyPayment":2380,"remaining":81167,"finishMonth":"2029-05","repayMonth":"2026-08","paidMonths":["2026-06","2026-07"],"schedule":{"2026-06":177560,"2026-07":2380,"2026-08":2380,"2026-09":2380,"2026-10":2380,"2026-11":2380,"2026-12":2380,"2027-01":2380,"2027-02":2380,"2027-03":2380,"2027-04":2380,"2027-05":2380,"2027-06":2380,"2027-07":2380,"2027-08":2380,"2027-09":2380,"2027-10":2380,"2027-11":2380,"2027-12":2380,"2028-01":2380,"2028-02":2380,"2028-03":2380,"2028-04":2380,"2028-05":2380,"2028-06":2380,"2028-07":2380,"2028-08":2380,"2028-09":2380,"2028-10":2380,"2028-11":2380,"2028-12":2380,"2029-01":2380,"2029-02":2380,"2029-03":2380,"2029-04":2380,"2029-05":2627}},{"id":"seed-10","name":"(株)アプラス","account":"三菱UFJ銀行 関西中央支店 普通 1268516 カ)アプラス","totalRepayment":172916,"monthlyPayment":1580,"remaining":53746,"finishMonth":"2029-05","repayMonth":"2026-08","paidMonths":["2026-06","2026-07"],"schedule":{"2026-06":117590,"2026-07":1580,"2026-08":1580,"2026-09":1580,"2026-10":1580,"2026-11":1580,"2026-12":1580,"2027-01":1580,"2027-02":1580,"2027-03":1580,"2027-04":1580,"2027-05":1580,"2027-06":1580,"2027-07":1580,"2027-08":1580,"2027-09":1580,"2027-10":1580,"2027-11":1580,"2027-12":1580,"2028-01":1580,"2028-02":1580,"2028-03":1580,"2028-04":1580,"2028-05":1580,"2028-06":1580,"2028-07":1580,"2028-08":1580,"2028-09":1580,"2028-10":1580,"2028-11":1580,"2028-12":1580,"2029-01":1580,"2029-02":1580,"2029-03":1580,"2029-04":1580,"2029-05":1606}},{"id":"seed-11","name":"(株)エポスカード","account":"三菱UFJ銀行 めいけつ支店 普通 5119009 カ)エポスカード","totalRepayment":160907,"monthlyPayment":1470,"remaining":50017,"finishMonth":"2029-05","repayMonth":"2026-08","paidMonths":["2026-06","2026-07"],"schedule":{"2026-06":109420,"2026-07":1470,"2026-08":1470,"2026-09":1470,"2026-10":1470,"2026-11":1470,"2026-12":1470,"2027-01":1470,"2027-02":1470,"2027-03":1470,"2027-04":1470,"2027-05":1470,"2027-06":1470,"2027-07":1470,"2027-08":1470,"2027-09":1470,"2027-10":1470,"2027-11":1470,"2027-12":1470,"2028-01":1470,"2028-02":1470,"2028-03":1470,"2028-04":1470,"2028-05":1470,"2028-06":1470,"2028-07":1470,"2028-08":1470,"2028-09":1470,"2028-10":1470,"2028-11":1470,"2028-12":1470,"2029-01":1470,"2029-02":1470,"2029-03":1470,"2029-04":1470,"2029-05":1507}},{"id":"seed-12","name":"イオンフィナンシャルサービス(株)","account":"三井住友銀行 関東第三支店 普通 8200073 イオンフィナンシャルサービス(カ","totalRepayment":72947,"monthlyPayment":0,"remaining":0,"finishMonth":"2026-06","repayMonth":"2026-08","paidMonths":["2026-06","2026-07"],"schedule":{"2026-06":72947,"2026-07":0,"2026-08":0,"2026-09":0,"2026-10":0,"2026-11":0,"2026-12":0,"2027-01":0,"2027-02":0,"2027-03":0,"2027-04":0,"2027-05":0,"2027-06":0,"2027-07":0,"2027-08":0,"2027-09":0,"2027-10":0,"2027-11":0,"2027-12":0,"2028-01":0,"2028-02":0,"2028-03":0,"2028-04":0,"2028-05":0,"2028-06":0,"2028-07":0,"2028-08":0,"2028-09":0,"2028-10":0,"2028-11":0,"2028-12":0,"2029-01":0,"2029-02":0,"2029-03":0,"2029-04":0,"2029-05":0}},{"id":"seed-13","name":"(株)メルペイ","account":"GMOあおぞらネット銀行 ワシ支店 普通 1816688 カ)メルペイ ヨコタヒロカズ","totalRepayment":60966,"monthlyPayment":0,"remaining":0,"finishMonth":"2026-06","repayMonth":"2026-08","paidMonths":["2026-06","2026-07"],"schedule":{"2026-06":60966,"2026-07":0,"2026-08":0,"2026-09":0,"2026-10":0,"2026-11":0,"2026-12":0,"2027-01":0,"2027-02":0,"2027-03":0,"2027-04":0,"2027-05":0,"2027-06":0,"2027-07":0,"2027-08":0,"2027-09":0,"2027-10":0,"2027-11":0,"2027-12":0,"2028-01":0,"2028-02":0,"2028-03":0,"2028-04":0,"2028-05":0,"2028-06":0,"2028-07":0,"2028-08":0,"2028-09":0,"2028-10":0,"2028-11":0,"2028-12":0,"2029-01":0,"2029-02":0,"2029-03":0,"2029-04":0,"2029-05":0}}];
 const MAX_LENDERS=13;
 const TRANSFER_ALIASES={
  'seed-02':['ラクテンカード'],
@@ -994,6 +1028,24 @@ function normalize(raw){
   x.paidMonths=Array.isArray(x.paidMonths)?x.paidMonths:[];
   x.schedule=x.schedule&&typeof x.schedule==='object'?x.schedule:{};
  });
+ // Repayment-plan migration: Aug 2026 paid ¥450,000; Sep 2026–Mar 2029 is ¥124,000 every month.
+ if(num(s.parentRepaymentPlanVersion)<2){
+  const p=s.lenders.find(x=>x.id==='seed-01'||String(x.name||'').trim()==='両親');
+  if(p){
+   const planMonths=[];let yy=2026,mm=9;
+   while(yy<2029||(yy===2029&&mm<=3)){planMonths.push(`${yy}-${String(mm).padStart(2,'0')}`);mm++;if(mm===13){yy++;mm=1}}
+   p.totalRepayment=5194000;p.monthlyPayment=124000;p.finishMonth='2029-03';
+   p.paidMonths=Array.isArray(p.paidMonths)?p.paidMonths:[];
+   for(const ym of ['2026-06','2026-07','2026-08'])if(!p.paidMonths.includes(ym))p.paidMonths.push(ym);
+   p.schedule=p.schedule&&typeof p.schedule==='object'?p.schedule:{};
+   p.schedule['2026-06']=500000;p.schedule['2026-07']=400000;p.schedule['2026-08']=450000;
+   for(const ym of planMonths)p.schedule[ym]=124000;
+   const paidFuture=planMonths.filter(ym=>p.paidMonths.includes(ym)).length;
+   p.remaining=Math.max(0,3844000-paidFuture*124000);
+   const linked=s.debts.find(d=>d.source==='lender'&&d.lenderId==='seed-01');if(linked)linked.value=p.remaining;
+  }
+  s.parentRepaymentPlanVersion=2;
+ }
  return s;
 }
 let state=normalize(loadRaw());
@@ -1349,21 +1401,21 @@ async function serverRequest(method,body){
  return await res.json();
 }
 async function saveStateToServer(){
- const btn=$('serverSaveFab');
+ const buttons=[...document.querySelectorAll('.js-server-save')];
  if(!confirm('現在の資産管理データをサーバーへ送信しますか？'))return;
  try{
-   btn.classList.add('saving');btn.classList.remove('saved');btn.textContent='☁ 送信中…';
+   buttons.forEach(btn=>{btn.classList.add('saving');btn.classList.remove('saved');btn.textContent='☁ 送信中…'});
    const payload={
      state:clone(state),
      monthGoal:Number(localStorage.getItem('asset_tracker_month_goal')||0),
      clientSavedAt:new Date().toISOString()
    };
    await serverRequest('PUT',payload);
-   btn.classList.remove('saving');btn.classList.add('saved');btn.textContent='✓ 送信済み';
+   buttons.forEach(btn=>{btn.classList.remove('saving');btn.classList.add('saved');btn.textContent='✓ 送信済み'});
    toast('サーバーへデータを送信しました');
-   setTimeout(()=>{btn.classList.remove('saved');btn.textContent='☁ データ送信'},1800);
+   setTimeout(()=>buttons.forEach(btn=>{btn.classList.remove('saved');btn.textContent='☁ データ送信'}),1800);
  }catch(e){
-   btn.classList.remove('saving');btn.textContent='☁ データ送信';
+   buttons.forEach(btn=>{btn.classList.remove('saving');btn.textContent='☁ データ送信'});
    alert(e.message||'データ送信に失敗しました');
  }
 }
@@ -1374,9 +1426,9 @@ async function loadStateFromServer(options={}){
    if(!manual)return;
  }
  if(manual && !confirm('サーバーに保存されているデータをこの端末へ反映しますか？\n現在の端末データはサーバーデータで上書きされます。'))return;
- const btn=$('serverLoadFab');
+ const buttons=[...document.querySelectorAll('.js-server-load')];
  try{
-   if(btn && manual){btn.classList.add('saving');btn.classList.remove('saved');btn.textContent='☁ 取得中…'}
+   if(manual)buttons.forEach(btn=>{btn.classList.add('saving');btn.classList.remove('saved');btn.textContent='☁ 取得中…'});
    const data=await serverRequest('GET');
    if(!data||!data.exists||!data.payload||!data.payload.state){
      if(manual)alert('サーバーに保存データがまだありません');
@@ -1390,13 +1442,13 @@ async function loadStateFromServer(options={}){
    syncCalendarMonth();
    renderAll();
    renderTransferCheck();
-   if(btn && manual){
-     btn.classList.remove('saving');btn.classList.add('saved');btn.textContent='✓ 取得済み';
-     setTimeout(()=>{btn.classList.remove('saved');btn.textContent='☁ データ取得'},1800);
+   if(manual){
+     buttons.forEach(btn=>{btn.classList.remove('saving');btn.classList.add('saved');btn.textContent='✓ 取得済み'});
+     setTimeout(()=>buttons.forEach(btn=>{btn.classList.remove('saved');btn.textContent='☁ データ取得'}),1800);
    }
    if(!silent)toast('サーバーのデータを読み込みました');
  }catch(e){
-   if(btn){btn.classList.remove('saving');btn.textContent='☁ データ取得'}
+   buttons.forEach(btn=>{btn.classList.remove('saving');btn.textContent='☁ データ取得'});
    if(manual)alert(e.message||'データ取得に失敗しました');
    else console.warn('Server load skipped:',e);
  }
@@ -1547,7 +1599,7 @@ function renderAll(){renderHomeGoal();renderInputs();renderLenders();renderHisto
 $('addAsset').onclick=()=>{state.assets.push({id:uid(),name:'新しい資産',value:0});persist();renderInputs()};
 $('addDebt').onclick=()=>{state.debts.push({id:uid(),name:'新しい借入',value:0,source:'manual'});persist();renderInputs()};
 $('addLender').onclick=()=>{if(state.lenders.length>=MAX_LENDERS){toast('借入先は13件までです');return}state.lenders.push({id:uid(),name:'',account:'',totalRepayment:0,monthlyPayment:0,remaining:0,finishMonth:'',repayMonth:ymNow(),paidMonths:[],schedule:{}});persist();renderLenders()};
-$('syncDebts').onclick=syncDebts;$('saveRecord').onclick=saveRecord;$('serverSaveFab').onclick=saveStateToServer;$('serverLoadFab').onclick=()=>loadStateFromServer({manual:true});
+$('syncDebts').onclick=syncDebts;$('saveRecord').onclick=saveRecord;document.querySelectorAll('.js-server-save').forEach(btn=>btn.onclick=saveStateToServer);document.querySelectorAll('.js-server-load').forEach(btn=>btn.onclick=()=>loadStateFromServer({manual:true}));
 $('assetSaveRecord').onclick=()=>{
  const d=$('assetRecordDate').value||today();
  $('recordDate').value=d;
@@ -1569,13 +1621,15 @@ window.addEventListener('resize',()=>{if(state.activeTab==='trend')drawChart();d
 document.querySelectorAll('.navbtn').forEach(b=>b.onclick=()=>showTab(b.dataset.tab));
 
 let serverFabTimer=null;
-$('serverSaveFab').addEventListener('pointerdown',()=>{
- serverFabTimer=setTimeout(()=>{
-   serverFabTimer=null;
-   if(confirm('サーバー接続キーを再設定しますか？'))configureServer();
- },900);
+document.querySelectorAll('.js-server-save').forEach(saveBtn=>{
+ saveBtn.addEventListener('pointerdown',()=>{
+  serverFabTimer=setTimeout(()=>{
+    serverFabTimer=null;
+    if(confirm('サーバー接続キーを再設定しますか？'))configureServer();
+  },900);
+ });
+ ['pointerup','pointercancel','pointerleave'].forEach(ev=>saveBtn.addEventListener(ev,()=>{if(serverFabTimer){clearTimeout(serverFabTimer);serverFabTimer=null}}));
 });
-['pointerup','pointercancel','pointerleave'].forEach(ev=>$('serverSaveFab').addEventListener(ev,()=>{if(serverFabTimer){clearTimeout(serverFabTimer);serverFabTimer=null}}));
 
 $('recordDate').value=today();$('assetRecordDate').value=today();$('todayLabel').textContent=today();$('verifyMonth').value=transferCheck.month||ymNow();renderAll();renderTransferCheck();showTab(state.activeTab||'home');
 // 接続キー設定済みの端末だけ、起動時にサーバーの最新データを静かに取得します。
