@@ -7,4 +7,4 @@ binding = "ASSET_STORE"
 id = "0e839f63e1504cdf81098617b17a22f7"
 
 [vars]
-ALLOWED_ORIGIN = "https://あなたのPagesドメイン.pages.dev"
+ALLOWED_ORIGIN = "https://assets-management-8os.pages.dev"
