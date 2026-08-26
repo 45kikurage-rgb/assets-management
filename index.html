@@ -795,36 +795,95 @@ table{color:#fff} th,td{border-color:rgba(255,255,255,.14)}
  #page-home .home-range button{font-size:8px!important;padding:5px 1px!important}
 }
 
-/* ===== 共通下部操作バー：下段ナビ直上 ===== */
+/* ===== 共通下部操作バー：下段ナビ直上 / 右半分3等分 ===== */
 .global-actionbar{
-  position:fixed;left:0;right:0;bottom:var(--navh);z-index:29;
-  display:none;padding:7px max(12px,env(safe-area-inset-right)) 7px max(12px,env(safe-area-inset-left));
-  background:linear-gradient(180deg,rgba(18,15,43,.20),rgba(18,15,43,.96) 32%);
+  position:fixed;
+  left:0;right:0;bottom:var(--navh);
+  z-index:29;
+  display:none;
+  height:var(--navh);
+  padding:6px max(10px,env(safe-area-inset-right)) 6px max(10px,env(safe-area-inset-left));
+  background:linear-gradient(180deg,rgba(18,15,43,0),rgba(18,15,43,.92) 42%);
   pointer-events:none;
 }
-.global-actionbar.show{display:block}
+.global-actionbar.show{display:flex;align-items:center}
 .global-actionbar-inner{
-  max-width:920px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:8px;
-  align-items:stretch;pointer-events:auto;
+  width:50%;
+  max-width:460px;
+  margin-left:auto;
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:6px;
+  align-items:center;
+  pointer-events:auto;
 }
-.global-actionbar-inner.has-context{grid-template-columns:1.12fr 1fr 1fr}
 .global-actionbar button{
-  width:100%;height:58px;min-height:58px!important;margin:0!important;padding:6px 10px!important;
-  border-radius:15px!important;font-size:15px!important;font-weight:900!important;box-shadow:0 6px 18px rgba(0,0,0,.18);
+  width:100%;
+  height:54px;
+  min-height:54px!important;
+  margin:0!important;
+  padding:5px 4px!important;
+  border-radius:13px!important;
+  font-size:13px!important;
+  font-weight:900!important;
+  line-height:1.08!important;
+  box-shadow:0 5px 16px rgba(0,0,0,.18);
 }
-.global-context-btn{display:none!important;flex-direction:column;align-items:center;justify-content:center;line-height:1.05}
+.global-context-btn{
+  display:none!important;
+  grid-column:1;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  line-height:1.05!important;
+}
 .global-context-btn.visible{display:flex!important}
+#serverLoadFab{grid-column:2}
+#serverSaveFab{grid-column:3}
 .global-sync-btn{background:rgba(44,36,79,.96)!important}
 .global-actionbar .server-load-fab{border:1px solid rgba(53,229,210,.62)!important;color:#8ff7ea!important}
 .global-actionbar .server-save-fab{border:1px solid rgba(246,199,25,.68)!important;color:#ffe25c!important}
 #page-assets .asset-record-box{padding-bottom:10px!important}
 #page-assets .asset-record-note{margin-top:0!important}
 .tabpage:not(#page-home){padding-bottom:74px}
+
+/* ===== 借入先カード：コンパクト表示 ===== */
+#page-lenders .card{padding:12px}
+#page-lenders .section-head{margin-bottom:10px}
+#page-lenders .lender{padding:11px 12px;margin-bottom:9px;border-radius:16px}
+#page-lenders .lender-title{margin-bottom:9px;gap:7px}
+#page-lenders .lender-name-title{font-size:16px;font-weight:850;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#page-lenders .lender-no{font-size:12px;padding:5px 8px;flex:0 0 auto}
+#page-lenders .lender-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px 9px}
+#page-lenders .lender-grid .field-account{grid-column:1/-1}
+#page-lenders .lender-grid .field-payment{grid-column:1/-1}
+#page-lenders .field label{font-size:10px;margin-bottom:3px}
+#page-lenders input,#page-lenders select{min-height:43px;padding:8px 10px;font-size:15px}
+#page-lenders .repay-line{grid-template-columns:minmax(0,1fr) 84px;gap:7px}
+#page-lenders .repay-line .copy{min-height:43px;height:43px;padding:6px 8px;font-size:13px}
+#page-lenders .lender-actions{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:8px}
+#page-lenders .lender-actions .repayMonth{width:100%!important;min-width:0!important}
+#page-lenders .lender-actions .pay{min-height:43px}
+#page-lenders .lender-actions .remove{min-height:39px;justify-self:start}
+#page-lenders .statusline{margin-top:7px;font-size:11px}
+#page-lenders .lender-compact-bottom{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:7px}
+#page-lenders .lender-compact-bottom .remove{flex:0 0 auto}
+#page-lenders .lender-compact-bottom .statusline{flex:1;margin:0;justify-content:flex-end}
+#page-lenders .lender-compact-bottom .statusline span{display:none}
+
+/* 履歴の前回比を復元 */
+#page-history table{min-width:650px}
+.history-diff.pos{color:#35e5d2;font-weight:800}
+.history-diff.neg{color:#ff8c95;font-weight:800}
+
 @media(max-width:420px){
- .global-actionbar{padding-left:8px;padding-right:8px}
- .global-actionbar-inner{gap:6px}
- .global-actionbar button{height:54px;min-height:54px!important;font-size:14px!important;padding:5px 6px!important}
- .global-actionbar-inner.has-context{grid-template-columns:1.08fr 1fr 1fr}
+ .global-actionbar{padding-left:6px;padding-right:6px}
+ .global-actionbar-inner{width:50%;gap:4px}
+ .global-actionbar button{height:54px;min-height:54px!important;font-size:12px!important;padding:4px 2px!important;border-radius:12px!important}
+ #page-lenders .lender{padding:10px}
+ #page-lenders .lender-grid{gap:7px}
+ #page-lenders .lender-name-title{font-size:15px}
+ #page-lenders input,#page-lenders select{font-size:14px}
 }
 
 </style>
@@ -944,7 +1003,7 @@ table{color:#fff} th,td{border-color:rgba(255,255,255,.14)}
   <section id="page-history" class="tabpage">
     <div class="card">
       <div class="section-head"><h2>記録履歴</h2><div class="actions"><button class="small" id="exportCsv">CSV出力</button><label class="btn small" style="display:inline-flex;align-items:center">CSV読込<input id="importCsv" type="file" accept=".csv,text/csv" hidden></label></div></div>
-      <div class="tablewrap"><table><thead><tr><th>日付</th><th>資産</th><th>借入</th><th>純資産</th><th></th></tr></thead><tbody id="historyBody"></tbody></table></div>
+      <div class="tablewrap"><table><thead><tr><th>日付</th><th>資産</th><th>借入</th><th>純資産</th><th>前回比</th><th></th></tr></thead><tbody id="historyBody"></tbody></table></div>
       <p class="note">日付を長押しすると、その日の記録を削除できます。端末内にも保存し、サーバー保存ボタンからクラウドへバックアップできます。</p>
     </div>
   </section>
@@ -1147,20 +1206,26 @@ function lenderHtml(x,i){
  const paid=(x.paidMonths||[]).includes(ym);
  const payment=paymentFor(x,ym);
  return `<div class="lender" data-id="${x.id}">
- <div class="lender-title editable-title" role="button" tabindex="0" title="タップして名称を編集"><span class="lender-no">No.${String(i+1).padStart(2,'0')}</span><span class="lender-name-title">${esc(x.name||'未登録')}</span><span class="muted" style="margin-left:auto;font-size:11px">名称編集</span></div>
+ <div class="lender-title editable-title" role="button" tabindex="0" title="タップして名称を編集">
+   <span class="lender-no">No.${String(i+1).padStart(2,'0')}</span>
+   <span class="lender-name-title">${esc(x.name||'未登録')}</span>
+   <span class="muted" style="margin-left:auto;font-size:10px;flex:0 0 auto">名称編集</span>
+ </div>
  <div class="lender-grid">
-  <div class="field"><label>返済口座</label><input class="account" value="${esc(x.account)}" placeholder="返済先口座"></div>
+  <div class="field field-account"><label>返済口座</label><input class="account" value="${esc(x.account)}" placeholder="返済先口座"></div>
   <div class="field"><label>返済総額</label><input class="totalRepayment money" inputmode="numeric" value="${x.totalRepayment?Math.round(x.totalRepayment).toLocaleString('ja-JP'):''}" placeholder="0"></div>
-  <div class="field"><label>${monthLabel(ym)}</label><div class="repay-line"><input class="repay money" inputmode="numeric" value="${payment?Math.round(payment).toLocaleString('ja-JP'):''}" placeholder="0"><button class="small copy" type="button">コピー</button></div></div>
   <div class="field"><label>返済残額</label><input class="remaining money" inputmode="numeric" value="${x.remaining?Math.round(x.remaining).toLocaleString('ja-JP'):''}" placeholder="0"></div>
+  <div class="field field-payment"><label>${monthLabel(ym)}</label><div class="repay-line"><input class="repay money" inputmode="numeric" value="${payment?Math.round(payment).toLocaleString('ja-JP'):''}" placeholder="0"><button class="small copy" type="button">コピー</button></div></div>
   <div class="field"><label>返済完了月</label><input class="finish" type="month" value="${esc(x.finishMonth||'')}"></div>
+  <div class="field"><label>対象月</label><input class="repayMonth" type="month" value="${ym}"></div>
  </div>
  <div class="lender-actions">
-  <input class="repayMonth" type="month" value="${ym}" style="width:auto;min-width:145px">
   <button class="small ${paid?'success':'warn'} pay" type="button" ${paid?'disabled':''}>${paid?`${Number(ym.slice(5,7))}月 返済済み`:`${Number(ym.slice(5,7))}月に返済した`}</button>
-  <button class="small danger remove" type="button">内容クリア</button>
  </div>
- <div class="statusline"><span>${paid?'この月の返済は減算済み':'返済後にボタンを押すと残額から減算'}</span><strong>残額 ${fmt(x.remaining)}</strong></div>
+ <div class="lender-compact-bottom">
+  <button class="small danger remove" type="button">内容クリア</button>
+  <div class="statusline"><span>${paid?'この月の返済は減算済み':'返済後にボタンを押すと残額から減算'}</span><strong>残額 ${fmt(x.remaining)}</strong></div>
+ </div>
  </div>`;
 }
 function renderLenders(){
@@ -1364,15 +1429,22 @@ function saveRecord(){
  state.records.sort((a,b)=>a.date.localeCompare(b.date));persist();renderAll();toast('残高を記録しました');
 }
 function renderHistory(){
- const rows=[...state.records].sort((a,b)=>b.date.localeCompare(a.date));
+ const asc=[...state.records].sort((a,b)=>a.date.localeCompare(b.date));
+ const prevByDate=new Map();
+ asc.forEach((r,i)=>{
+   const prev=i>0?asc[i-1]:null;
+   prevByDate.set(r.date,prev?num(r.net)-num(prev.net):null);
+ });
+ const rows=[...asc].reverse();
  $('historyBody').innerHTML=rows.length?rows.map(r=>{
    const idx=state.records.findIndex(x=>x.date===r.date);
-   return `<tr><td class="history-date longpress-ready" data-i="${idx}" data-date="${esc(r.date)}">${r.date}</td><td>${fmt(r.asset)}</td><td>${fmt(r.debt)}</td><td>${fmt(r.net)}</td><td><button class="small edit" data-i="${idx}">編集</button></td></tr>`
- }).join(''):`<tr><td colspan="5" class="muted" style="text-align:center;padding:18px">まだ記録がありません</td></tr>`;
+   const diff=prevByDate.get(r.date);
+   const diffHtml=diff===null?'—':`<span class="history-diff ${diff>=0?'pos':'neg'}">${diff>=0?'+':''}${fmt(diff)}</span>`;
+   return `<tr><td class="history-date longpress-ready" data-i="${idx}" data-date="${esc(r.date)}">${r.date}</td><td>${fmt(r.asset)}</td><td>${fmt(r.debt)}</td><td>${fmt(r.net)}</td><td>${diffHtml}</td><td><button class="small edit" data-i="${idx}">編集</button></td></tr>`
+ }).join(''):`<tr><td colspan="6" class="muted" style="text-align:center;padding:18px">まだ記録がありません</td></tr>`;
  $('historyBody').querySelectorAll('.edit').forEach(b=>b.onclick=()=>openEdit(Number(b.dataset.i)));
  bindHistoryLongPress();
 }
-
 function bindHistoryLongPress(){
  $('historyBody').querySelectorAll('.history-date').forEach(cell=>{
    let timer=null, fired=false;
