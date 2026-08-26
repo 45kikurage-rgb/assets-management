@@ -886,6 +886,37 @@ table{color:#fff} th,td{border-color:rgba(255,255,255,.14)}
  #page-lenders input,#page-lenders select{font-size:14px}
 }
 
+
+/* STEP4: action bar alignment + history delta */
+:root{--navh:78px;--actionh:78px}
+.global-actionbar{
+  position:fixed!important;
+  left:0!important;right:0!important;
+  bottom:calc(var(--navh) + env(safe-area-inset-bottom))!important;
+  height:var(--actionh)!important;
+  display:flex!important;align-items:stretch!important;justify-content:flex-end!important;
+  padding:0 10px!important;
+  background:rgba(13,10,35,.90)!important;
+  border-top:1px solid rgba(255,255,255,.12)!important;
+  backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  z-index:29!important;
+}
+.global-actionbar .action-inner{
+  width:50%!important;height:100%!important;
+  display:grid!important;grid-template-columns:repeat(3,1fr)!important;gap:8px!important;
+  margin:0 0 0 auto!important;align-items:center!important;
+}
+.global-actionbar button,.global-actionbar .btn{
+  width:100%!important;height:calc(var(--actionh) - 12px)!important;min-height:0!important;
+  padding:4px 4px!important;border-radius:14px!important;
+  display:flex!important;align-items:center!important;justify-content:center!important;
+  line-height:1.05!important;text-align:center!important;font-size:14px!important;
+}
+.global-actionbar .spacer{display:block!important}
+body.has-actionbar .wrap{padding-bottom:calc(var(--navh) + var(--actionh) + 16px)!important}
+#page-history .history-delta{display:block!important;font-size:12px;font-weight:800;margin-top:4px}
+#page-history .history-delta.pos{color:#35e5d2!important}
+#page-history .history-delta.neg{color:#ff8c95!important}
 </style>
 </head>
 <body>
@@ -1872,6 +1903,43 @@ if('serviceWorker' in navigator && location.protocol!=='file:'){
 
 })();
 
+</script>
+
+<script>
+(function(){
+  function money(n){n=Number(n||0);return (n<0?'-':'')+'¥'+Math.abs(Math.round(n)).toLocaleString('ja-JP')}
+  function patchHistory(){
+    const rows=[...document.querySelectorAll('#page-history tbody tr, #page-history .history-row, #page-history [data-history-row]')];
+    if(!rows.length) return;
+    let prevNet=null;
+    rows.forEach((row,i)=>{
+      let a=null,d=null;
+      const nums=[...row.querySelectorAll('[data-asset],[data-debt],td')];
+      const assetEl=row.querySelector('[data-asset]');
+      const debtEl=row.querySelector('[data-debt]');
+      const parse=v=>Number(String(v||'').replace(/[^0-9.-]/g,''))||0;
+      if(assetEl&&debtEl){a=parse(assetEl.textContent);d=parse(debtEl.textContent)}
+      else if(nums.length>=3){a=parse(nums[1].textContent);d=parse(nums[2].textContent)}
+      if(a===null||d===null) return;
+      const net=a-d;
+      let host=row.querySelector('.history-date,td:first-child')||row;
+      let el=host.querySelector('.history-delta');
+      if(!el){el=document.createElement('div');el.className='history-delta';host.appendChild(el)}
+      if(prevNet===null){el.textContent='前回比 —';el.className='history-delta'}
+      else {const diff=net-prevNet;el.textContent='前回比 '+(diff>0?'+':'')+money(diff);el.className='history-delta '+(diff>0?'pos':diff<0?'neg':'')}
+      prevNet=net;
+    });
+  }
+  function syncActionbar(){
+    const bar=document.querySelector('.global-actionbar,.sync-actionbar,.server-actionbar,.floating-sync');
+    if(bar){bar.classList.add('global-actionbar');document.body.classList.add('has-actionbar');
+      let inner=bar.querySelector('.action-inner');
+      if(!inner){inner=document.createElement('div');inner.className='action-inner';while(bar.firstChild)inner.appendChild(bar.firstChild);bar.appendChild(inner)}
+    }
+  }
+  const run=()=>{syncActionbar();patchHistory()};
+  document.addEventListener('DOMContentLoaded',run);setTimeout(run,300);setTimeout(run,1200);
+})();
 </script>
 </body>
 </html>
