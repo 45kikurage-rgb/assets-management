@@ -641,7 +641,7 @@ table{color:#fff} th,td{border-color:rgba(255,255,255,.14)}
     height:100dvh !important;
     min-height:0 !important;
     overflow:hidden !important;
-    padding:8px 8px calc(var(--navh) + env(safe-area-inset-bottom) + 4px) !important;
+    padding:8px 8px calc(var(--navh) + var(--actionh) + env(safe-area-inset-bottom) + 4px) !important;
   }
 
   #page-home.active{
@@ -795,57 +795,68 @@ table{color:#fff} th,td{border-color:rgba(255,255,255,.14)}
  #page-home .home-range button{font-size:8px!important;padding:5px 1px!important}
 }
 
-/* ===== 共通下部操作バー：下段ナビ直上 / 右半分3等分 ===== */
+/* ===== 共通下部操作バー：全タブ共通 / 右半分3等分 ===== */
+:root{--navh:68px;--actionh:68px}
 .global-actionbar{
   position:fixed;
-  left:0;right:0;bottom:var(--navh);
+  left:0;
+  right:0;
+  bottom:calc(var(--navh) + env(safe-area-inset-bottom));
   z-index:29;
-  display:none;
-  height:var(--navh);
-  padding:6px max(10px,env(safe-area-inset-right)) 6px max(10px,env(safe-area-inset-left));
-  background:linear-gradient(180deg,rgba(18,15,43,0),rgba(18,15,43,.92) 42%);
-  pointer-events:none;
+  display:flex;
+  align-items:center;
+  height:var(--actionh);
+  padding:6px max(8px,env(safe-area-inset-right)) 6px max(8px,env(safe-area-inset-left));
+  background:rgba(13,10,35,.90);
+  border-top:1px solid rgba(255,255,255,.12);
+  backdrop-filter:blur(16px);
+  -webkit-backdrop-filter:blur(16px);
 }
-.global-actionbar.show{display:flex;align-items:center}
 .global-actionbar-inner{
-  width:50%;
-  max-width:460px;
+  width:min(50vw,460px);
+  height:54px;
   margin-left:auto;
   display:grid;
   grid-template-columns:repeat(3,minmax(0,1fr));
   gap:6px;
-  align-items:center;
-  pointer-events:auto;
+  align-items:stretch;
 }
 .global-actionbar button{
   width:100%;
   height:54px;
   min-height:54px!important;
   margin:0!important;
-  padding:5px 4px!important;
-  border-radius:13px!important;
-  font-size:13px!important;
+  padding:4px 3px!important;
+  border-radius:12px!important;
+  font-size:12px!important;
   font-weight:900!important;
-  line-height:1.08!important;
-  box-shadow:0 5px 16px rgba(0,0,0,.18);
+  line-height:1.05!important;
+  text-align:center;
+  box-shadow:none!important;
 }
-.global-context-btn{
+.global-actionbar .global-context-btn{
   display:none!important;
   grid-column:1;
   flex-direction:column;
   align-items:center;
   justify-content:center;
-  line-height:1.05!important;
 }
-.global-context-btn.visible{display:flex!important}
+.global-actionbar .global-context-btn.visible{display:flex!important}
 #serverLoadFab{grid-column:2}
 #serverSaveFab{grid-column:3}
 .global-sync-btn{background:rgba(44,36,79,.96)!important}
 .global-actionbar .server-load-fab{border:1px solid rgba(53,229,210,.62)!important;color:#8ff7ea!important}
 .global-actionbar .server-save-fab{border:1px solid rgba(246,199,25,.68)!important;color:#ffe25c!important}
-#page-assets .asset-record-box{padding-bottom:10px!important}
-#page-assets .asset-record-note{margin-top:0!important}
-.tabpage:not(#page-home){padding-bottom:74px}
+
+/* 操作バーが固定される分だけ、各ページの末尾に余白を確保 */
+.tabpage{padding-bottom:calc(var(--actionh) + 8px)}
+#page-home{padding-bottom:0}
+
+@media(max-width:420px){
+  .global-actionbar{padding-left:6px;padding-right:6px}
+  .global-actionbar-inner{width:50vw;gap:4px}
+  .global-actionbar button{font-size:11px!important;padding:3px 2px!important}
+}
 
 /* ===== 借入先カード：コンパクト表示 ===== */
 #page-lenders .card{padding:12px}
@@ -887,36 +898,6 @@ table{color:#fff} th,td{border-color:rgba(255,255,255,.14)}
 }
 
 
-/* STEP4: action bar alignment + history delta */
-:root{--navh:78px;--actionh:78px}
-.global-actionbar{
-  position:fixed!important;
-  left:0!important;right:0!important;
-  bottom:calc(var(--navh) + env(safe-area-inset-bottom))!important;
-  height:var(--actionh)!important;
-  display:flex!important;align-items:stretch!important;justify-content:flex-end!important;
-  padding:0 10px!important;
-  background:rgba(13,10,35,.90)!important;
-  border-top:1px solid rgba(255,255,255,.12)!important;
-  backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
-  z-index:29!important;
-}
-.global-actionbar .action-inner{
-  width:50%!important;height:100%!important;
-  display:grid!important;grid-template-columns:repeat(3,1fr)!important;gap:8px!important;
-  margin:0 0 0 auto!important;align-items:center!important;
-}
-.global-actionbar button,.global-actionbar .btn{
-  width:100%!important;height:calc(var(--actionh) - 12px)!important;min-height:0!important;
-  padding:4px 4px!important;border-radius:14px!important;
-  display:flex!important;align-items:center!important;justify-content:center!important;
-  line-height:1.05!important;text-align:center!important;font-size:14px!important;
-}
-.global-actionbar .spacer{display:block!important}
-body.has-actionbar .wrap{padding-bottom:calc(var(--navh) + var(--actionh) + 16px)!important}
-#page-history .history-delta{display:block!important;font-size:12px;font-weight:800;margin-top:4px}
-#page-history .history-delta.pos{color:#35e5d2!important}
-#page-history .history-delta.neg{color:#ff8c95!important}
 </style>
 </head>
 <body>
@@ -1816,14 +1797,10 @@ function drawChart(){
  ctx.fillStyle='#6b7280';[0,Math.floor((arr.length-1)/2),arr.length-1].forEach(i=>{const x=pad.l+w*i/(arr.length-1);ctx.fillText(arr[i].date.slice(5),Math.max(pad.l,x-16),rect.height-10)});
 }
 function updateGlobalActionbar(name){
- const bar=$('globalActionbar'), inner=$('globalActionbarInner');
  const assetBtn=$('assetSaveRecord'), lenderBtn=$('syncDebts');
- // ホームは1画面表示を優先し、共通操作バーを表示しない。
- const showBar=name!=='home';
- bar.classList.toggle('show',showBar);
+ // 取得・送信は全タブ共通。左端の追加ボタンだけタブ別に切り替える。
  assetBtn.classList.toggle('visible',name==='assets');
  lenderBtn.classList.toggle('visible',name==='lenders');
- inner.classList.toggle('has-context',name==='assets'||name==='lenders');
 }
 function showTab(name){
  state.activeTab=name;persist();
@@ -1905,41 +1882,5 @@ if('serviceWorker' in navigator && location.protocol!=='file:'){
 
 </script>
 
-<script>
-(function(){
-  function money(n){n=Number(n||0);return (n<0?'-':'')+'¥'+Math.abs(Math.round(n)).toLocaleString('ja-JP')}
-  function patchHistory(){
-    const rows=[...document.querySelectorAll('#page-history tbody tr, #page-history .history-row, #page-history [data-history-row]')];
-    if(!rows.length) return;
-    let prevNet=null;
-    rows.forEach((row,i)=>{
-      let a=null,d=null;
-      const nums=[...row.querySelectorAll('[data-asset],[data-debt],td')];
-      const assetEl=row.querySelector('[data-asset]');
-      const debtEl=row.querySelector('[data-debt]');
-      const parse=v=>Number(String(v||'').replace(/[^0-9.-]/g,''))||0;
-      if(assetEl&&debtEl){a=parse(assetEl.textContent);d=parse(debtEl.textContent)}
-      else if(nums.length>=3){a=parse(nums[1].textContent);d=parse(nums[2].textContent)}
-      if(a===null||d===null) return;
-      const net=a-d;
-      let host=row.querySelector('.history-date,td:first-child')||row;
-      let el=host.querySelector('.history-delta');
-      if(!el){el=document.createElement('div');el.className='history-delta';host.appendChild(el)}
-      if(prevNet===null){el.textContent='前回比 —';el.className='history-delta'}
-      else {const diff=net-prevNet;el.textContent='前回比 '+(diff>0?'+':'')+money(diff);el.className='history-delta '+(diff>0?'pos':diff<0?'neg':'')}
-      prevNet=net;
-    });
-  }
-  function syncActionbar(){
-    const bar=document.querySelector('.global-actionbar,.sync-actionbar,.server-actionbar,.floating-sync');
-    if(bar){bar.classList.add('global-actionbar');document.body.classList.add('has-actionbar');
-      let inner=bar.querySelector('.action-inner');
-      if(!inner){inner=document.createElement('div');inner.className='action-inner';while(bar.firstChild)inner.appendChild(bar.firstChild);bar.appendChild(inner)}
-    }
-  }
-  const run=()=>{syncActionbar();patchHistory()};
-  document.addEventListener('DOMContentLoaded',run);setTimeout(run,300);setTimeout(run,1200);
-})();
-</script>
 </body>
 </html>
