@@ -948,7 +948,7 @@ table{color:#fff} th,td{border-color:rgba(255,255,255,.14)}
     <div class="card home-trend-card">
       <div class="home-trend-head">
         <div class="home-trend-title"><span class="ball-icon" aria-hidden="true"></span><span>資産推移</span></div>
-        <div class="home-range" id="homeRangeBtns"><button type="button" data-mode="month">今月</button><button type="button" data-days="30">1ヶ月</button><button type="button" data-days="90" class="active">3ヶ月</button><button type="button" data-days="180">6ヶ月</button><button type="button" data-days="365">1年</button></div>
+        <div class="home-range" id="homeRangeBtns"><button type="button" data-mode="month" class="active">今月</button><button type="button" data-days="30">1ヶ月</button><button type="button" data-days="90">3ヶ月</button><button type="button" data-days="180">6ヶ月</button><button type="button" data-days="365">1年</button></div>
       </div>
       <div class="home-split-charts">
         <div class="home-mini-chart home-asset-panel">
@@ -1679,7 +1679,7 @@ function drawMonthlyDeltaChart(){
  [...new Set(ticks)].forEach(day=>{const x=pad.l+w*(day-1)/Math.max(1,daysInMonth-1);ctx.fillText(`${day}日`,Math.max(pad.l-2,Math.min(x-10,pad.l+w-22)),rect.height-9)});
 }
 let homeTrendDays=90;
-let homeTrendMode='range';
+let homeTrendMode='month';
 
 function getCurrentMonthNetDelta(){
  const now=new Date();
@@ -1884,7 +1884,10 @@ $('serverSaveFab').addEventListener('pointerdown',()=>{
 });
 ['pointerup','pointercancel','pointerleave'].forEach(ev=>$('serverSaveFab').addEventListener(ev,()=>{if(serverFabTimer){clearTimeout(serverFabTimer);serverFabTimer=null}}));
 
-$('recordDate').value=today();$('assetRecordDate').value=today();$('todayLabel').textContent=today();$('verifyMonth').value=transferCheck.month||ymNow();renderAll();renderTransferCheck();showTab(state.activeTab||'home');
+$('recordDate').value=today();$('assetRecordDate').value=today();$('todayLabel').textContent=today();$('verifyMonth').value=transferCheck.month||ymNow();renderAll();renderTransferCheck();state.activeTab='home';
+homeTrendMode='month';
+document.querySelectorAll('#homeRangeBtns button').forEach(b=>b.classList.toggle('active',b.dataset.mode==='month'));
+showTab('home');
 // 接続キー設定済みの端末だけ、起動時にサーバーの最新データを静かに取得します。
 setTimeout(()=>loadStateFromServer({silent:true}),250);
 
