@@ -641,7 +641,7 @@ table{color:#fff} th,td{border-color:rgba(255,255,255,.14)}
     height:100dvh !important;
     min-height:0 !important;
     overflow:hidden !important;
-    padding:8px 8px calc(var(--navh) + var(--actionh) + env(safe-area-inset-bottom) + 4px) !important;
+    padding:8px 8px calc(var(--navh) + env(safe-area-inset-bottom) + 4px) !important;
   }
 
   #page-home.active{
@@ -812,6 +812,7 @@ table{color:#fff} th,td{border-color:rgba(255,255,255,.14)}
   backdrop-filter:blur(16px);
   -webkit-backdrop-filter:blur(16px);
 }
+.global-actionbar.home-hidden{display:none!important}
 .global-actionbar-inner{
   width:min(50vw,460px);
   height:54px;
@@ -1820,8 +1821,10 @@ function drawChart(){
  ctx.fillStyle='#6b7280';[0,Math.floor((arr.length-1)/2),arr.length-1].forEach(i=>{const x=pad.l+w*i/(arr.length-1);ctx.fillText(arr[i].date.slice(5),Math.max(pad.l,x-16),rect.height-10)});
 }
 function updateGlobalActionbar(name){
- const assetBtn=$('assetSaveRecord'), lenderBtn=$('syncDebts');
- // 取得・送信は全タブ共通。左端の追加ボタンだけタブ別に切り替える。
+ const bar=$('globalActionbar'), assetBtn=$('assetSaveRecord'), lenderBtn=$('syncDebts');
+ // ホームは閲覧専用なので操作バー自体を表示しない。
+ bar.classList.toggle('home-hidden',name==='home');
+ // その他のタブでは取得・送信を共通表示し、左端だけタブ別操作に切り替える。
  assetBtn.classList.toggle('visible',name==='assets');
  lenderBtn.classList.toggle('visible',name==='lenders');
 }
