@@ -2,21 +2,22 @@
   "name": "資産残高管理",
   "short_name": "資産管理",
   "start_url": "./",
+  "scope": "./",
   "display": "standalone",
   "background_color": "#120f2b",
   "theme_color": "#120f2b",
   "icons": [
     {
-      "src": "./icon-192.png",
-      "sizes": "192x192",
+      "src": "./icon-any-20260830b.png",
+      "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "./icon-512.png",
+      "src": "./icon-maskable-20260830b.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "maskable"
     }
   ]
 }

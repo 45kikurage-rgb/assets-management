@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
 <meta name="theme-color" content="#120f2b" />
-<link rel="manifest" href="./manifest.webmanifest" />
+<link rel="manifest" href="./manifest.webmanifest?v=20260830b" />
 <title>資産残高管理</title>
 
 
@@ -923,26 +923,44 @@ table{color:#fff} th,td{border-color:rgba(255,255,255,.14)}
 
 
 </style>
+<link rel="apple-touch-icon" href="./icon-any-20260830b.png?v=20260830b" />
 
-<style id="laugh-bag-icon-replacement">
-/* Replace red-white ball icons with laugh-bag icon */
-#page-home .ball-icon{
-  display:none !important;
+<style id="assets-complete-visual-update-20260830b">
+/* FINAL OVERRIDE: hero image */
+#page-home .scene-window {
+  background-image:url("./home-scene-wanted-20260830b.jpg") !important;
+  background-size:cover !important;
+  background-position:center center !important;
+  background-repeat:no-repeat !important;
 }
-#page-home .home-brand .ball-icon:first-child,
-#page-home .month-chart-title .ball-icon{
-  display:inline-block !important;
-  width:34px !important;
-  height:34px !important;
-  flex:0 0 34px !important;
-  border-radius:50% !important;
-  background:url("./laugh-bag-icon.png") center/cover no-repeat !important;
+
+/* FINAL OVERRIDE: remove all original red/white balls first */
+#page-home .ball-icon {
+  display:none !important;
+  background:none !important;
   border:0 !important;
   box-shadow:none !important;
 }
-#page-home .home-brand .ball-icon:first-child::after,
-#page-home .month-chart-title .ball-icon::after{
+#page-home .ball-icon::after {
   display:none !important;
+}
+
+/* Show laugh-bag only at title-left and asset-trend-left */
+#page-home .home-brand > .ball-icon:first-child,
+#page-home .home-trend-title > .ball-icon:first-child {
+  display:inline-block !important;
+  width:34px !important;
+  height:34px !important;
+  min-width:34px !important;
+  flex:0 0 34px !important;
+  border-radius:50% !important;
+  background:url("./laugh-bag-icon-20260830b.png") center/cover no-repeat !important;
+}
+#page-home .home-trend-title > .ball-icon:first-child {
+  width:20px !important;
+  height:20px !important;
+  min-width:20px !important;
+  flex-basis:20px !important;
 }
 </style>
 
