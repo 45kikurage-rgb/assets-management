@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
 <meta name="theme-color" content="#120f2b" />
-<link rel="manifest" href="./manifest.webmanifest?v=20260830b" />
+<link rel="manifest" href="./manifest.webmanifest?v=20260830d" />
 <title>資産残高管理</title>
 
 
@@ -923,10 +923,13 @@ table{color:#fff} th,td{border-color:rgba(255,255,255,.14)}
 
 
 </style>
-<link rel="apple-touch-icon" href="./icon-any-20260830b.png?v=20260830b" />
+<link rel="apple-touch-icon" href="./icon-any-20260830d.png?v=20260830d" />
 
-<style id="assets-complete-visual-update-20260830b">
-/* FINAL OVERRIDE: hero image */
+
+
+
+<style id="assets-complete-slime-update-20260830d">
+/* Keep previously approved horizontal image unchanged */
 #page-home .scene-window {
   background-image:url("./home-scene-wanted-20260830b.jpg") !important;
   background-size:cover !important;
@@ -934,10 +937,15 @@ table{color:#fff} th,td{border-color:rgba(255,255,255,.14)}
   background-repeat:no-repeat !important;
 }
 
-/* FINAL OVERRIDE: remove all original red/white balls first */
+/* Replace all home red/white ball icons with selected slime */
 #page-home .ball-icon {
-  display:none !important;
-  background:none !important;
+  display:inline-block !important;
+  width:34px !important;
+  height:34px !important;
+  min-width:34px !important;
+  flex:0 0 34px !important;
+  border-radius:50% !important;
+  background:url("./slime-icon-20260830d.png") center/cover no-repeat !important;
   border:0 !important;
   box-shadow:none !important;
 }
@@ -945,18 +953,9 @@ table{color:#fff} th,td{border-color:rgba(255,255,255,.14)}
   display:none !important;
 }
 
-/* Show laugh-bag only at title-left and asset-trend-left */
-#page-home .home-brand > .ball-icon:first-child,
-#page-home .home-trend-title > .ball-icon:first-child {
-  display:inline-block !important;
-  width:34px !important;
-  height:34px !important;
-  min-width:34px !important;
-  flex:0 0 34px !important;
-  border-radius:50% !important;
-  background:url("./laugh-bag-icon-20260830b.png") center/cover no-repeat !important;
-}
-#page-home .home-trend-title > .ball-icon:first-child {
+/* Smaller icon beside 資産推移 */
+#page-home .home-trend-title .ball-icon,
+#page-home .month-chart-title .ball-icon {
   width:20px !important;
   height:20px !important;
   min-width:20px !important;
