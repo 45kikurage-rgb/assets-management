@@ -924,10 +924,25 @@ table{color:#fff} th,td{border-color:rgba(255,255,255,.14)}
 
 </style>
 
-<style id="home-scene-slime-replacement">
-/* Home hero image replacement */
-.scene-window{
-  background-image:url("./home-scene.jpg") !important;
+<style id="laugh-bag-icon-replacement">
+/* Replace red-white ball icons with laugh-bag icon */
+#page-home .ball-icon{
+  display:none !important;
+}
+#page-home .home-brand .ball-icon:first-child,
+#page-home .month-chart-title .ball-icon{
+  display:inline-block !important;
+  width:34px !important;
+  height:34px !important;
+  flex:0 0 34px !important;
+  border-radius:50% !important;
+  background:url("./laugh-bag-icon.png") center/cover no-repeat !important;
+  border:0 !important;
+  box-shadow:none !important;
+}
+#page-home .home-brand .ball-icon:first-child::after,
+#page-home .month-chart-title .ball-icon::after{
+  display:none !important;
 }
 </style>
 
