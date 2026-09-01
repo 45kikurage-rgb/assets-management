@@ -1,159 +1,1426 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ja">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-<meta name="theme-color" content="#120f2b" />
-<link rel="manifest" href="./manifest.webmanifest?v=20260901h" />
-<title>資産残高管理</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#020711">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="apple-touch-icon" href="./icon-any.png">
+<title>当選URL管理</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#f3f4f6;color:#111827;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans JP",sans-serif}
+.wrap{max-width:900px;margin:auto;padding:14px 14px calc(112px + env(safe-area-inset-bottom))}
+.card{background:#fff;border-radius:18px;padding:16px;margin-bottom:12px;box-shadow:0 5px 18px rgba(0,0,0,.07)}
+h1{font-size:23px;margin:0 0 12px}
+h2{font-size:18px;margin:0 0 10px}
+.listHeader{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:12px}.listHeader h2{margin:0;flex:1;min-width:0}.revenueSummary{display:flex;align-items:center;gap:6px;flex:none}.currentRevenue{min-width:102px;padding:8px 8px;border:1px solid #fde68a;border-radius:13px;background:#fffbeb;text-align:center;box-shadow:0 3px 10px rgba(245,158,11,.1)}.currentRevenueLabel{font-size:11px;font-weight:900;color:#92400e}.currentRevenueAmount{margin-top:1px;font-size:17px;line-height:1.25;font-weight:1000;color:#111827;white-space:nowrap}@media(max-width:380px){.listHeader{gap:6px}.listHeader h2{font-size:16px}.revenueSummary{gap:4px}.currentRevenue{min-width:92px;padding:7px 5px}.currentRevenueLabel{font-size:10px}.currentRevenueAmount{font-size:15px}}
+.muted{font-size:12px;color:#6b7280;line-height:1.6}
+input{width:100%;padding:13px;border:1px solid #d1d5db;border-radius:11px;font-size:16px}
+button{border:0;border-radius:11px;padding:12px 14px;font-size:14px;font-weight:800;cursor:pointer}
+button:disabled{opacity:.5;cursor:not-allowed}
+.primary{background:#2563eb;color:#fff}.secondary{background:#e5e7eb;color:#111827}.green{background:#16a34a;color:#fff}.danger{background:#dc2626;color:#fff}
+.actions{display:flex;gap:8px;flex-wrap:wrap}
+.selectedActions{display:grid;grid-template-columns:1fr 1fr;gap:8px}.selectedActions button{min-width:0}.selectedActions #excelBtn{grid-column:1/-1}
+.serverBar{position:sticky;top:8px;z-index:20;display:flex;align-items:center;gap:10px;background:#111827;color:#fff;border-radius:14px;padding:10px 12px;margin-bottom:12px;box-shadow:0 6px 18px rgba(0,0,0,.16)}
+.serverInfo{min-width:0;flex:1}.serverState{font-size:14px;font-weight:900}.serverTime{font-size:10px;color:#cbd5e1;margin-top:2px}
+.serverDot{width:10px;height:10px;border-radius:50%;background:#f59e0b;flex:none;box-shadow:0 0 0 4px rgba(245,158,11,.17)}
+.serverBar.ok .serverDot{background:#22c55e;box-shadow:0 0 0 4px rgba(34,197,94,.17)}
+.serverBar.ng .serverDot{background:#ef4444;box-shadow:0 0 0 4px rgba(239,68,68,.17)}
+.serverBar.offline .serverDot{background:#9ca3af;box-shadow:0 0 0 4px rgba(156,163,175,.17)}
+.serverRetry{padding:8px 10px;background:#fff;color:#111827;font-size:12px;white-space:nowrap}
+.status{margin:0 0 12px;padding:10px;border-radius:11px;text-align:center;font-weight:800;background:#eef2ff;color:#3730a3}
+.status:empty{display:none}.status.ok{background:#dcfce7;color:#166534}.status.ng{background:#fee2e2;color:#991b1b}
+.monthSection+.monthSection{margin-top:14px}.monthToggle{width:100%;display:flex;align-items:center;gap:7px;margin:0 0 9px;padding:10px 11px;background:#eef2ff;color:#1e3a8a;text-align:left}.monthCaret{font-size:12px}.monthTitle{font-size:15px;font-weight:1000}.monthSection.is-collapsed .listGrid{display:none}.monthSection.is-collapsed .monthToggle{margin-bottom:0}
+.activeSection{margin-bottom:22px}.activeFolderHeader{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0 0 9px;padding:10px 12px;border:1px solid #bfdbfe;border-radius:11px;background:#eff6ff;color:#1e3a8a;font-size:15px;font-weight:1000}.activeFolderTitle{display:flex;align-items:center;gap:8px}.activeFolderDot{width:10px;height:10px;border-radius:50%;background:#2563eb;box-shadow:0 0 0 4px rgba(37,99,235,.12);flex:none}.activeFolderCount{padding:3px 8px;border-radius:999px;background:#dbeafe;color:#1d4ed8;font-size:11px;white-space:nowrap}
+.permanentSection{margin-bottom:22px}.permanentFolderHeader{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0 0 9px;padding:10px 12px;border:1px solid #a7f3d0;border-radius:11px;background:#ecfdf5;color:#065f46;font-size:15px;font-weight:1000}.permanentFolderTitle{display:flex;align-items:center;gap:8px}.permanentFolderIcon{font-size:16px}.permanentFolderCount{padding:3px 8px;border-radius:999px;background:#d1fae5;color:#047857;font-size:11px;white-space:nowrap}
+.listGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.listItem{position:relative;min-width:0;min-height:190px;border:2px solid #e5e7eb;border-radius:15px;padding:12px;background:#fff;display:flex;flex-direction:column;cursor:pointer;transition:transform .12s ease,box-shadow .12s ease}
+.listItem:active{transform:scale(.98)}
+.stateRow{height:31px;display:flex;align-items:flex-start;justify-content:space-between;gap:5px}.name{font-weight:850;line-height:1.3;min-height:2.6em;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}.badge{display:inline-block;margin-top:5px;padding:4px 8px;background:#eef2ff;border-radius:999px;font-size:12px}.activityBtn{width:30px;height:30px;padding:0;border-radius:7px;background:#fff;font-size:14px;font-weight:1000;flex:none}.activityBtn.is-active{border:2px solid #2563eb;color:#2563eb;background:#eff6ff}.activityBtn.is-inactive{border:2px solid #9ca3af;color:#4b5563;background:#f9fafb}
+.itemBtns{margin-top:auto;padding-top:9px;display:grid;grid-template-columns:minmax(0,1fr) minmax(76px,.9fr);grid-template-rows:auto auto;gap:6px;align-items:stretch}.itemBtns button{padding:7px 6px;font-size:11px}.renameBtn{grid-column:1;grid-row:1}.unitEditor{grid-column:1;grid-row:2;display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px;align-items:center}.unitLabel{font-size:11px;font-weight:900;white-space:nowrap}.unitInput{min-width:0;padding:7px 4px;border-radius:9px;font-size:12px;text-align:right;font-weight:800}.cardCopyBtn{grid-column:2;grid-row:1/3;display:flex;min-height:70px;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:8px 4px!important;border:1px solid #bfdbfe;background:#eff6ff;color:#1d4ed8}.cardCopyBtn:hover{background:#dbeafe}.cardCopyBtn:disabled{border-color:#e5e7eb;background:#f3f4f6;color:#9ca3af}.cardCopyLabel{font-size:11px;font-weight:900}.cardCopyCount{font-size:17px;line-height:1.1;font-weight:1000}.walletCardBtn{grid-row:1;min-height:40px}.walletRecheckBtn{grid-column:2;grid-row:2;display:flex;min-height:40px;align-items:center;justify-content:center;gap:3px;padding:6px 4px!important;border:1px solid #fcd34d;background:#fffbeb;color:#92400e}.walletRecheckBtn:disabled{border-color:#e5e7eb;background:#f3f4f6;color:#9ca3af}.walletRecheckLabel{font-size:10px;font-weight:900}.walletRecheckCount{font-size:14px;font-weight:1000}
+.urlItem{border-top:1px solid #eee;padding:10px 0;position:relative;display:grid;grid-template-columns:42px minmax(0,1fr);gap:9px;align-items:start;touch-action:pan-y}.urlItem.is-pressing{background:#eff6ff}.urlEditHint{position:absolute;right:0;top:8px;padding:3px 6px;border-radius:7px;background:#f3f4f6;color:#6b7280;font-size:9px;font-weight:800}.urlMain{min-width:0}.urlMain .date{padding-right:42px}.processState{min-height:42px;border-radius:10px;background:#f3f4f6;color:#111827;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:10px;font-weight:1000;line-height:1.1}.processState.is-processed{background:#dbeafe;color:#1d4ed8}.processStateValue{font-size:15px}.processStateLabel{margin-top:2px;font-size:8px}.url{font-size:12px;word-break:break-all;color:#111827}.urlItem.is-processed .url{color:#2563eb}.date,.device{font-size:11px;color:#6b7280}
+.hidden{display:none}
+.activeListItem{background:#fff7d6;border-color:#f59e0b;box-shadow:0 0 0 2px rgba(245,158,11,.12)}
+.activeFlag{display:inline-flex;align-items:center;margin-bottom:6px;padding:3px 7px;border-radius:999px;background:#f59e0b;color:#fff;font-size:10px;font-weight:900;align-self:flex-start}
+.bottomDock{position:fixed;left:0;right:0;bottom:0;z-index:50;background:rgba(255,255,255,.96);border-top:1px solid #e5e7eb;padding:8px max(12px,calc((100vw - 900px)/2 + 14px)) calc(8px + env(safe-area-inset-bottom));backdrop-filter:blur(10px)}
+.dockTarget{font-size:11px;color:#4b5563;text-align:right;margin-bottom:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dockBtns{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}.dockBtns button{min-width:0;padding:10px 4px;font-size:11px;line-height:1.25}.revenueDockBtn{display:flex;align-items:center;justify-content:center}
+.sheet{position:fixed;inset:0;z-index:10000;display:none;align-items:flex-end;justify-content:center;background:rgba(0,0,0,.45);padding:16px 16px calc(16px + env(safe-area-inset-bottom))}.sheet.show{display:flex}
+.sheetBox{width:min(600px,100%);background:#fff;border-radius:20px;padding:18px}.sheetTitle{font-size:18px;font-weight:900;margin-bottom:12px}.sheetBtns{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+@media(max-width:350px){.listGrid{grid-template-columns:1fr}.dockBtns button{font-size:10px;padding-inline:2px}.wrap{padding-left:10px;padding-right:10px}}
+.revenueModal{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;padding:18px;z-index:10001}.revenueModal.show{display:flex}.revenueModalBox{width:min(430px,100%);max-height:min(70vh,560px);overflow:auto;background:#fff;border-radius:20px;padding:18px;box-shadow:0 20px 50px rgba(0,0,0,.25)}.revenueModalHead{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px}.revenueModalTitle{font-size:20px;font-weight:900}.revenueClose{padding:8px 11px}.revenueGroup{border-top:1px solid #e5e7eb}.revenueGroup:first-child{border-top:0}.revenueRow{width:100%;display:grid;grid-template-columns:1fr auto;gap:4px 10px;padding:13px 2px;background:#fff;color:#111827;text-align:left;border-radius:0}.revenueMonth{font-weight:900}.revenueAmount{font-weight:1000;text-align:right}.revenueNote{grid-column:1/-1;font-size:11px;color:#6b7280}.revenueDetails{padding:0 4px 10px}.revenueDetailRow{display:grid;grid-template-columns:1fr auto;gap:3px 8px;padding:9px 8px;border-radius:9px;background:#f8fafc;margin-top:6px}.revenueDetailName{font-size:12px;font-weight:900}.revenueDetailAmount{font-size:12px;font-weight:900;text-align:right}.revenueDetailCalc{grid-column:1/-1;font-size:10px;color:#6b7280}
+.fileModal{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;padding:18px;z-index:9999}
+.fileModal.show{display:flex}
+.fileModalBox{width:min(430px,100%);background:#fff;border-radius:20px;padding:20px;box-shadow:0 20px 50px rgba(0,0,0,.25);text-align:center}
+.fileModalTitle{font-size:21px;font-weight:900;margin-bottom:8px}
+.fileModalName{font-size:13px;color:#6b7280;word-break:break-all;margin-bottom:14px}
+.fileModalBtns{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.fileModalBtns button{padding:13px 8px}
+.editSubmissionBox{text-align:left}.editSubmissionBox label{display:block;margin:10px 0 5px;font-size:12px;font-weight:900;color:#374151}.editSubmissionBox textarea{width:100%;min-height:112px;padding:12px;border:1px solid #d1d5db;border-radius:11px;font:inherit;resize:vertical;word-break:break-all}.editSubmissionBox select{width:100%;padding:12px;border:1px solid #d1d5db;border-radius:11px;background:#fff;font-size:15px}.editSubmissionBtns{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px}.editSubmissionBtns .deleteSubmissionBtn{grid-column:1/-1}.longPressHelp{margin-top:8px;font-size:11px;color:#6b7280}
+.copySummary{margin:12px 0;padding:14px;border-radius:14px;background:#eff6ff;text-align:center}.copyCount{font-size:30px;font-weight:1000;color:#1d4ed8}.copyListName{font-size:14px;font-weight:900;margin-top:3px}.copyGuide{font-size:12px;color:#4b5563;line-height:1.6;margin:10px 0}.copyModalBtns,.csvChoiceBtns{display:grid;gap:8px}.copyModalBtns{grid-template-columns:1fr 1fr}.copyModalBtns .completeCopyBtn{grid-column:1/-1;padding:14px;font-size:16px}.csvChoiceBtns button{width:100%;text-align:center}.choiceCount{display:block;font-size:11px;margin-top:2px;opacity:.85}.undoToast{position:fixed;left:50%;bottom:calc(105px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:10020;width:min(430px,calc(100% - 24px));display:none;align-items:center;justify-content:space-between;gap:10px;padding:11px 12px;border-radius:14px;background:#111827;color:#fff;box-shadow:0 10px 28px rgba(0,0,0,.3)}.undoToast.show{display:flex}.undoText{min-width:0;font-size:12px;font-weight:800}.undoToast button{padding:8px 10px;white-space:nowrap;background:#fff;color:#111827}
+.copyConfirmBtns{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.copyConfirmBtns button{min-width:0;padding:13px 6px}.copyConfirmNote{margin:8px 0 13px;font-size:12px;line-height:1.6;color:#4b5563}
+.listEditBox label{display:block;margin:10px 0 5px;font-size:12px;font-weight:900;color:#374151}.listEditBox select{width:100%;padding:12px;border:1px solid #d1d5db;border-radius:11px;background:#fff;font-size:15px}.listEditBtns{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px}.walletSummary{margin:12px 0;padding:13px;border-radius:14px;background:#ecfdf5;text-align:center}.walletRemainingLabel{font-size:12px;font-weight:900;color:#047857}.walletRemainingCount{font-size:28px;font-weight:1000;color:#065f46}.walletOpenBtn{display:flex;width:100%;min-height:68px;align-items:center;justify-content:center;margin:12px 0;border-radius:14px;background:#2563eb;color:#fff;text-decoration:none;font-size:19px;font-weight:1000;box-shadow:0 6px 16px rgba(37,99,235,.25)}.walletOpenBtn:active{transform:scale(.98)}.walletOpenBtn.is-disabled{pointer-events:none;background:#d1d5db;color:#6b7280;box-shadow:none}.walletGuide{font-size:12px;line-height:1.65;color:#4b5563;margin:8px 0 12px}.walletModalBtns{display:grid;grid-template-columns:1fr 1fr;gap:8px}.walletModalBtns button{padding:13px 7px}.walletCompleteBtn{background:#16a34a;color:#fff}.walletItemDate{font-size:11px;color:#6b7280;margin-top:3px}
+.recheckSummary{margin:12px 0;padding:13px;border-radius:14px;background:#fffbeb;text-align:center}.recheckLabel{font-size:12px;font-weight:900;color:#92400e}.recheckCount{font-size:28px;font-weight:1000;color:#78350f}.recheckOpenBtn{display:flex;width:100%;min-height:68px;align-items:center;justify-content:center;margin:12px 0;border-radius:14px;background:#d97706;color:#fff;text-decoration:none;font-size:19px;font-weight:1000;box-shadow:0 6px 16px rgba(217,119,6,.22)}.recheckOpenBtn.is-disabled{pointer-events:none;background:#d1d5db;color:#6b7280;box-shadow:none}.recheckGuide{font-size:12px;line-height:1.65;color:#4b5563;margin:8px 0 12px}.recheckBtns{display:grid;grid-template-columns:1fr 1fr;gap:8px}.recheckBtns .verifyCompleteBtn{grid-column:1/-1;padding:14px;font-size:16px;background:#16a34a;color:#fff}
+.walletHistoryState{margin-top:3px;font-size:10px;font-weight:900;color:#b45309}.walletHistoryState.is-verified{color:#15803d}
+.paypayActionBtn{grid-column:2;display:flex;min-height:40px;align-items:center;justify-content:center;gap:3px;padding:6px 4px!important;border:1px solid #bfdbfe;background:#eff6ff;color:#1d4ed8}.paypayActionBtn:disabled{border-color:#e5e7eb;background:#f3f4f6;color:#9ca3af}.paypayUrlBtn{grid-row:1}.paypayCodeBtn{grid-row:2}.paypayActionLabel{font-size:10px;font-weight:900}.paypayActionCount{font-size:14px;font-weight:1000}.paypaySummary{margin:12px 0;padding:13px;border-radius:14px;background:#eff6ff;text-align:center}.paypayType{font-size:12px;font-weight:900;color:#1d4ed8}.paypayCount{font-size:28px;font-weight:1000;color:#1e3a8a}.paypayValue{margin:10px 0;padding:13px;border-radius:12px;background:#f8fafc;font-size:15px;font-weight:900;word-break:break-all}.paypayMainAction{width:100%;min-height:68px;margin:10px 0;background:#2563eb;color:#fff;font-size:18px}.paypayModalBtns{display:grid;grid-template-columns:1fr 1fr;gap:8px}.paypayCompleteBtn{background:#16a34a;color:#fff}.paypayHistoryState{margin-top:3px;font-size:10px;font-weight:900;color:#15803d}
 
-<link rel="stylesheet" href="./styles.css?v=20260901" />
-<link rel="apple-touch-icon" href="./icon-192.png?v=20260901h" />
+/* THE FOOL QUEST / classic 16-bit RPG theme */
+:root{--dq-bg:#020711;--dq-panel:#030916;--dq-panel2:#07152c;--dq-line:#f4f7ff;--dq-blue:#073b91;--dq-blue2:#0b56c4;--dq-gold:#ffc928;--dq-green:#087342;--dq-red:#b91519;--dq-muted:#b9c5d8}
+html{background:var(--dq-bg)}
+body{background-color:var(--dq-bg);background-image:linear-gradient(rgba(14,48,91,.28) 1px,transparent 1px),linear-gradient(90deg,rgba(14,48,91,.28) 1px,transparent 1px);background-size:14px 14px;color:#fff;font-family:"MS Gothic","Osaka-Mono","Noto Sans Mono CJK JP",ui-monospace,monospace;letter-spacing:.02em}
+.wrap{padding-top:14px}
+.card,.serverBar,.sheetBox,.revenueModalBox,.fileModalBox{border:3px solid var(--dq-line);border-radius:3px;background:linear-gradient(180deg,#061027 0%,#020713 100%);box-shadow:0 0 0 2px #48566d,0 0 0 4px #02040a,0 8px 22px rgba(0,0,0,.55)}
+.card{padding:16px;margin-bottom:16px}
+h1,h2,.sheetTitle,.revenueModalTitle,.fileModalTitle{color:#fff;text-shadow:2px 2px 0 #000;font-weight:900}
+.muted,.date,.device,.revenueNote,.revenueDetailCalc,.fileModalName,.copyGuide,.copyConfirmNote,.walletGuide,.walletItemDate,.dockTarget{color:var(--dq-muted)}
+button,input,select,textarea{font-family:inherit}
+button{border:2px solid var(--dq-line);border-radius:2px;color:#fff;background:#111827;box-shadow:inset 0 0 0 2px #334155,2px 2px 0 #000;text-shadow:1px 1px 0 #000}
+button:active{transform:translate(1px,1px);box-shadow:inset 0 0 0 2px #334155}
+button:disabled{color:#6f7a8c;background:#172033;border-color:#667085;box-shadow:inset 0 0 0 2px #202c40;opacity:.72}
+.primary{background:linear-gradient(#0e5bca,#062d76);color:#fff}.secondary{background:linear-gradient(#303a4d,#151c28);color:#fff}.green{background:linear-gradient(#0b8a54,#075233);color:#fff}.danger{background:linear-gradient(#d3272c,#8e0b10);color:#fff}
+input,select,textarea,.unitInput{color:#fff!important;background:#030814!important;border:2px solid var(--dq-line)!important;border-radius:2px!important;box-shadow:inset 0 0 0 2px #28364b}
+.serverBar{top:8px;background:linear-gradient(180deg,#07132b,#020713);padding:12px 14px}
+.serverTime{color:var(--dq-muted)}.serverRetry{background:linear-gradient(#0e5bca,#062d76);color:#fff}
+.serverDot{border-radius:1px;transform:rotate(45deg);box-shadow:0 0 0 2px #442f00,0 0 10px #f59e0b}.serverBar.ok .serverDot{box-shadow:0 0 0 2px #073b24,0 0 10px #22c55e}.serverBar.ng .serverDot{box-shadow:0 0 0 2px #4b0a0a,0 0 10px #ef4444}
+.status{border:2px solid var(--dq-line);border-radius:2px;background:#092b68;color:#fff;box-shadow:inset 0 0 0 2px #1b62b8}.status.ok{background:#07502f;color:#fff}.status.ng{background:#7f1015;color:#fff}
+.listHeader{padding:2px 1px 7px;border-bottom:2px solid #52627a}.listHeader h2{font-size:21px}
+.currentRevenue{border:2px solid var(--dq-gold);border-radius:2px;background:#030814;box-shadow:inset 0 0 0 2px #5b4510,2px 2px 0 #000}.currentRevenueLabel{color:var(--dq-gold)}.currentRevenueAmount{color:#fff;text-shadow:1px 1px #000}
+.activeFolderHeader,.permanentFolderHeader,.monthToggle{border:2px solid var(--dq-line);border-radius:2px;color:#fff;box-shadow:inset 0 0 0 2px #334155,2px 2px 0 #000}
+.activeFolderHeader{background:linear-gradient(90deg,#061f4e,#082f73)}.permanentFolderHeader{background:linear-gradient(90deg,#063922,#075b38)}.monthToggle{background:linear-gradient(90deg,#092d6b,#061c48)}
+.activeFolderDot{border-radius:1px;transform:rotate(45deg);background:#36a6ff;box-shadow:0 0 0 2px #0d315c}.activeFolderCount,.permanentFolderCount{border:1px solid #fff;border-radius:2px;background:#061126;color:#fff}
+.listGrid{gap:12px}
+.listItem{min-height:190px;border:3px solid var(--dq-line);border-radius:2px;padding:12px;background:linear-gradient(160deg,#061027,#020713);box-shadow:0 0 0 2px #536177,3px 3px 0 #000}
+.listItem:active{transform:translate(1px,1px)}
+.activeListItem{border-color:var(--dq-gold);background:linear-gradient(160deg,#171303,#05070d);box-shadow:0 0 0 2px #80630d,3px 3px 0 #000,0 0 14px rgba(255,201,40,.18)}
+.activeFlag{border:1px solid var(--dq-gold);border-radius:2px;background:#4c3800;color:var(--dq-gold);box-shadow:inset 0 0 0 1px #8b6d10}
+.name{color:#fff;text-shadow:2px 2px #000;font-size:16px}.badge{border:1px solid #8996aa;border-radius:2px;background:#111b2d;color:#fff}
+.activityBtn{border-radius:2px;background:#07152c}.activityBtn.is-active{border-color:#50a7ff;color:#fff;background:#073b91}.activityBtn.is-inactive{border-color:#9ba6b5;color:#b9c5d8;background:#192334}
+.unitLabel{color:var(--dq-gold)}
+.cardCopyBtn,.paypayActionBtn{border:2px solid #77baff;background:linear-gradient(#0b4da9,#062c70);color:#fff;box-shadow:inset 0 0 0 2px #123f76}.cardCopyBtn:hover{background:#0b4da9}.cardCopyBtn:disabled,.paypayActionBtn:disabled,.walletRecheckBtn:disabled{border-color:#667085;background:#172033;color:#6f7a8c}
+.walletRecheckBtn{border:2px solid var(--dq-gold);background:#5b3b00;color:#fff}.renameBtn{background:linear-gradient(#303a4d,#151c28)}
+.urlItem{border-top:2px solid #48566d}.url{color:#fff}.urlItem.is-processed .url{color:#61b5ff}.urlEditHint{border-radius:2px;background:#162238;color:#d4dbea}.processState{border:1px solid #718096;border-radius:2px;background:#182236;color:#fff}.processState.is-processed{background:#073b91;color:#fff}
+.bottomDock{background:rgba(2,7,17,.97);border-top:3px solid var(--dq-line);box-shadow:0 -2px 0 #52627a;backdrop-filter:none}.dockTarget{color:#fff}
+.sheet,.revenueModal,.fileModal{background:rgba(0,0,0,.78)}
+.sheetBox,.revenueModalBox,.fileModalBox{color:#fff}
+.revenueRow{background:#030916;color:#fff;border-radius:0}.revenueGroup{border-color:#52627a}.revenueDetailRow{border:1px solid #52627a;border-radius:2px;background:#091328}.revenueDetailName,.revenueDetailAmount{color:#fff}
+.copySummary,.walletSummary,.recheckSummary,.paypaySummary,.paypayValue{border:2px solid var(--dq-line);border-radius:2px;background:#07152c;box-shadow:inset 0 0 0 2px #263957}.copyCount,.walletRemainingCount,.paypayCount{color:#6eb9ff}.copyListName,.paypayValue{color:#fff}.walletRemainingLabel,.paypayType{color:#55d994}.recheckLabel,.recheckCount{color:var(--dq-gold)}
+.walletOpenBtn,.recheckOpenBtn{border:2px solid var(--dq-line);border-radius:2px;background:linear-gradient(#0e5bca,#062d76);color:#fff;box-shadow:inset 0 0 0 2px #1f6bc2,2px 2px 0 #000}.recheckOpenBtn{background:linear-gradient(#b16d08,#744300)}.walletOpenBtn.is-disabled,.recheckOpenBtn.is-disabled{background:#172033;color:#6f7a8c}
+.paypayMainAction,.walletCompleteBtn,.paypayCompleteBtn,.verifyCompleteBtn{background:linear-gradient(#0b8a54,#075233);color:#fff}
+.undoToast{border:2px solid var(--dq-line);border-radius:2px;background:#030916;box-shadow:0 0 0 2px #52627a}.undoToast button{background:#073b91;color:#fff}
+@media(max-width:380px){.currentRevenue{min-width:92px}.listHeader h2{font-size:17px}}
 
+</style>
 </head>
 <body>
 <div class="wrap">
-  <h1>資産残高管理</h1>
 
-  <section id="page-home" class="tabpage active">
-    <div class="home-head">
-      <div class="home-brand"><span class="ball-icon" aria-hidden="true"></span><div class="home-brand-text">資産管理</div></div>
-      <div class="home-head-right"><span id="homeUpdated" class="home-updated"></span><button class="home-refresh" id="homeRefresh" type="button" aria-label="更新">↻</button></div>
-    </div>
-    <div class="hero-metrics">
-      <div class="card hero-card"><div class="label">総資産額</div><div id="assetTotal" class="big pos">¥0</div><div id="assetChangeText" class="hero-sub">前回比 ¥0</div></div>
-      <div class="card hero-card"><div class="label">純資産額</div><div id="netAsset" class="big">¥0</div><div id="changeText" class="hero-sub">前回比 ¥0</div></div>
-    </div>
-    <div class="card goal-card">
-      <div class="goal-top"><div><div class="goal-title">⭐ <span id="goalMonthText">今月</span>目標まで</div><div class="goal-meta">残り <span id="goalRemainText">—</span>　　目標：<span id="goalAmountText">未設定</span></div></div><div><div class="label" style="text-align:center">進捗率</div><div id="goalPct" class="goal-pct">—</div></div></div>
-      <div class="goal-track"><div id="goalFill" class="goal-fill"></div></div>
-      <button id="editGoal" class="small">目標額を設定</button>
-    </div>
+<div id="serverBar" class="serverBar">
+  <span class="serverDot" aria-hidden="true"></span>
+  <div class="serverInfo">
+    <div id="serverState" class="serverState">接続確認中…</div>
+    <div id="serverTime" class="serverTime">サーバーを確認しています</div>
+  </div>
+  <button id="serverRetry" class="serverRetry">再確認</button>
+</div>
+<div id="status" class="status"></div>
 
-    <div class="scene-window" aria-hidden="true"></div>
-
-    <div class="card home-trend-card">
-      <div class="home-trend-head">
-        <div class="home-trend-title"><span>資産推移</span></div>
-        <div class="home-range" id="homeRangeBtns"><button type="button" data-mode="month" class="active">今月</button><button type="button" data-days="30">1ヶ月</button><button type="button" data-days="90">3ヶ月</button><button type="button" data-days="180">6ヶ月</button><button type="button" data-days="365">1年</button></div>
+<div class="card">
+  <div class="listHeader">
+    <h2>保存先リスト</h2>
+    <div class="revenueSummary" aria-live="polite">
+      <div class="currentRevenue">
+        <div class="currentRevenueLabel">本日収益</div>
+        <div id="todayRevenueAmount" class="currentRevenueAmount">--円</div>
       </div>
-      <div class="home-split-charts">
-        <div class="home-mini-chart home-asset-panel">
-          <div class="home-mini-title"><span><i class="legend-line legend-asset"></i><span id="homeAssetLabel">総資産額</span></span><strong id="homeAssetLatest">¥0</strong></div>
-          <div class="home-trend-box"><canvas id="homeAssetChart"></canvas></div>
-        </div>
-        <div class="home-mini-chart home-net-panel">
-          <div class="home-mini-title"><span><i class="legend-line legend-net"></i><span id="homeNetLabel">純資産額</span></span><strong id="homeNetLatest">¥0</strong></div>
-          <div class="home-trend-box"><canvas id="homeNetChart"></canvas></div>
-        </div>
+      <div class="currentRevenue">
+        <div class="currentRevenueLabel">今月収益</div>
+        <div id="currentRevenueAmount" class="currentRevenueAmount">--円</div>
       </div>
     </div>
-
-    <div class="home-menu">
-      <button class="home-menu-btn" data-goto="assets"><span class="micon">💰</span><span><strong>資産</strong><small>資産を管理する</small></span></button>
-      <button class="home-menu-btn" data-goto="debts"><span class="micon">🏦</span><span><strong>借入</strong><small>借入を管理する</small></span></button>
-      <button class="home-menu-btn" data-goto="lenders"><span class="micon">👪</span><span><strong>借入先</strong><small>借入先を管理する</small></span></button>
-      <button class="home-menu-btn" data-goto="trend"><span class="micon">📈</span><span><strong>推移</strong><small>資産推移を確認</small></span></button>
-      <button class="home-menu-btn" data-goto="history"><span class="micon">🕘</span><span><strong>履歴</strong><small>履歴を確認する</small></span></button>
-      <button class="home-menu-btn" data-goto="transfer"><span class="micon">✓</span><span><strong>振込</strong><small>振込を確認する</small></span></button>
-    </div>
-
-    <div class="card home-record"><div class="section-head"><h2>本日の残高を記録</h2><span class="pill" id="todayLabel"></span></div><div class="datebar"><input type="date" id="recordDate"><button class="primary" id="saveRecord">この日の残高を記録</button></div></div>
-    <div style="display:none"><span id="debtTotal">¥0</span><span id="monthBaseText"></span><span id="monthDeltaNow"></span><span id="monthChartPeriod"></span><canvas id="monthDeltaChart"></canvas></div>
-  </section>
-
-  <section id="page-assets" class="tabpage">
-    <div class="card">
-      <div class="section-head"><h2>資産</h2><button class="small" id="addAsset">＋ 項目追加</button></div>
-      <div class="subtot" style="border-top:0;border-bottom:1px solid var(--line);padding:0 0 12px;margin:0 0 12px"><span>資産合計</span><span id="assetSub">¥0</span></div>
-      <div class="asset-record-box">
-        <input type="date" id="assetRecordDate" class="asset-record-date" aria-label="記録日">
-        <div class="asset-record-note">資産・借入・純資産を選択日の記録として履歴へ保存します。</div>
-      </div>
-      <div id="assetRows"></div>
-    </div>
-  </section>
-
-  <section id="page-debts" class="tabpage">
-    <div class="card">
-      <div class="section-head"><h2>借入</h2><button class="small" id="addDebt">＋ 項目追加</button></div>
-      <div class="subtot" style="border-top:0;border-bottom:1px solid var(--line);padding:0 0 12px;margin:0 0 12px"><span>借入合計</span><span id="debtSub">¥0</span></div>
-      <div id="debtRows"></div>
-      <p class="note">「借入先一覧」から反映した借入先は、返済残額がここへ同期されます。</p>
-    </div>
-  </section>
-
-  <section id="page-lenders" class="tabpage">
-    <div class="card">
-      <div class="section-head"><h2>借入先一覧 <span class="pill" id="lenderCount">0/13</span></h2><button class="small" id="addLender">＋ 借入先追加</button></div>
-      <div id="lenderRows"></div>
-      <div class="subtot"><span>返済総額 合計</span><span id="lenderGrandTotal">¥0</span></div><div class="subtot"><span>返済残額 合計</span><span id="lenderRemainTotal">¥0</span></div>
-      <p class="note">「今月返済済み」を押すと、その月の返済金額を返済残額から1回だけ減算します。反映ボタンを押すと最新の返済残額を借入タブへ同期します。</p>
-    </div>
-  </section>
-
-  <section id="page-transfer" class="tabpage">
-    <div class="card">
-      <div class="section-head"><h2>振込確認</h2><span class="pill" id="transferMonthLabel">未読込</span></div>
-      <div class="uploadbox">
-        <div class="field"><label>確認する月</label><input type="month" id="verifyMonth"></div>
-        <div class="field" style="margin-top:10px"><label>SMBC取引明細CSV</label><input type="file" id="transferCsv" accept=".csv,text/csv"></div>
-        <p class="note" style="margin-bottom:0">両親は照合対象外です。振込手数料は自動除外します。CSVに口座番号が含まれないため、照合できるのは「振込先名」と「金額」です。</p>
-      </div>
-      <div class="verify-summary">
-        <div class="verify-stat"><span class="label">要振込</span><strong id="verifyRequired">0</strong></div>
-        <div class="verify-stat"><span class="label">一致</span><strong id="verifyOk" class="pos">0</strong></div>
-        <div class="verify-stat"><span class="label">要確認</span><strong id="verifyNg" class="neg">0</strong></div>
-      </div>
-      <div id="verifyStatus" class="empty">CSVを選択すると照合結果を表示します</div>
-      <div id="verifyRows" class="verify-list" style="margin-top:10px"></div>
-      <div class="verify-actions">
-        <button class="primary" id="applyVerifiedPayments" type="button" disabled>確認済みを一括で返済反映</button>
-        <button id="clearTransferCsv" type="button">照合結果をクリア</button>
-      </div>
-      <p class="note">一括反映は「振込先名・金額が一致」したものだけを対象にし、すでに返済済みの月は二重減算しません。</p>
-    </div>
-  </section>
-
-  <section id="page-trend" class="tabpage">
-    <div class="card">
-      <div class="section-head"><h2>純資産の推移（残高）</h2><select id="range" style="width:auto;min-width:120px"><option value="30">30日</option><option value="90">90日</option><option value="365">1年</option><option value="all">全期間</option></select></div>
-      <div class="chartbox"><canvas id="chart"></canvas></div>
-      <p class="note">こちらは純資産そのものの推移です。ホームには前月末比の「今月増減グラフ」を表示します。</p>
-    </div>
-  </section>
-
-  <section id="page-history" class="tabpage">
-    <div class="card">
-      <div class="section-head"><h2>記録履歴</h2><div class="actions"><button class="small" id="exportCsv">CSV出力</button><label class="btn small" style="display:inline-flex;align-items:center">CSV読込<input id="importCsv" type="file" accept=".csv,text/csv" hidden></label></div></div>
-      <div class="tablewrap"><table><thead><tr><th>日付</th><th>資産</th><th>借入</th><th>純資産</th><th>前回比</th><th></th></tr></thead><tbody id="historyBody"></tbody></table></div>
-      <p class="note">日付を長押しすると、その日の記録を削除できます。端末内にも保存し、サーバー保存ボタンからクラウドへバックアップできます。</p>
-    </div>
-  </section>
+  </div>
+  <div id="listArea"></div>
 </div>
 
-<div class="global-actionbar" id="globalActionbar" aria-label="データ操作">
-  <div class="global-actionbar-inner" id="globalActionbarInner">
-    <button class="global-context-btn primary" id="assetSaveRecord" type="button"><span>残高</span><span>記録</span></button>
-    <button class="global-context-btn primary" id="syncDebts" type="button"><span>借入タブ</span><span>反映</span></button>
-    <button id="serverLoadFab" class="global-sync-btn server-load-fab" type="button" aria-label="サーバーからデータ取得">取得</button>
-    <button id="serverSaveFab" class="global-sync-btn server-save-fab" type="button" aria-label="サーバーへデータ送信">送信</button>
+<div class="card">
+  <h2>選択中リスト</h2>
+  <div class="selectedActions">
+    <button id="refreshBtn" class="secondary">更新</button>
+    <button id="historyToggleBtn" class="secondary">履歴を表示</button>
+    <button id="excelBtn" class="green">Excel一括出力</button>
+  </div>
+  <div id="urlArea" style="margin-top:10px"></div>
+</div>
+
+<div class="card">
+  <div class="muted">
+    同一リスト内の重複データはサーバー側で保存されません。Excel出力は、現在存在するリストだけをシート化します。削除済みリストは出力されません。
   </div>
 </div>
 
-<nav class="bottom-nav" aria-label="メインメニュー"><div class="bottom-nav-inner">
-  <button class="navbtn active" data-tab="home"><span class="ico">⌂</span><span>ホーム</span></button>
-  <button class="navbtn" data-tab="assets"><span class="ico">💰</span><span>資産</span></button>
-  <button class="navbtn" data-tab="debts"><span class="ico">−</span><span>借入</span></button>
-  <button class="navbtn" data-tab="lenders"><span class="ico">▤</span><span>借入先</span></button>
-  <button class="navbtn" data-tab="transfer"><span class="ico">✓</span><span>振込</span></button>
-  <button class="navbtn" data-tab="trend"><span class="ico">📈</span><span>推移</span></button>
-  <button class="navbtn" data-tab="history"><span class="ico">↗</span><span>履歴</span></button>
-</div></nav>
-<div class="flash" id="flash" aria-live="polite"></div>
-<div class="modal" id="editModal"><div class="sheet"><h3>記録を編集</h3><input type="date" id="editDate" style="margin-bottom:10px"><div id="editAssets"></div><div id="editDebts"></div><div class="actions" style="margin-top:12px"><button class="primary" id="saveEdit">保存</button><button id="closeEdit">閉じる</button><button class="danger" id="deleteEdit">この記録を削除</button></div></div></div>
+</div>
 
-<script src="./app.js?v=20260901h"></script>
+<div class="bottomDock">
+  <div id="dockTarget" class="dockTarget">現在のリスト：読み込み中…</div>
+  <div class="dockBtns">
+    <button id="revenueBtn" class="secondary revenueDockBtn">過去の収益</button>
+    <button id="openAddBtn" class="primary">＋ 新規リスト</button>
+    <button id="csvBtn" class="primary">CSV出力</button>
+    <button id="deleteBtn" class="danger">削除</button>
+  </div>
+</div>
 
+<div id="addSheet" class="sheet" aria-hidden="true">
+  <div class="sheetBox" role="dialog" aria-modal="true" aria-labelledby="addSheetTitle">
+    <div id="addSheetTitle" class="sheetTitle">新しい保存先リスト</div>
+    <input id="newListName" placeholder="例：セブン 当選URL 8/27" maxlength="80">
+    <div class="sheetBtns">
+      <button id="cancelAddBtn" class="secondary">キャンセル</button>
+      <button id="addListBtn" class="primary">追加</button>
+    </div>
+  </div>
+</div>
+
+<div id="revenueModal" class="revenueModal" aria-hidden="true">
+  <div class="revenueModalBox" role="dialog" aria-modal="true" aria-labelledby="revenueModalTitle">
+    <div class="revenueModalHead">
+      <div id="revenueModalTitle" class="revenueModalTitle">月別収益</div>
+      <button id="revenueCloseBtn" class="secondary revenueClose">閉じる</button>
+    </div>
+    <div id="revenueArea"><div class="muted">読み込み中…</div></div>
+  </div>
+</div>
+
+<div id="listEditModal" class="revenueModal" aria-hidden="true">
+  <div class="revenueModalBox listEditBox" role="dialog" aria-modal="true" aria-labelledby="listEditTitle">
+    <div class="revenueModalHead">
+      <div id="listEditTitle" class="revenueModalTitle">名前・フォルダー変更</div>
+    </div>
+    <label for="listEditName">保存先名</label>
+    <input id="listEditName" maxlength="80">
+    <label for="listEditFolder">収納フォルダー</label>
+    <select id="listEditFolder"></select>
+    <div class="listEditBtns">
+      <button id="listEditCancelBtn" class="secondary">キャンセル</button>
+      <button id="listEditSaveBtn" class="primary">変更を保存</button>
+    </div>
+  </div>
+</div>
+
+<div id="walletModal" class="revenueModal" aria-hidden="true">
+  <div class="revenueModalBox" role="dialog" aria-modal="true" aria-labelledby="walletModalTitle">
+    <div class="revenueModalHead">
+      <div id="walletModalTitle" class="revenueModalTitle">えらべるPay対応</div>
+    </div>
+    <div class="walletSummary">
+      <div class="walletRemainingLabel">未対応</div>
+      <div id="walletRemainingCount" class="walletRemainingCount">--件</div>
+      <div id="walletItemDate" class="walletItemDate"></div>
+    </div>
+    <a id="walletOpenUrlBtn" class="walletOpenBtn is-disabled" href="#" target="_blank" rel="noopener noreferrer">URLを開く</a>
+    <div id="walletGuide" class="walletGuide">青いボタンから最も古い未対応URLを開きます。操作後にこの画面へ戻り、「対応完了・次へ」を押してください。</div>
+    <div class="walletModalBtns">
+      <button id="walletStopBtn" class="secondary">中断する</button>
+      <button id="walletCompleteBtn" class="walletCompleteBtn" disabled>対応完了・次へ</button>
+    </div>
+  </div>
+</div>
+
+<div id="walletRecheckModal" class="revenueModal" aria-hidden="true">
+  <div class="revenueModalBox" role="dialog" aria-modal="true" aria-labelledby="walletRecheckTitle">
+    <div class="revenueModalHead">
+      <div id="walletRecheckTitle" class="revenueModalTitle">Wallet再確認</div>
+    </div>
+    <div class="recheckSummary">
+      <div class="recheckLabel">再確認待ち</div>
+      <div id="walletRecheckCount" class="recheckCount">--件</div>
+      <div id="walletRecheckDate" class="walletItemDate"></div>
+    </div>
+    <a id="walletRecheckOpenBtn" class="recheckOpenBtn is-disabled" target="_blank" rel="noopener noreferrer">再確認URLを開く</a>
+    <div id="walletRecheckGuide" class="recheckGuide">URLを開き、gift Walletへの反映を目視確認してください。確認できた場合だけ「確認済み・次へ」を押します。</div>
+    <div class="recheckBtns">
+      <button id="walletRecheckStopBtn" class="secondary">未確認のまま中断</button>
+      <button id="walletRecheckAgainBtn" class="secondary" disabled>もう一度開く</button>
+      <button id="walletVerifyCompleteBtn" class="verifyCompleteBtn" disabled>確認済み・次へ</button>
+    </div>
+  </div>
+</div>
+
+<div id="paypayModal" class="revenueModal" aria-hidden="true">
+  <div class="revenueModalBox" role="dialog" aria-modal="true" aria-labelledby="paypayModalTitle">
+    <div class="revenueModalHead"><div id="paypayModalTitle" class="revenueModalTitle">PayPayチャージ</div></div>
+    <div class="paypaySummary">
+      <div id="paypayType" class="paypayType">確認中</div>
+      <div id="paypayRemainingCount" class="paypayCount">--件</div>
+      <div id="paypayItemDate" class="walletItemDate"></div>
+    </div>
+    <div id="paypayValue" class="paypayValue">データを確認しています…</div>
+    <button id="paypayMainAction" class="paypayMainAction" type="button" disabled>確認中…</button>
+    <div class="walletGuide">PayPayでチャージした後、この画面へ戻り「チャージ完了・次へ」を押してください。</div>
+    <div class="paypayModalBtns">
+      <button id="paypayStopBtn" class="secondary">中断する</button>
+      <button id="paypayCompleteBtn" class="paypayCompleteBtn" disabled>チャージ完了・次へ</button>
+    </div>
+  </div>
+</div>
+
+<div id="fileModal" class="fileModal" aria-hidden="true">
+  <div class="fileModalBox">
+    <div class="fileModalTitle">ダウンロードしました</div>
+    <div id="fileModalName" class="fileModalName"></div>
+    <div class="fileModalBtns">
+      <button id="fileOpenBtn" class="primary">開く</button>
+      <button id="fileShareBtn" class="green">共有</button>
+      <button id="fileRedownloadBtn" class="primary">再ダウンロード</button>
+      <button id="fileCloseBtn" class="secondary">閉じる</button>
+    </div>
+  </div>
+</div>
+
+<div id="copyConfirmModal" class="revenueModal" aria-hidden="true">
+  <div class="revenueModalBox" role="dialog" aria-modal="true" aria-labelledby="copyConfirmTitle">
+    <div class="revenueModalHead">
+      <div id="copyConfirmTitle" class="revenueModalTitle">未抽出データをコピー</div>
+    </div>
+    <div class="copySummary">
+      <div id="copyConfirmCount" class="copyCount">--件</div>
+      <div id="copyConfirmListName" class="copyListName"></div>
+    </div>
+    <div class="copyConfirmNote">このリストの未抽出データをコピーします。コピー後にスプレッドシートへ貼り付けてください。</div>
+    <div class="copyConfirmBtns">
+      <button id="copyConfirmCancelBtn" class="secondary">キャンセル</button>
+      <button id="copyConfirmStartBtn" class="primary">コピー</button>
+      <button id="copyConfirmAscendingBtn" class="green">昇順</button>
+    </div>
+  </div>
+</div>
+
+<div id="copyModal" class="revenueModal" aria-hidden="true">
+  <div class="revenueModalBox" role="dialog" aria-modal="true" aria-labelledby="copyModalTitle">
+    <div class="revenueModalHead">
+      <div id="copyModalTitle" class="revenueModalTitle">URLをコピーしました</div>
+    </div>
+    <div class="copySummary">
+      <div id="copyModalCount" class="copyCount">--件</div>
+      <div id="copyModalListName" class="copyListName"></div>
+    </div>
+    <div class="copyGuide">スプレッドシートへ貼り付けた後、この画面へ戻って「転写完了」を押してください。</div>
+    <div class="copyModalBtns">
+      <button id="copyAgainBtn" class="secondary">もう一度コピー</button>
+      <button id="copyCancelBtn" class="secondary">キャンセル</button>
+      <button id="copyCompleteBtn" class="green completeCopyBtn">転写完了</button>
+    </div>
+  </div>
+</div>
+
+<div id="csvChoiceModal" class="revenueModal" aria-hidden="true">
+  <div class="revenueModalBox" role="dialog" aria-modal="true" aria-labelledby="csvChoiceTitle">
+    <div class="revenueModalHead">
+      <div id="csvChoiceTitle" class="revenueModalTitle">CSV出力方法</div>
+      <button id="csvChoiceCloseBtn" class="secondary revenueClose">閉じる</button>
+    </div>
+    <div class="csvChoiceBtns">
+      <button id="csvUnprocessedBtn" class="primary">未処理のみ<span id="csvUnprocessedCount" class="choiceCount">--件</span></button>
+      <button id="csvBackupBtn" class="secondary">全件バックアップ<span id="csvBackupCount" class="choiceCount">--件</span></button>
+    </div>
+  </div>
+</div>
+
+<div id="undoToast" class="undoToast" role="status" aria-live="polite">
+  <div id="undoText" class="undoText"></div>
+  <button id="undoCopyBtn" type="button">取り消す</button>
+</div>
+
+<div id="submissionModal" class="revenueModal" aria-hidden="true">
+  <div class="revenueModalBox editSubmissionBox" role="dialog" aria-modal="true" aria-labelledby="submissionModalTitle">
+    <div class="revenueModalHead">
+      <div id="submissionModalTitle" class="revenueModalTitle">個別データの修正</div>
+      <button id="submissionCloseBtn" class="secondary revenueClose">閉じる</button>
+    </div>
+    <label for="submissionUrlInput">URL・コード</label>
+    <textarea id="submissionUrlInput" spellcheck="false"></textarea>
+    <label for="submissionListSelect">保存先</label>
+    <select id="submissionListSelect"></select>
+    <div class="editSubmissionBtns">
+      <button id="submissionCancelBtn" class="secondary">キャンセル</button>
+      <button id="submissionSaveBtn" class="primary">修正を保存</button>
+      <button id="submissionDeleteBtn" class="danger deleteSubmissionBtn">このURLを削除</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script>
+const API='https://winning-url-api.45kikurage.workers.dev';
+const $=id=>document.getElementById(id);
+let currentActive=null;
+let currentLists=[];
+let revenueRows=[];
+let editingSubmission=null;
+let currentSubmissionRows=[];
+let loadedSubmissionListId=null;
+let showProcessedHistory=false;
+let activeCopyBatch=null;
+let copyConfirmTarget=null;
+let editingList=null;
+let walletCurrentItem=null;
+let walletCurrentListId=null;
+let walletRecheckItem=null;
+let walletRecheckListId=null;
+let paypayCurrentItem=null;
+let paypayCurrentListId=null;
+let paypayCurrentType='url';
+let undoBatchId=null;
+const COPY_BATCH_KEY='winning-url-pending-copy-batch';
+const COPY_ORDER_KEY='winning-url-pending-copy-order';
+const openMonths=new Set();
+const openRevenueMonths=new Set();
+const unitSaveTimers=new Map();
+
+function setStatus(t,ok=true,autoClear=true){
+  $('status').textContent=t;
+  $('status').className='status '+(ok?'ok':'ng');
+  clearTimeout(setStatus.timer);
+  if(t&&autoClear) setStatus.timer=setTimeout(()=>{$('status').textContent=''},4500);
+}
+function setServerState(state){
+  const bar=$('serverBar');
+  bar.className='serverBar '+state;
+  const labels={checking:'接続確認中…',ok:'サーバー正常',ng:'接続エラー',offline:'オフライン'};
+  $('serverState').textContent=labels[state]||labels.checking;
+  $('serverTime').textContent=state==='checking'?'サーバーを確認しています':`最終確認 ${new Intl.DateTimeFormat('ja-JP',{timeZone:'Asia/Tokyo',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false}).format(new Date())}`;
+  $('serverRetry').disabled=state==='checking';
+}
+function esc(x=''){
+  return String(x).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function formatJST(value){
+  if(!value) return '';
+  let s=String(value).trim();
+  if(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/.test(s)) s=s.replace(' ','T')+'Z';
+  else if(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$/.test(s)) s+='Z';
+  const d=new Date(s);
+  if(Number.isNaN(d.getTime())) return String(value);
+  return new Intl.DateTimeFormat('ja-JP',{
+    timeZone:'Asia/Tokyo',year:'numeric',month:'2-digit',day:'2-digit',
+    hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false
+  }).format(d);
+}
+function formatJSTMinute(value){
+  if(!value)return '';
+  let s=String(value).trim();
+  if(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/.test(s))s=s.replace(' ','T')+'Z';
+  else if(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$/.test(s))s+='Z';
+  const d=new Date(s);if(Number.isNaN(d.getTime()))return String(value);
+  return new Intl.DateTimeFormat('ja-JP',{
+    timeZone:'Asia/Tokyo',year:'numeric',month:'2-digit',day:'2-digit',
+    hour:'2-digit',minute:'2-digit',hourCycle:'h23'
+  }).format(d);
+}
+function currentJstFileStamp(){
+  const p=Object.fromEntries(new Intl.DateTimeFormat('ja-JP',{
+    timeZone:'Asia/Tokyo',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hourCycle:'h23'
+  }).formatToParts(new Date()).filter(x=>x.type!=='literal').map(x=>[x.type,x.value]));
+  return `${p.month}${p.day}${p.hour}${p.minute}`;
+}
+function currentJstMonth(){
+  const parts=Object.fromEntries(new Intl.DateTimeFormat('en-CA',{
+    timeZone:'Asia/Tokyo',year:'numeric',month:'2-digit'
+  }).formatToParts(new Date()).map(x=>[x.type,x.value]));
+  return `${parts.year}-${parts.month}`;
+}
+function monthLabel(month){
+  const [year,mon]=String(month).split('-');
+  return `${String(year).slice(-2)}年${Number(mon)}月`;
+}
+
+async function call(path,opt={}){
+  const r=await fetch(API+path,{...opt,headers:{'Content-Type':'application/json',...(opt.headers||{})}});
+  const text=await r.text();
+  let data; try{data=JSON.parse(text)}catch{data=text}
+  if(!r.ok) throw new Error(typeof data==='string'?data:(data.error||('HTTP '+r.status)));
+  return data;
+}
+
+async function loadAll(){
+  setServerState('checking');
+  try{
+    const [listsRes,activeRes]=await Promise.all([
+      call('/api/lists'),
+      call('/api/active-list')
+    ]);
+    currentLists=listsRes.lists||[];
+    currentActive=activeRes.active||null;
+    renderLists(currentLists);
+    updateDock();
+    if(currentActive) await loadUrls(currentActive.id);
+    else $('urlArea').innerHTML='<div class="muted">保存先を選択してください。</div>';
+    await loadRevenueSummary();
+    await restorePendingCopy();
+    setServerState('ok');
+    if($('status').classList.contains('ng')) setStatus('');
+  }catch(e){
+    console.error(e);
+    setServerState(navigator.onLine?'ng':'offline');
+    setStatus('読み込みに失敗しました: '+e.message,false,false);
+  }
+}
+
+function updateDock(){
+  const selected=currentLists.find(x=>x.id===currentActive?.id);
+  const count=selected?.count||0;
+  $('dockTarget').textContent=currentActive?`現在のリスト：${currentActive.name}（${Number(count)}件）`:'現在のリスト：未設定';
+  $('csvBtn').disabled=!currentActive;
+  $('deleteBtn').disabled=!currentActive||currentLists.length<=1;
+  $('deleteBtn').title=currentLists.length<=1?'最後のリストは削除できません':'';
+  $('historyToggleBtn').disabled=!currentActive;
+  $('historyToggleBtn').textContent=showProcessedHistory?'履歴を閉じる':'履歴を表示';
+}
+
+function renderLists(lists){
+  if(!lists.length){
+    $('listArea').innerHTML='<div class="muted" style="margin-top:10px">保存先がありません。</div>';
+    return;
+  }
+  const renderListCard=l=>{
+    const isActive=Number(l.is_active)!==0;
+    const isWalletList=String(l.name||'').trim().toLowerCase()==='えらべるpay';
+    const isPayPay=String(l.name||'').trim().toLowerCase()==='paypay';
+    const actionCount=isWalletList?Number(l.wallet_unhandled_count||0):Number(l.unprocessed_count||0);
+    const recheckCount=isWalletList?Number(l.wallet_recheck_count||0):0;
+    const actionLabel=isWalletList?'未対応':'未抽出';
+    return `
+      <div class="${currentActive?.id===l.id?'listItem activeListItem':'listItem'}" data-list-id="${esc(l.id)}" tabindex="0" role="button" aria-label="${esc(l.name)}を現在の保存先にする">
+        <div>
+          <div class="stateRow">
+            <div>${currentActive?.id===l.id?'<div class="activeFlag">★ 現在の保存先</div>':''}</div>
+            <button class="activityBtn ${isActive?'is-active':'is-inactive'}" type="button" aria-label="${esc(l.name)}を${isActive?'Non-active':'Active'}に変更">${isActive?'A':'N'}</button>
+          </div>
+          <div class="name">${esc(l.name)}</div>
+          <span class="badge amountBadge">${Number(l.count||0)}件 / ${(Number(l.count||0)*Number(l.unit_price||0)).toLocaleString()}円</span>
+        </div>
+        <div class="itemBtns">
+          <button class="secondary renameBtn" type="button">名前変更</button>
+          <label class="unitEditor"><span class="unitLabel">単価</span><input class="unitInput" type="number" inputmode="numeric" min="0" max="9999999" step="1" value="${Number(l.unit_price||0)}" aria-label="${esc(l.name)}の単価" placeholder="0"></label>
+          ${isPayPay?`<button class="paypayActionBtn paypayUrlBtn" data-paypay-type="url" type="button" ${Number(l.paypay_url_unhandled_count||0)===0?'disabled':''}>
+            <span class="paypayActionLabel">URL表示</span><span class="paypayActionCount">${Number(l.paypay_url_unhandled_count||0).toLocaleString()}件</span>
+          </button><button class="paypayActionBtn paypayCodeBtn" data-paypay-type="code" type="button" ${Number(l.paypay_code_unhandled_count||0)===0?'disabled':''}>
+            <span class="paypayActionLabel">コード表示</span><span class="paypayActionCount">${Number(l.paypay_code_unhandled_count||0).toLocaleString()}件</span>
+          </button>`:`<button class="cardCopyBtn${isWalletList?' walletCardBtn':''}" type="button" ${actionCount===0?'disabled':''} aria-label="${esc(l.name)}の${actionLabel}データ ${actionCount}件">
+            <span class="cardCopyLabel">${actionLabel}</span>
+            <span class="cardCopyCount">${actionCount.toLocaleString()}件</span>
+          </button>`}
+          ${isWalletList?`<button class="walletRecheckBtn" type="button" ${recheckCount===0?'disabled':''} aria-label="${esc(l.name)}の再確認待ち ${recheckCount}件">
+            <span class="walletRecheckLabel">再確認</span><span class="walletRecheckCount">${recheckCount.toLocaleString()}件</span>
+          </button>`:''}
+        </div>
+      </div>`;
+  };
+  const groups=new Map();
+  lists.filter(l=>String(l.folder_type||'month')!=='permanent').forEach(l=>{
+    const month=String(l.list_month||'2026-08');
+    if(!groups.has(month))groups.set(month,[]);
+    groups.get(month).push(l);
+  });
+  const activeLists=lists.filter(l=>Number(l.is_active)!==0);
+  const permanentLists=lists.filter(l=>String(l.folder_type||'month')==='permanent');
+  const activeSection=`<section class="activeSection">
+    <div class="activeFolderHeader">
+      <span class="activeFolderTitle"><span class="activeFolderDot" aria-hidden="true"></span><span>稼働中の保存先リスト</span></span>
+      <span class="activeFolderCount">${activeLists.length}件</span>
+    </div>
+    ${activeLists.length?`<div class="listGrid">${activeLists.map(renderListCard).join('')}</div>`:'<div class="muted">Activeの保存先はありません。</div>'}
+  </section>`;
+  const permanentSection=`<section class="permanentSection">
+    <div class="permanentFolderHeader">
+      <span class="permanentFolderTitle"><span class="permanentFolderIcon" aria-hidden="true">◆</span><span>常用保存先リスト</span></span>
+      <span class="permanentFolderCount">${permanentLists.length}件</span>
+    </div>
+    ${permanentLists.length?`<div class="listGrid">${permanentLists.map(renderListCard).join('')}</div>`:'<div class="muted">常用フォルダーへ移動した保存先がここに表示されます。</div>'}
+  </section>`;
+  const monthSections=[...groups.entries()].sort((a,b)=>b[0].localeCompare(a[0])).map(([month,items])=>{
+    const isOpen=openMonths.has(month);
+    return `<section class="monthSection${isOpen?'':' is-collapsed'}" data-month="${esc(month)}">
+      <button class="monthToggle" type="button" aria-expanded="${isOpen}">
+        <span class="monthCaret">${isOpen?'▼':'▶'}</span>
+        <span class="monthTitle">${esc(monthLabel(month))}保存先リスト</span>
+      </button>
+      <div class="listGrid">${items.map(renderListCard).join('')}</div>
+    </section>`;
+  }).join('');
+  $('listArea').innerHTML=activeSection+permanentSection+monthSections;
+}
+
+$('listArea').addEventListener('click',e=>{
+  const monthButton=e.target.closest('.monthToggle');
+  if(monthButton){
+    const section=monthButton.closest('.monthSection');
+    const month=section.dataset.month;
+    if(openMonths.has(month))openMonths.delete(month);else openMonths.add(month);
+    section.classList.toggle('is-collapsed',!openMonths.has(month));
+    monthButton.setAttribute('aria-expanded',String(openMonths.has(month)));
+    monthButton.querySelector('.monthCaret').textContent=openMonths.has(month)?'▼':'▶';
+    return;
+  }
+  const card=e.target.closest('.listItem');
+  if(!card)return;
+  const item=currentLists.find(x=>String(x.id)===card.dataset.listId);
+  if(!item)return;
+  if(e.target.closest('.activityBtn')){setListActivity(item.id,Number(item.is_active)===0);return}
+  if(e.target.closest('.unitEditor'))return;
+  if(e.target.closest('.renameBtn')){e.stopPropagation();openListEditor(item);return}
+  if(e.target.closest('.walletRecheckBtn')){e.stopPropagation();openWalletRecheck(item);return}
+  const paypayButton=e.target.closest('.paypayActionBtn');
+  if(paypayButton){e.stopPropagation();openPayPayFlow(item,paypayButton.dataset.paypayType);return}
+  if(e.target.closest('.cardCopyBtn')){
+    e.stopPropagation();
+    if(String(item.name||'').trim().toLowerCase()==='えらべるpay')openWalletFlow(item);
+    else openCopyConfirm(item);
+    return;
+  }
+  requestSetActive(item);
+});
+$('listArea').addEventListener('keydown',e=>{
+  if((e.key==='Enter'||e.key===' ')&&!e.target.closest('button')){e.preventDefault();e.target.click()}
+});
+
+$('listArea').addEventListener('input',e=>{
+  const input=e.target.closest('.unitInput');if(!input)return;
+  const card=input.closest('.listItem');
+  const item=currentLists.find(x=>String(x.id)===card?.dataset.listId);if(!item)return;
+  const value=Math.max(0,Math.min(9999999,Math.trunc(Number(input.value)||0)));
+  item.unit_price=value;
+  [...document.querySelectorAll('.listItem')].filter(x=>x.dataset.listId===String(item.id)).forEach(linkedCard=>{
+    linkedCard.querySelector('.amountBadge').textContent=`${Number(item.count||0)}件 / ${(Number(item.count||0)*value).toLocaleString()}円`;
+    const linkedInput=linkedCard.querySelector('.unitInput');if(linkedInput!==input)linkedInput.value=value;
+  });
+  clearTimeout(unitSaveTimers.get(item.id));
+  unitSaveTimers.set(item.id,setTimeout(()=>saveUnitPrice(item.id,value),500));
+});
+
+async function saveUnitPrice(id,value){
+  try{
+    await call('/api/lists/'+encodeURIComponent(id)+'/unit-price',{
+      method:'POST',body:JSON.stringify({unit_price:value})
+    });
+    await loadRevenueSummary();
+    setStatus(`単価を${value.toLocaleString()}円で保存しました ✓`);
+  }catch(e){
+    setStatus('単価の保存に失敗しました: '+e.message,false);
+    await loadAll();
+  }
+}
+
+async function setListActivity(id,isActive){
+  try{
+    await call('/api/lists/'+encodeURIComponent(id)+'/activity',{
+      method:'POST',body:JSON.stringify({is_active:Boolean(isActive)})
+    });
+    await loadAll();
+    setStatus(isActive?'Activeに変更しました ✓':'Non-activeに変更しました ✓');
+  }catch(e){
+    setStatus('状態変更に失敗しました: '+e.message,false);
+  }
+}
+
+async function loadRevenueSummary(){
+  try{
+    const res=await call('/api/revenue-summary');
+    revenueRows=res.revenues||[];
+    const current=revenueRows.find(x=>x.month===res.current_month);
+    $('currentRevenueAmount').textContent=`${Number(current?.amount||0).toLocaleString()}円`;
+    $('todayRevenueAmount').textContent=`${Number(res.today_amount||0).toLocaleString()}円`;
+    renderRevenueRows();
+  }catch(e){
+    $('currentRevenueAmount').textContent='確認失敗';
+    $('todayRevenueAmount').textContent='確認失敗';
+    $('revenueArea').innerHTML='<div class="muted">収益履歴を取得できませんでした。</div>';
+  }
+}
+function renderRevenueRows(){
+  $('revenueArea').innerHTML=revenueRows.length?revenueRows.map(x=>{
+    const isOpen=openRevenueMonths.has(x.month);
+    const details=x.details||[];
+    return `<div class="revenueGroup" data-revenue-month="${esc(x.month)}">
+      <button class="revenueRow" type="button" aria-expanded="${isOpen}">
+        <div class="revenueMonth">${isOpen?'▼':'▶'} ${esc(monthLabel(x.month))}</div>
+        <div class="revenueAmount">${Number(x.amount||0).toLocaleString()}円</div>
+        <div class="revenueNote">${x.frozen?'固定済み':`${esc(monthLabel(x.month))}分は翌月6日に固定`}</div>
+      </button>
+      <div class="revenueDetails" ${isOpen?'':'hidden'}>${details.length?details.map(d=>`
+        <div class="revenueDetailRow">
+          <div class="revenueDetailName">${esc(d.list_name||'保存先')}</div>
+          <div class="revenueDetailAmount">${Number(d.amount||0).toLocaleString()}円</div>
+          <div class="revenueDetailCalc">${Number(d.url_count||0)}件 × ${Number(d.unit_price||0).toLocaleString()}円</div>
+        </div>
+      `).join(''):'<div class="muted">内訳はありません。</div>'}</div>
+    </div>`;
+  }).join(''):'<div class="muted">収益履歴はまだありません。</div>';
+}
+function openRevenueModal(){
+  $('revenueModal').classList.add('show');
+  $('revenueModal').setAttribute('aria-hidden','false');
+  loadRevenueSummary();
+}
+function closeRevenueModal(){
+  $('revenueModal').classList.remove('show');
+  $('revenueModal').setAttribute('aria-hidden','true');
+}
+$('revenueArea').addEventListener('click',e=>{
+  const row=e.target.closest('.revenueRow');if(!row)return;
+  const group=row.closest('.revenueGroup');const month=group.dataset.revenueMonth;
+  if(openRevenueMonths.has(month))openRevenueMonths.delete(month);else openRevenueMonths.add(month);
+  renderRevenueRows();
+});
+
+function requestSetActive(item){
+  if(currentActive?.id===item.id){setStatus('このリストは現在選択中です');return}
+  if(confirm(`現在の保存先を「${item.name}」に変更しますか？`)) setActive(item.id);
+}
+
+async function loadUrls(listId){
+  try{
+    const res=await call('/api/submissions/'+encodeURIComponent(listId));
+    if(loadedSubmissionListId!==listId)showProcessedHistory=false;
+    loadedSubmissionListId=listId;
+    currentSubmissionRows=res.submissions||[];
+    renderUrlRows();
+    updateDock();
+  }catch(e){
+    $('urlArea').innerHTML='<div class="muted">URL一覧の取得に失敗しました。</div>';
+  }
+}
+
+function renderUrlRows(){
+  const unprocessed=currentSubmissionRows.filter(x=>Number(x.process_count||0)===0);
+  const processed=currentSubmissionRows.filter(x=>Number(x.process_count||0)>0);
+  const rows=showProcessedHistory?[...unprocessed,...processed]:unprocessed;
+  const isWalletCurrent=String(currentActive?.name||'').trim().toLowerCase()==='えらべるpay';
+  const isPayPayCurrent=String(currentActive?.name||'').trim().toLowerCase()==='paypay';
+  const output=rows.map(x=>{
+    const done=Number(x.process_count||0)>0;
+    const method=x.processed_method==='copy'?'COPY':x.processed_method==='csv'?'CSV':x.processed_method==='paypay'?'PayPay':'済';
+    return `
+      <div class="urlItem ${done?'is-processed':''}" data-submission-id="${esc(x.id)}">
+        <span class="urlEditHint">長押し</span>
+        <div class="processState ${done?'is-processed':''}" aria-label="${done?`${method}処理済み`:'未抽出'}">
+          <span class="processStateValue">${done?'済':'未'}</span>
+          <span class="processStateLabel">${done?method:'URL'}</span>
+        </div>
+        <div class="urlMain">
+          <div class="date">${esc(formatJST(x.created_at))}${done?` ・ ${method}済 ${esc(formatJSTMinute(x.processed_at))}`:''}</div>
+          <div class="url">${esc(x.url||'')}</div>
+          <div class="device">${esc(x.device_id||'')}</div>
+          ${isWalletCurrent?(x.wallet_verified_at
+            ?`<div class="walletHistoryState is-verified">Wallet確認済 ${esc(formatJSTMinute(x.wallet_verified_at))}</div>`
+            :x.wallet_completed_at
+              ?`<div class="walletHistoryState">Wallet再確認待ち ${esc(formatJSTMinute(x.wallet_completed_at))}</div>`
+              :'<div class="walletHistoryState">Wallet未対応</div>'):''}
+          ${isPayPayCurrent&&x.paypay_completed_at?`<div class="paypayHistoryState">PayPayチャージ済 ${esc(formatJSTMinute(x.paypay_completed_at))}</div>`:''}
+        </div>
+      </div>`;
+  });
+  if(output.length){
+    $('urlArea').innerHTML=output.join('');
+  }else if(currentSubmissionRows.length&&!showProcessedHistory){
+    $('urlArea').innerHTML='<div class="muted">未抽出データはありません。「履歴を表示」で処理済みデータを確認できます。</div>';
+  }else{
+    $('urlArea').innerHTML='<div class="muted">このリストにはまだURLがありません。</div>';
+  }
+  $('historyToggleBtn').textContent=showProcessedHistory?'履歴を閉じる':'履歴を表示';
+}
+
+async function writeClipboard(text){
+  if(navigator.clipboard?.writeText){
+    try{await navigator.clipboard.writeText(text);return}catch{}
+  }
+  const area=document.createElement('textarea');
+  area.value=text;area.setAttribute('readonly','');
+  area.style.position='fixed';area.style.opacity='0';
+  document.body.appendChild(area);area.select();
+  const ok=document.execCommand('copy');area.remove();
+  if(!ok)throw new Error('クリップボードへコピーできませんでした');
+}
+function copyBatchText(batch){
+  const values=(batch?.items||[]).map(x=>String(x.export_value||exportValue(x.url)||'').trim()).filter(Boolean);
+  if(batch?.copy_order==='asc')values.sort((a,b)=>a.localeCompare(b,'ja',{numeric:true,sensitivity:'base'}));
+  return values.join('\n');
+}
+function exportValue(value){
+  const text=String(value||'').trim();
+  return /^cd[A-Za-z0-9]{12}$/.test(text)
+    ?`https://c.cocacola.co.jp/spn/app/cp/couponcode.html?couponcode=${encodeURIComponent(text)}`:text;
+}
+function savePendingCopy(id,order='default'){
+  try{
+    if(id){localStorage.setItem(COPY_BATCH_KEY,id);localStorage.setItem(COPY_ORDER_KEY,order)}
+    else{localStorage.removeItem(COPY_BATCH_KEY);localStorage.removeItem(COPY_ORDER_KEY)}
+  }catch{}
+}
+function showWalletModal(){
+  $('walletModal').classList.add('show');
+  $('walletModal').setAttribute('aria-hidden','false');
+}
+function closeWalletModal(){
+  $('walletModal').classList.remove('show');
+  $('walletModal').setAttribute('aria-hidden','true');
+  walletCurrentItem=null;walletCurrentListId=null;
+}
+async function openWalletFlow(item){
+  walletCurrentListId=item.id;
+  walletCurrentItem=null;
+  $('walletRemainingCount').textContent='確認中…';
+  $('walletItemDate').textContent='';
+  $('walletOpenUrlBtn').classList.add('is-disabled');
+  $('walletOpenUrlBtn').removeAttribute('href');
+  $('walletOpenUrlBtn').textContent='URLを確認中…';
+  $('walletCompleteBtn').disabled=true;
+  showWalletModal();
+  await loadWalletNext(item.id);
+}
+async function loadWalletNext(listId){
+  try{
+    const res=await call('/api/wallet-next/'+encodeURIComponent(listId));
+    walletCurrentListId=listId;
+    walletCurrentItem=res.item||null;
+    $('walletRemainingCount').textContent=`${Number(res.remaining_count||0).toLocaleString()}件`;
+    $('walletCompleteBtn').disabled=true;
+    if(walletCurrentItem){
+      $('walletItemDate').textContent=`登録 ${formatJST(walletCurrentItem.created_at)}`;
+      $('walletOpenUrlBtn').href=walletCurrentItem.url;
+      $('walletOpenUrlBtn').classList.remove('is-disabled');
+      $('walletOpenUrlBtn').textContent='未対応URLを開く';
+      $('walletGuide').textContent='青いボタンから最も古い未対応URLを開きます。操作後にこの画面へ戻り、「対応完了・次へ」を押してください。';
+    }else{
+      $('walletItemDate').textContent='すべてのURLが対応済みです';
+      $('walletOpenUrlBtn').removeAttribute('href');
+      $('walletOpenUrlBtn').classList.add('is-disabled');
+      $('walletOpenUrlBtn').textContent='未対応URLなし';
+      $('walletGuide').textContent='このリストの未対応URLはありません。';
+    }
+  }catch(e){
+    $('walletRemainingCount').textContent='確認失敗';
+    $('walletOpenUrlBtn').classList.add('is-disabled');
+    $('walletOpenUrlBtn').removeAttribute('href');
+    $('walletOpenUrlBtn').textContent='URLを開けません';
+    setStatus('未対応URLの確認に失敗しました: '+e.message,false);
+  }
+}
+$('walletOpenUrlBtn').onclick=e=>{
+  if(!walletCurrentItem){e.preventDefault();return}
+  $('walletCompleteBtn').disabled=false;
+  setStatus('URLを開きました。対応後に「対応完了・次へ」を押してください');
+};
+$('walletStopBtn').onclick=closeWalletModal;
+$('walletCompleteBtn').onclick=async()=>{
+  if(!walletCurrentItem)return;
+  const submissionId=walletCurrentItem.id;
+  const listId=walletCurrentListId;
+  try{
+    $('walletCompleteBtn').disabled=true;
+    await call('/api/wallet-complete/'+encodeURIComponent(submissionId),{method:'POST'});
+    await loadAll();
+    await loadWalletNext(listId);
+    setStatus('移行操作済みとして再確認待ちへ移し、次のURLを準備しました ✓');
+  }catch(e){
+    $('walletCompleteBtn').disabled=false;
+    setStatus('対応完了の記録に失敗しました: '+e.message,false);
+  }
+};
+function showWalletRecheckModal(){
+  $('walletRecheckModal').classList.add('show');
+  $('walletRecheckModal').setAttribute('aria-hidden','false');
+}
+function closeWalletRecheck(){
+  $('walletRecheckModal').classList.remove('show');
+  $('walletRecheckModal').setAttribute('aria-hidden','true');
+  walletRecheckItem=null;walletRecheckListId=null;
+}
+async function openWalletRecheck(item){
+  walletRecheckListId=item.id;walletRecheckItem=null;
+  $('walletRecheckCount').textContent='確認中…';
+  $('walletRecheckDate').textContent='';
+  $('walletRecheckOpenBtn').classList.add('is-disabled');
+  $('walletRecheckOpenBtn').removeAttribute('href');
+  $('walletRecheckOpenBtn').textContent='URLを確認中…';
+  $('walletRecheckAgainBtn').disabled=true;
+  $('walletVerifyCompleteBtn').disabled=true;
+  showWalletRecheckModal();
+  await loadWalletRecheckNext(item.id);
+}
+async function loadWalletRecheckNext(listId){
+  try{
+    const res=await call('/api/wallet-recheck-next/'+encodeURIComponent(listId));
+    walletRecheckListId=listId;walletRecheckItem=res.item||null;
+    $('walletRecheckCount').textContent=`${Number(res.remaining_count||0).toLocaleString()}件`;
+    $('walletRecheckAgainBtn').disabled=true;
+    $('walletVerifyCompleteBtn').disabled=true;
+    if(walletRecheckItem){
+      $('walletRecheckDate').textContent=`移行操作 ${formatJST(walletRecheckItem.completed_at)}`;
+      $('walletRecheckOpenBtn').href=walletRecheckItem.url;
+      $('walletRecheckOpenBtn').classList.remove('is-disabled');
+      $('walletRecheckOpenBtn').textContent='再確認URLを開く';
+      $('walletRecheckGuide').textContent='URLを開き、gift Walletへの反映を目視確認してください。確認できた場合だけ「確認済み・次へ」を押します。';
+    }else{
+      $('walletRecheckDate').textContent='すべての再確認が完了しています';
+      $('walletRecheckOpenBtn').removeAttribute('href');
+      $('walletRecheckOpenBtn').classList.add('is-disabled');
+      $('walletRecheckOpenBtn').textContent='再確認待ちなし';
+      $('walletRecheckGuide').textContent='再確認待ちのURLはありません。';
+    }
+  }catch(e){
+    $('walletRecheckCount').textContent='確認失敗';
+    $('walletRecheckOpenBtn').classList.add('is-disabled');
+    $('walletRecheckOpenBtn').removeAttribute('href');
+    $('walletRecheckOpenBtn').textContent='URLを開けません';
+    setStatus('再確認URLの取得に失敗しました: '+e.message,false);
+  }
+}
+$('walletRecheckOpenBtn').onclick=e=>{
+  if(!walletRecheckItem){e.preventDefault();return}
+  $('walletRecheckAgainBtn').disabled=false;
+  $('walletVerifyCompleteBtn').disabled=false;
+};
+$('walletRecheckAgainBtn').onclick=()=>{
+  if(!walletRecheckItem)return;
+  const opened=window.open(walletRecheckItem.url,'_blank','noopener');
+  if(!opened)location.href=walletRecheckItem.url;
+};
+$('walletRecheckStopBtn').onclick=closeWalletRecheck;
+$('walletVerifyCompleteBtn').onclick=async()=>{
+  if(!walletRecheckItem)return;
+  const submissionId=walletRecheckItem.id;
+  const listId=walletRecheckListId;
+  try{
+    $('walletVerifyCompleteBtn').disabled=true;
+    await call('/api/wallet-verify/'+encodeURIComponent(submissionId),{method:'POST'});
+    await loadAll();
+    await loadWalletRecheckNext(listId);
+    setStatus('Wallet反映確認済みとして記録しました ✓');
+  }catch(e){
+    $('walletVerifyCompleteBtn').disabled=false;
+    setStatus('再確認完了の記録に失敗しました: '+e.message,false);
+  }
+};
+
+function closePayPayModal(){
+  $('paypayModal').classList.remove('show');$('paypayModal').setAttribute('aria-hidden','true');
+  paypayCurrentItem=null;paypayCurrentListId=null;
+}
+async function openPayPayFlow(item,type){
+  paypayCurrentListId=item.id;paypayCurrentType=type==='code'?'code':'url';paypayCurrentItem=null;
+  $('paypayType').textContent=paypayCurrentType==='url'?'未チャージURL':'未チャージコード';
+  $('paypayRemainingCount').textContent='確認中…';$('paypayItemDate').textContent='';
+  $('paypayValue').textContent='データを確認しています…';$('paypayMainAction').disabled=true;
+  $('paypayMainAction').textContent='確認中…';$('paypayCompleteBtn').disabled=true;
+  $('paypayModal').classList.add('show');$('paypayModal').setAttribute('aria-hidden','false');
+  await loadPayPayNext(item.id,paypayCurrentType);
+}
+async function loadPayPayNext(listId,type){
+  try{
+    const res=await call('/api/paypay-next/'+encodeURIComponent(listId)+'?type='+encodeURIComponent(type));
+    paypayCurrentListId=listId;paypayCurrentType=type;paypayCurrentItem=res.item||null;
+    $('paypayRemainingCount').textContent=`${Number(res.remaining_count||0).toLocaleString()}件`;
+    $('paypayCompleteBtn').disabled=true;
+    if(paypayCurrentItem){
+      $('paypayItemDate').textContent=`登録 ${formatJST(paypayCurrentItem.created_at)}`;
+      $('paypayValue').textContent=paypayCurrentItem.url||'';
+      $('paypayMainAction').disabled=false;
+      $('paypayMainAction').textContent=type==='url'?'未チャージURLを開く':'コードをコピー';
+    }else{
+      $('paypayItemDate').textContent='すべてチャージ済みです';$('paypayValue').textContent='未チャージデータはありません';
+      $('paypayMainAction').disabled=true;$('paypayMainAction').textContent=type==='url'?'未チャージURLなし':'未チャージコードなし';
+    }
+  }catch(e){
+    $('paypayRemainingCount').textContent='確認失敗';$('paypayValue').textContent='データを取得できませんでした';
+    $('paypayMainAction').disabled=true;setStatus('PayPayデータの取得に失敗しました: '+e.message,false);
+  }
+}
+$('paypayMainAction').onclick=async()=>{
+  if(!paypayCurrentItem)return;
+  try{
+    if(paypayCurrentType==='url'){
+      const opened=window.open(paypayCurrentItem.url,'_blank','noopener');
+      if(!opened)location.href=paypayCurrentItem.url;
+    }else{
+      await writeClipboard(paypayCurrentItem.url);
+      setStatus('PayPayコードをコピーしました ✓');
+    }
+    $('paypayCompleteBtn').disabled=false;
+  }catch(e){setStatus('PayPayデータを開けませんでした: '+e.message,false)}
+};
+$('paypayStopBtn').onclick=closePayPayModal;
+$('paypayCompleteBtn').onclick=async()=>{
+  if(!paypayCurrentItem)return;
+  const submissionId=paypayCurrentItem.id,listId=paypayCurrentListId,type=paypayCurrentType;
+  try{
+    $('paypayCompleteBtn').disabled=true;
+    await call('/api/paypay-complete/'+encodeURIComponent(submissionId),{method:'POST'});
+    await loadAll();await loadPayPayNext(listId,type);
+    setStatus('PayPayチャージ済みとして記録しました ✓');
+  }catch(e){$('paypayCompleteBtn').disabled=false;setStatus('チャージ完了の記録に失敗しました: '+e.message,false)}
+};
+
+function openCopyConfirm(item){
+  if(activeCopyBatch?.status==='pending'){
+    showCopyModal();
+    setStatus('先に進行中の転写作業を完了またはキャンセルしてください',false);
+    return;
+  }
+  const unprocessed=Number(item?.unprocessed_count||0);
+  if(!item||unprocessed===0)return;
+  copyConfirmTarget={id:item.id,name:item.name,count:unprocessed};
+  $('copyConfirmCount').textContent=`${unprocessed.toLocaleString()}件`;
+  $('copyConfirmListName').textContent=item.name||'';
+  $('copyConfirmModal').classList.add('show');
+  $('copyConfirmModal').setAttribute('aria-hidden','false');
+}
+function closeCopyConfirm(){
+  $('copyConfirmModal').classList.remove('show');
+  $('copyConfirmModal').setAttribute('aria-hidden','true');
+  copyConfirmTarget=null;
+}
+function showCopyModal(){
+  if(!activeCopyBatch)return;
+  $('copyModalCount').textContent=`${Number(activeCopyBatch.count||0)}件`;
+  $('copyModalListName').textContent=activeCopyBatch.list_name||'';
+  $('copyModal').classList.add('show');
+  $('copyModal').setAttribute('aria-hidden','false');
+  updateDock();
+}
+function closeCopyModal(){
+  $('copyModal').classList.remove('show');
+  $('copyModal').setAttribute('aria-hidden','true');
+}
+async function startOrShowCopy(listId,copyOrder='default'){
+  if(activeCopyBatch?.status==='pending'){showCopyModal();return}
+  const target=currentLists.find(x=>String(x.id)===String(listId));
+  if(!target){setStatus('対象の保存先が見つかりません',false);return}
+  let createdBatch=null;
+  try{
+    $('copyConfirmStartBtn').disabled=true;
+    $('copyConfirmAscendingBtn').disabled=true;
+    const res=await call('/api/copy-batches',{
+      method:'POST',body:JSON.stringify({list_id:target.id})
+    });
+    createdBatch={...res.batch,copy_order:copyOrder};
+    await writeClipboard(copyBatchText(createdBatch));
+    activeCopyBatch=createdBatch;
+    savePendingCopy(createdBatch.id,copyOrder);
+    closeCopyConfirm();
+    showCopyModal();
+    setStatus(`${Number(createdBatch.count||0)}件のURLをコピーしました ✓`);
+  }catch(e){
+    if(createdBatch?.id){
+      try{await call('/api/copy-batches/'+encodeURIComponent(createdBatch.id),{method:'DELETE'})}catch{}
+    }
+    setStatus('URLコピーに失敗しました: '+e.message,false);
+  }finally{
+    $('copyConfirmStartBtn').disabled=false;
+    $('copyConfirmAscendingBtn').disabled=false;
+    updateDock();
+  }
+}
+async function restorePendingCopy(){
+  if(activeCopyBatch?.status==='pending'){updateDock();return}
+  let batchId='',copyOrder='default';try{
+    batchId=localStorage.getItem(COPY_BATCH_KEY)||'';
+    copyOrder=localStorage.getItem(COPY_ORDER_KEY)==='asc'?'asc':'default';
+  }catch{}
+  if(!batchId)return;
+  try{
+    const res=await call('/api/copy-batches/'+encodeURIComponent(batchId));
+    if(res.batch?.status==='pending'){
+      activeCopyBatch={...res.batch,copy_order:copyOrder};
+      showCopyModal();
+    }else savePendingCopy('');
+  }catch{savePendingCopy('')}
+  updateDock();
+}
+async function cancelPendingCopy(){
+  if(!activeCopyBatch)return;
+  const batchId=activeCopyBatch.id;
+  try{await call('/api/copy-batches/'+encodeURIComponent(batchId),{method:'DELETE'})}
+  catch(e){setStatus('キャンセル処理に失敗しました: '+e.message,false);return}
+  activeCopyBatch=null;savePendingCopy('');closeCopyModal();updateDock();
+  setStatus('COPY作業をキャンセルしました');
+}
+let undoToastTimer=null;
+function showUndoToast(batchId,count,completedAt){
+  undoBatchId=batchId;
+  $('undoText').textContent=`${Number(count||0)}件 COPY済 ${formatJSTMinute(completedAt)}`;
+  $('undoToast').classList.add('show');
+  clearTimeout(undoToastTimer);
+  undoToastTimer=setTimeout(hideUndoToast,5000);
+}
+function hideUndoToast(){
+  $('undoToast').classList.remove('show');undoBatchId=null;
+}
+$('copyConfirmCancelBtn').onclick=closeCopyConfirm;
+$('copyConfirmStartBtn').onclick=()=>{
+  if(copyConfirmTarget)startOrShowCopy(copyConfirmTarget.id,'default');
+};
+$('copyConfirmAscendingBtn').onclick=()=>{
+  if(copyConfirmTarget)startOrShowCopy(copyConfirmTarget.id,'asc');
+};
+$('copyConfirmModal').onclick=e=>{if(e.target===$('copyConfirmModal'))closeCopyConfirm()};
+$('copyAgainBtn').onclick=async()=>{
+  if(!activeCopyBatch)return;
+  try{
+    await writeClipboard(copyBatchText(activeCopyBatch));
+    setStatus(`${Number(activeCopyBatch.count||0)}件をもう一度コピーしました ✓`);
+  }catch(e){setStatus('再コピーに失敗しました: '+e.message,false)}
+};
+$('copyCancelBtn').onclick=cancelPendingCopy;
+$('copyCompleteBtn').onclick=async()=>{
+  if(!activeCopyBatch)return;
+  const batch=activeCopyBatch;
+  try{
+    $('copyCompleteBtn').disabled=true;
+    const res=await call('/api/copy-batches/'+encodeURIComponent(batch.id)+'/complete',{method:'POST'});
+    activeCopyBatch=null;savePendingCopy('');closeCopyModal();
+    await loadAll();
+    showUndoToast(batch.id,res.changed_count,res.completed_at);
+  }catch(e){setStatus('転写完了の記録に失敗しました: '+e.message,false)}
+  finally{$('copyCompleteBtn').disabled=false;updateDock()}
+};
+$('undoCopyBtn').onclick=async()=>{
+  if(!undoBatchId)return;
+  const batchId=undoBatchId;hideUndoToast();
+  try{
+    const res=await call('/api/copy-batches/'+encodeURIComponent(batchId)+'/undo',{method:'POST'});
+    await loadAll();setStatus(`${Number(res.undone_count||0)}件を未抽出へ戻しました ✓`);
+  }catch(e){setStatus('取り消しに失敗しました: '+e.message,false)}
+};
+$('historyToggleBtn').onclick=()=>{
+  showProcessedHistory=!showProcessedHistory;renderUrlRows();updateDock();
+};
+
+function openSubmissionEditor(id){
+  const row=document.querySelector(`.urlItem[data-submission-id="${CSS.escape(id)}"]`);
+  if(!row)return;
+  editingSubmission={
+    id,
+    url:row.querySelector('.url')?.textContent||'',
+    listId:currentActive?.id||''
+  };
+  $('submissionUrlInput').value=editingSubmission.url;
+  $('submissionListSelect').innerHTML=currentLists.map(l=>
+    `<option value="${esc(l.id)}" ${l.id===editingSubmission.listId?'selected':''}>${esc(l.name)}</option>`
+  ).join('');
+  $('submissionModal').classList.add('show');
+  $('submissionModal').setAttribute('aria-hidden','false');
+}
+function closeSubmissionEditor(){
+  $('submissionModal').classList.remove('show');
+  $('submissionModal').setAttribute('aria-hidden','true');
+  editingSubmission=null;
+}
+let submissionPressTimer=null;
+let submissionPressStart=null;
+$('urlArea').addEventListener('pointerdown',e=>{
+  const item=e.target.closest('.urlItem');if(!item)return;
+  submissionPressStart={x:e.clientX,y:e.clientY,item};
+  item.classList.add('is-pressing');
+  clearTimeout(submissionPressTimer);
+  submissionPressTimer=setTimeout(()=>{
+    item.classList.remove('is-pressing');
+    if(navigator.vibrate)navigator.vibrate(30);
+    openSubmissionEditor(item.dataset.submissionId);
+    submissionPressStart=null;
+  },550);
+});
+$('urlArea').addEventListener('pointermove',e=>{
+  if(!submissionPressStart)return;
+  if(Math.hypot(e.clientX-submissionPressStart.x,e.clientY-submissionPressStart.y)>10){
+    clearTimeout(submissionPressTimer);
+    submissionPressStart.item.classList.remove('is-pressing');
+    submissionPressStart=null;
+  }
+});
+['pointerup','pointercancel','pointerleave'].forEach(type=>$('urlArea').addEventListener(type,()=>{
+  clearTimeout(submissionPressTimer);
+  submissionPressStart?.item.classList.remove('is-pressing');
+  submissionPressStart=null;
+}));
+$('urlArea').addEventListener('contextmenu',e=>{
+  const item=e.target.closest('.urlItem');if(!item)return;
+  e.preventDefault();openSubmissionEditor(item.dataset.submissionId);
+});
+$('submissionCloseBtn').onclick=closeSubmissionEditor;
+$('submissionCancelBtn').onclick=closeSubmissionEditor;
+$('submissionModal').onclick=e=>{if(e.target===$('submissionModal'))closeSubmissionEditor()};
+$('submissionSaveBtn').onclick=async()=>{
+  if(!editingSubmission)return;
+  const url=$('submissionUrlInput').value.trim();
+  const listId=$('submissionListSelect').value;
+  if(!url){setStatus('URLまたはコードを入力してください',false);return}
+  const target=currentLists.find(x=>x.id===listId);
+  if(!confirm(`このデータを修正しますか？\n保存先：${target?.name||''}`))return;
+  try{
+    $('submissionSaveBtn').disabled=true;
+    await call('/api/submission/'+encodeURIComponent(editingSubmission.id),{
+      method:'POST',body:JSON.stringify({url,list_id:listId})
+    });
+    closeSubmissionEditor();await loadAll();
+    setStatus('個別データを修正しました ✓');
+  }catch(e){setStatus('修正に失敗しました: '+e.message,false)}
+  finally{$('submissionSaveBtn').disabled=false}
+};
+$('submissionDeleteBtn').onclick=async()=>{
+  if(!editingSubmission)return;
+  if(!confirm('このURLを削除しますか？\n削除後は元に戻せません。'))return;
+  try{
+    $('submissionDeleteBtn').disabled=true;
+    await call('/api/submission/'+encodeURIComponent(editingSubmission.id),{method:'DELETE'});
+    closeSubmissionEditor();await loadAll();
+    setStatus('個別データを削除しました ✓');
+  }catch(e){setStatus('削除に失敗しました: '+e.message,false)}
+  finally{$('submissionDeleteBtn').disabled=false}
+};
+
+window.setActive=async function(id){
+  try{
+    await call('/api/active-list',{method:'POST',body:JSON.stringify({list_id:id})});
+    await loadAll();
+    setStatus('現在の保存先を変更しました ✓');
+  }catch(e){setStatus('保存先変更に失敗しました: '+e.message,false)}
+};
+
+function openListEditor(item){
+  editingList=item;
+  $('listEditName').value=item.name||'';
+  const months=[...new Set([
+    currentJstMonth(),String(item.list_month||currentJstMonth()),
+    ...currentLists.map(x=>String(x.list_month||'')).filter(x=>/^\d{4}-\d{2}$/.test(x))
+  ])].sort((a,b)=>b.localeCompare(a));
+  $('listEditFolder').innerHTML=`<option value="permanent">常用保存先リスト</option>`+
+    months.map(month=>`<option value="month:${esc(month)}">${esc(monthLabel(month))}保存先リスト</option>`).join('');
+  $('listEditFolder').value=String(item.folder_type||'month')==='permanent'
+    ?'permanent':`month:${item.list_month||currentJstMonth()}`;
+  $('listEditModal').classList.add('show');
+  $('listEditModal').setAttribute('aria-hidden','false');
+  setTimeout(()=>$('listEditName').focus(),80);
+}
+function closeListEditor(){
+  $('listEditModal').classList.remove('show');
+  $('listEditModal').setAttribute('aria-hidden','true');
+  $('listEditName').blur();editingList=null;
+}
+$('listEditCancelBtn').onclick=closeListEditor;
+$('listEditModal').onclick=e=>{if(e.target===$('listEditModal'))closeListEditor()};
+$('listEditSaveBtn').onclick=async()=>{
+  if(!editingList)return;
+  const item=editingList;
+  const name=$('listEditName').value.trim();
+  const folderValue=$('listEditFolder').value;
+  const folderType=folderValue==='permanent'?'permanent':'month';
+  const listMonth=folderType==='month'?folderValue.slice(6):String(item.list_month||currentJstMonth());
+  if(!name){setStatus('リスト名を入力してください',false);return}
+  try{
+    $('listEditSaveBtn').disabled=true;
+    await call('/api/lists/'+encodeURIComponent(item.id)+'/rename',{
+      method:'POST',
+      body:JSON.stringify({name,folder_type:folderType,list_month:listMonth})
+    });
+    closeListEditor();
+    await loadAll();
+    setStatus('名前と収納フォルダーを変更しました ✓');
+  }catch(e){
+    setStatus('変更に失敗しました: '+e.message,false);
+  }finally{$('listEditSaveBtn').disabled=false}
+};
+
+window.deleteList=async function(id,name){
+  const item=currentLists.find(x=>x.id===id);
+  if(currentLists.length<=1){setStatus('最後のリストは削除できません',false);return}
+  if(!confirm(`「${name}」（${Number(item?.count||0)}件）を削除しますか？\nこのリスト内のURLも削除され、元に戻せません。`)) return;
+  try{
+    await call('/api/lists/'+encodeURIComponent(id),{method:'DELETE'});
+    await loadAll();
+    setStatus('リストを削除しました ✓');
+  }catch(e){setStatus('削除に失敗しました: '+e.message,false)}
+};
+
+
+let lastDownload=null;
+
+function triggerDownload(blob,fileName){
+  const href=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=href;a.download=fileName;document.body.appendChild(a);a.click();a.remove();
+  setTimeout(()=>URL.revokeObjectURL(href),1500);
+}
+function showFileModal(blob,fileName,mimeType){
+  if(lastDownload?.url) URL.revokeObjectURL(lastDownload.url);
+  const url=URL.createObjectURL(blob);
+  lastDownload={blob,fileName,mimeType,url};
+  $('fileModalName').textContent=fileName;
+  $('fileModal').classList.add('show');
+  $('fileModal').setAttribute('aria-hidden','false');
+}
+function hideFileModal(){
+  $('fileModal').classList.remove('show');
+  $('fileModal').setAttribute('aria-hidden','true');
+}
+$('fileCloseBtn').onclick=hideFileModal;
+$('fileRedownloadBtn').onclick=()=>{
+  if(!lastDownload)return;
+  triggerDownload(lastDownload.blob,lastDownload.fileName);
+  setStatus('直前のファイルを再ダウンロードしました ✓');
+};
+$('fileOpenBtn').onclick=()=>{
+  if(!lastDownload)return;
+  const w=window.open(lastDownload.url,'_blank');
+  if(!w) location.href=lastDownload.url;
+};
+$('fileShareBtn').onclick=async()=>{
+  if(!lastDownload)return;
+  try{
+    const file=new File([lastDownload.blob],lastDownload.fileName,{type:lastDownload.mimeType});
+    if(navigator.share && (!navigator.canShare || navigator.canShare({files:[file]}))){
+      await navigator.share({files:[file],title:lastDownload.fileName});
+    }else{
+      alert('この端末ではファイル共有に対応していません。');
+    }
+  }catch(e){
+    if(e?.name!=='AbortError') alert('共有できませんでした。');
+  }
+};
+
+function openCsvChoice(){
+  if(!currentActive){setStatus('保存先が未設定です',false);return}
+  const selected=currentLists.find(x=>x.id===currentActive.id);
+  const unprocessed=Number(selected?.unprocessed_count||0);
+  $('csvUnprocessedCount').textContent=`${unprocessed}件`;
+  $('csvBackupCount').textContent=`${Number(selected?.count||0)}件`;
+  $('csvUnprocessedBtn').disabled=unprocessed===0;
+  $('csvBackupBtn').disabled=Number(selected?.count||0)===0;
+  $('csvChoiceModal').classList.add('show');
+  $('csvChoiceModal').setAttribute('aria-hidden','false');
+}
+function closeCsvChoice(){
+  $('csvChoiceModal').classList.remove('show');
+  $('csvChoiceModal').setAttribute('aria-hidden','true');
+}
+$('csvChoiceCloseBtn').onclick=closeCsvChoice;
+$('csvChoiceModal').onclick=e=>{if(e.target===$('csvChoiceModal'))closeCsvChoice()};
+$('csvUnprocessedBtn').onclick=()=>{closeCsvChoice();downloadCsv(currentActive.id,'unprocessed')};
+$('csvBackupBtn').onclick=()=>{closeCsvChoice();downloadCsv(currentActive.id,'backup')};
+
+window.downloadCsv=async function(id,mode='unprocessed'){
+  try{
+    setStatus('CSVを作成中...');
+    const res=await call('/api/csv-export/'+encodeURIComponent(id),{
+      method:'POST',body:JSON.stringify({mode})
+    });
+    const rows=[
+      ['CSV抽出回数','URL・コード','端末','登録日時'],
+      ...(res.submissions||[]).map(x=>[
+        Number(x.csv_export_count||0),x.export_value||exportValue(x.url),x.device_id||'',formatJST(x.created_at)
+      ])
+    ];
+    const escCsv=v=>`"${String(v??'').replaceAll('"','""')}"`;
+    const csv='\uFEFF'+rows.map(r=>r.map(escCsv).join(',')).join('\r\n');
+    const blob=new Blob([csv],{type:'text/csv;charset=utf-8'});
+    const suffix=mode==='backup'?'全件':'';
+    const fileName=((res.list?.name||'当選URL').replace(/[\\/:*?"<>|]/g,'_'))+suffix+currentJstFileStamp()+'.csv';
+    triggerDownload(blob,fileName);
+    showFileModal(blob,fileName,'text/csv;charset=utf-8');
+    await loadAll();
+    setStatus(mode==='backup'?'全件バックアップを出力しました ✓':'未処理CSVを出力しました ✓');
+  }catch(e){setStatus('CSV出力に失敗しました: '+e.message,false)}
+};
+
+$('addListBtn').onclick=async()=>{
+  const name=$('newListName').value.trim();
+  if(!name)return;
+  try{
+    await call('/api/lists',{method:'POST',body:JSON.stringify({name})});
+    $('newListName').value='';
+    closeAddSheet();
+    await loadAll();
+    setStatus('保存先を追加しました ✓');
+  }catch(e){setStatus('追加に失敗しました: '+e.message,false)}
+};
+
+function openAddSheet(){
+  $('addSheet').classList.add('show');$('addSheet').setAttribute('aria-hidden','false');
+  setTimeout(()=>$('newListName').focus(),80);
+}
+function closeAddSheet(){
+  $('addSheet').classList.remove('show');$('addSheet').setAttribute('aria-hidden','true');
+  $('newListName').blur();
+}
+$('openAddBtn').onclick=openAddSheet;
+$('cancelAddBtn').onclick=closeAddSheet;
+$('addSheet').onclick=e=>{if(e.target===$('addSheet'))closeAddSheet()};
+$('newListName').addEventListener('keydown',e=>{if(e.key==='Enter')$('addListBtn').click()});
+
+$('refreshBtn').onclick=loadAll;
+$('serverRetry').onclick=loadAll;
+$('revenueBtn').onclick=openRevenueModal;
+$('revenueCloseBtn').onclick=closeRevenueModal;
+$('revenueModal').onclick=e=>{if(e.target===$('revenueModal'))closeRevenueModal()};
+$('csvBtn').onclick=()=>{
+  if(!currentActive){setStatus('保存先が未設定です',false);return}
+  openCsvChoice();
+};
+$('deleteBtn').onclick=()=>{
+  if(!currentActive){setStatus('保存先が未設定です',false);return}
+  deleteList(currentActive.id,currentActive.name);
+};
+
+$('excelBtn').onclick=async()=>{
+  try{
+    setStatus('Excelを作成中...');
+    const res=await call('/api/export-data');
+    const lists=res.lists||[];
+    if(!lists.length){setStatus('出力するリストがありません',false);return}
+
+    const wb=XLSX.utils.book_new();
+    const used=new Set();
+
+    for(const list of lists){
+      let name=(list.name||'Sheet').replace(/[\\/*?:[\]]/g,'_').slice(0,31)||'Sheet';
+      let base=name,n=2;
+      while(used.has(name)){name=(base.slice(0,27)+'_'+n).slice(0,31);n++}
+      used.add(name);
+
+      const rows=[['URL・コード','端末','登録日時'],...(list.submissions||[]).map(x=>[
+        x.export_value||exportValue(x.url),x.device_id||'',formatJST(x.created_at)
+      ])];
+      const ws=XLSX.utils.aoa_to_sheet(rows);
+      ws['!cols']=[{wch:70},{wch:16},{wch:22}];
+      XLSX.utils.book_append_sheet(wb,ws,name);
+    }
+
+    const data=XLSX.write(wb,{bookType:'xlsx',type:'array'});
+    const blob=new Blob([data],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+    const fileName='当選URL一覧.xlsx';
+    const href=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    a.href=href;a.download=fileName;document.body.appendChild(a);a.click();a.remove();
+    setTimeout(()=>URL.revokeObjectURL(href),1000);
+    showFileModal(blob,fileName,'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    setStatus('Excelを出力しました ✓');
+  }catch(e){
+    console.error(e);
+    setStatus('Excel出力に失敗しました: '+e.message,false);
+  }
+};
+
+window.addEventListener('online',loadAll);
+window.addEventListener('offline',()=>setServerState('offline'));
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')loadAll()});
+loadAll();
+</script>
+<script>
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("./sw.js").catch(console.error);
+  });
+}
+</script>
 </body>
 </html>
