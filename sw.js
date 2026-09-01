@@ -1,14 +1,14 @@
-const CACHE = 'asset-manager-v3-20260901d';
+const CACHE = 'asset-manager-v3-20260901e';
 const CORE = [
   './',
   './index.html',
   './styles.css?v=20260901',
-  './app.js?v=20260901d',
-  './manifest.webmanifest?v=20260901d',
+  './app.js?v=20260901e',
+  './manifest.webmanifest?v=20260901e',
   './home-scene.jpg',
   './treasure-icon.png',
-  './icon-192.png?v=20260901d',
-  './icon-512.png?v=20260901d'
+  './icon-192.png?v=20260901e',
+  './icon-512.png?v=20260901e'
 ];
 
 self.addEventListener('install', event => {
