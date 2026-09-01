@@ -1130,6 +1130,57 @@ const ymNow=()=>today().slice(0,7);
 const monthLabel=ym=>`${Number((ym||ymNow()).slice(5,7))}月返済金額`;
 function uid(){return Math.random().toString(36).slice(2)+Date.now().toString(36)}
 function num(v){return Number(String(v??'').replace(/[^\d.-]/g,''))||0}
+function calculateAmount(value){
+ const raw=String(value??'').trim();
+ if(!raw)return {ok:true,value:0};
+ const expr=raw
+  .replace(/[０-９]/g,ch=>String.fromCharCode(ch.charCodeAt(0)-0xFEE0))
+  .replace(/[．。]/g,'.')
+  .replace(/[，,￥¥\s]/g,'')
+  .replace(/[×✕✖＊xXｘＸ]/g,'*')
+  .replace(/[÷／]/g,'/')
+  .replace(/＋/g,'+')
+  .replace(/[−ー－]/g,'-')
+  .replace(/（/g,'(')
+  .replace(/）/g,')');
+ if(!/^[0-9.+\-*/()]+$/.test(expr))return {ok:false};
+ let pos=0;
+ const parseExpression=()=>{
+  let result=parseTerm();
+  while(expr[pos]==='+'||expr[pos]==='-'){
+   const op=expr[pos++],right=parseTerm();
+   result=op==='+'?result+right:result-right;
+  }
+  return result;
+ };
+ const parseTerm=()=>{
+  let result=parseFactor();
+  while(expr[pos]==='*'||expr[pos]==='/'){
+   const op=expr[pos++],right=parseFactor();
+   if(op==='/'&&right===0)throw new Error('division by zero');
+   result=op==='*'?result*right:result/right;
+  }
+  return result;
+ };
+ const parseFactor=()=>{
+  if(expr[pos]==='+'){pos++;return parseFactor()}
+  if(expr[pos]==='-'){pos++;return -parseFactor()}
+  if(expr[pos]==='('){
+   pos++;const result=parseExpression();
+   if(expr[pos]!==')')throw new Error('missing parenthesis');
+   pos++;return result;
+  }
+  const match=expr.slice(pos).match(/^(?:\d+(?:\.\d*)?|\.\d+)/);
+  if(!match)throw new Error('number expected');
+  pos+=match[0].length;
+  return Number(match[0]);
+ };
+ try{
+  const result=parseExpression();
+  if(pos!==expr.length||!Number.isFinite(result))return {ok:false};
+  return {ok:true,value:Math.round(result)};
+ }catch(e){return {ok:false}}
+}
 function clone(v){return JSON.parse(JSON.stringify(v))}
 function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
 function toast(t){const f=$('flash');f.textContent=t;f.classList.add('show');clearTimeout(toast._t);toast._t=setTimeout(()=>f.classList.remove('show'),1600)}
@@ -1242,10 +1293,13 @@ syncCalendarMonth();
 persist();
 
 function totals(){const a=state.assets.reduce((s,x)=>s+num(x.value),0),d=state.debts.reduce((s,x)=>s+num(x.value),0);return{a,d,n:a-d}}
-function rowHtml(x){return `<div class="row" data-id="${x.id}"><input class="name" value="${esc(x.name)}"><input class="amt money" inputmode="numeric" value="${x.value||''}" placeholder="0"><button class="small danger del" type="button">削除</button></div>`}
+function rowHtml(x,formula=false){
+ const amountAttrs=formula?'inputmode="text" autocomplete="off" enterkeyhint="done" placeholder="0 または 3000+500"':'inputmode="numeric" placeholder="0"';
+ return `<div class="row" data-id="${x.id}"><input class="name" value="${esc(x.name)}"><input class="amt money" ${amountAttrs} value="${x.value||''}"><button class="small danger del" type="button">削除</button></div>`;
+}
 function renderInputs(){
- $('assetRows').innerHTML=state.assets.map(rowHtml).join('');
- $('debtRows').innerHTML=state.debts.map(rowHtml).join('');
+ $('assetRows').innerHTML=state.assets.map(x=>rowHtml(x,true)).join('');
+ $('debtRows').innerHTML=state.debts.map(x=>rowHtml(x)).join('');
  bindRows('assetRows',state.assets);bindRows('debtRows',state.debts);
  updateTotals();
 }
@@ -1253,7 +1307,30 @@ function bindRows(id,arr){
  $(id).querySelectorAll('.row').forEach(r=>{
   const x=arr.find(v=>v.id===r.dataset.id);
   r.querySelector('.name').addEventListener('input',e=>{x.name=e.target.value;persist()});
-  r.querySelector('.amt').addEventListener('input',e=>{x.value=num(e.target.value);persist();updateTotals()});
+  const amount=r.querySelector('.amt');
+  if(id==='assetRows'){
+   amount.addEventListener('input',e=>{
+    // 演算子を含む間は式を崩さず、入力確定時にまとめて計算する。
+    if(/[+＋×✕✖*xXｘＸ÷/／()（）−ー－]/.test(e.target.value)||String(e.target.value).slice(1).includes('-'))return;
+    x.value=num(e.target.value);persist();updateTotals();
+   });
+   amount.addEventListener('blur',()=>{
+    const calculated=calculateAmount(amount.value);
+    if(!calculated.ok){
+     amount.value=x.value||'';
+     toast('計算式を確認してください');
+     return;
+    }
+    x.value=calculated.value;
+    amount.value=calculated.value?String(calculated.value):'';
+    persist();updateTotals();
+   });
+   amount.addEventListener('keydown',e=>{
+    if(e.key==='Enter'){e.preventDefault();amount.blur()}
+   });
+  }else{
+   amount.addEventListener('input',e=>{x.value=num(e.target.value);persist();updateTotals()});
+  }
   r.querySelector('.del').onclick=()=>{arr.splice(arr.indexOf(x),1);persist();renderInputs()};
  });
 }
@@ -1642,8 +1719,8 @@ let editingIndex=-1;
 function openEdit(i){
  editingIndex=i;const r=state.records[i];
  $('editDate').value=r.date;
- $('editAssets').innerHTML='<h4>資産</h4>'+r.assets.map(rowHtml).join('');
- $('editDebts').innerHTML='<h4>借入</h4>'+r.debts.map(rowHtml).join('');
+ $('editAssets').innerHTML='<h4>資産</h4>'+r.assets.map(x=>rowHtml(x,true)).join('');
+ $('editDebts').innerHTML='<h4>借入</h4>'+r.debts.map(x=>rowHtml(x)).join('');
  $('editAssets').querySelectorAll('.del,.name').forEach(el=>el.disabled=true);
  $('editDebts').querySelectorAll('.del,.name').forEach(el=>el.disabled=true);
  $('editModal').classList.add('open');
@@ -1651,8 +1728,11 @@ function openEdit(i){
 function saveEditFn(){
  const r=state.records[editingIndex];
  r.date=$('editDate').value;
- r.assets.forEach((x,i)=>x.value=num($('editAssets').querySelectorAll('.amt')[i].value));
- r.debts.forEach((x,i)=>x.value=num($('editDebts').querySelectorAll('.amt')[i].value));
+ const assetValues=[...$('editAssets').querySelectorAll('.amt')].map(el=>calculateAmount(el.value));
+ const debtValues=[...$('editDebts').querySelectorAll('.amt')].map(el=>num(el.value));
+ if(assetValues.some(result=>!result.ok))return alert('計算式を確認してください');
+ r.assets.forEach((x,i)=>x.value=assetValues[i].value);
+ r.debts.forEach((x,i)=>x.value=debtValues[i]);
  r.asset=r.assets.reduce((s,x)=>s+num(x.value),0);r.debt=r.debts.reduce((s,x)=>s+num(x.value),0);r.net=r.asset-r.debt;
  state.records.sort((a,b)=>a.date.localeCompare(b.date));persist();$('editModal').classList.remove('open');renderAll();
 }
