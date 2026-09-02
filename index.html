@@ -4,11 +4,11 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
 <meta name="theme-color" content="#120f2b" />
-<link rel="manifest" href="./manifest.webmanifest?v=20260901i" />
+<link rel="manifest" href="./manifest.webmanifest?v=20260902r" />
 <title>資産残高管理</title>
 
-<link rel="stylesheet" href="./styles.css?v=20260901" />
-<link rel="apple-touch-icon" href="./icon-192.png?v=20260901i" />
+<link rel="stylesheet" href="./styles.css?v=20260902r" />
+<link rel="apple-touch-icon" href="./icon-192.png?v=20260902r" />
 
 </head>
 <body>
@@ -64,7 +64,7 @@
 
   <section id="page-assets" class="tabpage">
     <div class="card">
-      <div class="section-head"><h2>資産</h2><button class="small" id="addAsset">＋ 項目追加</button></div>
+      <div class="section-head"><h2>資産</h2><div class="actions list-head-actions"><button class="small reorder-open" id="reorderAssets" type="button">並び替え</button><button class="small" id="addAsset">＋ 項目追加</button></div></div>
       <div class="subtot" style="border-top:0;border-bottom:1px solid var(--line);padding:0 0 12px;margin:0 0 12px"><span>資産合計</span><span id="assetSub">¥0</span></div>
       <div class="asset-record-box">
         <input type="date" id="assetRecordDate" class="asset-record-date" aria-label="記録日">
@@ -76,7 +76,7 @@
 
   <section id="page-debts" class="tabpage">
     <div class="card">
-      <div class="section-head"><h2>借入</h2><button class="small" id="addDebt">＋ 項目追加</button></div>
+      <div class="section-head"><h2>借入</h2><div class="actions list-head-actions"><button class="small reorder-open" id="reorderDebts" type="button">並び替え</button><button class="small" id="addDebt">＋ 項目追加</button></div></div>
       <div class="subtot" style="border-top:0;border-bottom:1px solid var(--line);padding:0 0 12px;margin:0 0 12px"><span>借入合計</span><span id="debtSub">¥0</span></div>
       <div id="debtRows"></div>
       <p class="note">「借入先一覧」から反映した借入先は、返済残額がここへ同期されます。</p>
@@ -152,8 +152,19 @@
 </div></nav>
 <div class="flash" id="flash" aria-live="polite"></div>
 <div class="modal" id="editModal"><div class="sheet"><h3>記録を編集</h3><input type="date" id="editDate" style="margin-bottom:10px"><div id="editAssets"></div><div id="editDebts"></div><div class="actions" style="margin-top:12px"><button class="primary" id="saveEdit">保存</button><button id="closeEdit">閉じる</button><button class="danger" id="deleteEdit">この記録を削除</button></div></div></div>
+<div class="modal" id="reorderModal" role="dialog" aria-modal="true" aria-labelledby="reorderTitle">
+  <div class="sheet reorder-sheet">
+    <h3 id="reorderTitle">並び替え</h3>
+    <p class="reorder-note">▲・▼で表示順を変更してください。</p>
+    <div id="reorderRows" class="reorder-rows"></div>
+    <div class="reorder-actions">
+      <button class="primary" id="saveReorder" type="button">この順番で保存</button>
+      <button id="cancelReorder" type="button">キャンセル</button>
+    </div>
+  </div>
+</div>
 
-<script src="./app.js?v=20260901i"></script>
+<script src="./app.js?v=20260902r"></script>
 
 </body>
 </html>

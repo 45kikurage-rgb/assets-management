@@ -121,6 +121,8 @@ function normalize(raw){
   if(!s.assets.some(x=>x.name===name))s.assets.push({id:uid(),name,value:0});
  }
  s.debts=Array.isArray(s.debts)?s.debts:[];
+ s.assets.forEach(x=>{x.id=x.id||uid()});
+ s.debts.forEach(x=>{x.id=x.id||uid()});
  s.records=Array.isArray(s.records)?s.records:[];
  s.activeTab=s.activeTab||'home';
  const current=Array.isArray(s.lenders)?s.lenders:[];
@@ -193,6 +195,53 @@ function renderInputs(){
  $('debtRows').innerHTML=state.debts.map(x=>rowHtml(x)).join('');
  bindRows('assetRows',state.assets);bindRows('debtRows',state.debts);
  updateTotals();
+}
+
+let reorderDraft=null;
+function openReorder(key){
+ const arr=state[key];
+ if(!arr.length){toast(key==='assets'?'資産項目がありません':'借入項目がありません');return}
+ reorderDraft={key,ids:arr.map(x=>x.id)};
+ $('reorderTitle').textContent=(key==='assets'?'資産':'借入')+'の並び替え';
+ renderReorderRows();
+ $('reorderModal').classList.add('open');
+}
+function renderReorderRows(){
+ if(!reorderDraft)return;
+ const source=state[reorderDraft.key], byId=new Map(source.map(x=>[x.id,x]));
+ $('reorderRows').innerHTML=reorderDraft.ids.map((id,index)=>{
+  const item=byId.get(id);
+  return `<div class="reorder-row" data-index="${index}"><span class="reorder-no">${index+1}</span><span class="reorder-name">${esc(item?.name||'名称未設定')}</span><button class="reorder-move move-up" type="button" aria-label="上へ移動" ${index===0?'disabled':''}>▲</button><button class="reorder-move move-down" type="button" aria-label="下へ移動" ${index===reorderDraft.ids.length-1?'disabled':''}>▼</button></div>`;
+ }).join('');
+ $('reorderRows').querySelectorAll('.reorder-row').forEach(row=>{
+  const index=Number(row.dataset.index);
+  row.querySelector('.move-up').onclick=()=>moveReorderItem(index,-1);
+  row.querySelector('.move-down').onclick=()=>moveReorderItem(index,1);
+ });
+}
+function moveReorderItem(index,direction){
+ if(!reorderDraft)return;
+ const next=index+direction;
+ if(next<0||next>=reorderDraft.ids.length)return;
+ [reorderDraft.ids[index],reorderDraft.ids[next]]=[reorderDraft.ids[next],reorderDraft.ids[index]];
+ renderReorderRows();
+ const moved=$('reorderRows').querySelector(`[data-index="${next}"] .${direction<0?'move-up':'move-down'}`);
+ moved?.focus({preventScroll:true});
+}
+function closeReorder(){
+ $('reorderModal').classList.remove('open');
+ reorderDraft=null;
+}
+function saveReorder(){
+ if(!reorderDraft)return;
+ const key=reorderDraft.key, current=state[key], byId=new Map(current.map(x=>[x.id,x]));
+ const ordered=reorderDraft.ids.map(id=>byId.get(id)).filter(Boolean);
+ const included=new Set(reorderDraft.ids);
+ state[key]=ordered.concat(current.filter(x=>!included.has(x.id)));
+ persist();
+ renderInputs();
+ closeReorder();
+ toast((key==='assets'?'資産':'借入')+'の順番を保存しました');
 }
 function bindRows(id,arr){
  $(id).querySelectorAll('.row').forEach(r=>{
@@ -864,6 +913,12 @@ async function importCsvFn(file){
 function renderAll(){renderHomeGoal();renderInputs();renderLenders();renderHistory();updateTotals();drawMonthlyDeltaChart();drawHomeTrendChart();updateHomeTimestamp();if(state.activeTab==='trend')drawChart()}
 $('addAsset').onclick=()=>{state.assets.push({id:uid(),name:'新しい資産',value:0});persist();renderInputs()};
 $('addDebt').onclick=()=>{state.debts.push({id:uid(),name:'新しい借入',value:0,source:'manual'});persist();renderInputs()};
+$('reorderAssets').onclick=()=>openReorder('assets');
+$('reorderDebts').onclick=()=>openReorder('debts');
+$('saveReorder').onclick=saveReorder;
+$('cancelReorder').onclick=closeReorder;
+$('reorderModal').addEventListener('click',e=>{if(e.target===$('reorderModal'))closeReorder()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('reorderModal').classList.contains('open'))closeReorder()});
 $('addLender').onclick=()=>{if(state.lenders.length>=MAX_LENDERS){toast('借入先は13件までです');return}state.lenders.push({id:uid(),name:'',account:'',totalRepayment:0,monthlyPayment:0,remaining:0,finishMonth:'',repayMonth:ymNow(),paidMonths:[],schedule:{}});persist();renderLenders()};
 $('syncDebts').onclick=syncDebts;$('saveRecord').onclick=saveRecord;$('serverSaveFab').onclick=saveStateToServer;$('serverLoadFab').onclick=()=>loadStateFromServer({manual:true});
 $('assetSaveRecord').onclick=()=>{
@@ -923,7 +978,7 @@ if('serviceWorker' in navigator && location.protocol!=='file:'){
  });
  window.addEventListener('load',async()=>{
   try{
-   const registration=await navigator.serviceWorker.register('./sw.js?v=20260901i',{updateViaCache:'none'});
+   const registration=await navigator.serviceWorker.register('./sw.js?v=20260902r',{updateViaCache:'none'});
    await registration.update();
   }catch(e){console.warn('Service Worker update skipped:',e)}
  });
