@@ -980,7 +980,7 @@ if('serviceWorker' in navigator && location.protocol!=='file:'){
  });
  window.addEventListener('load',async()=>{
   try{
-   const registration=await navigator.serviceWorker.register('./sw.js?v=20260903all',{updateViaCache:'none'});
+   const registration=await navigator.serviceWorker.register('./sw.js?v=20260903corners',{updateViaCache:'none'});
    await registration.update();
   }catch(e){console.warn('Service Worker update skipped:',e)}
  });

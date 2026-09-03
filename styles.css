@@ -1021,3 +1021,26 @@ td:not(:last-child){border-right:1px solid var(--portal-line)}
   border:2px solid var(--portal-line)!important;
   border-radius:0!important;
 }
+
+/* 既存の高優先度な角丸指定を上書きし、全画面で角切りを統一 */
+#page-home .hero-card,
+#page-home .goal-card,
+#page-home .home-trend-card,
+#page-home .home-record{
+  border-radius:0!important;
+  clip-path:polygon(7px 0,calc(100% - 7px) 0,100% 7px,100% calc(100% - 7px),calc(100% - 7px) 100%,7px 100%,0 calc(100% - 7px),0 7px)!important;
+}
+#page-home .home-range button,
+#page-home .home-menu-btn,
+.global-actionbar button,
+.server-save-fab,
+.server-load-fab{
+  border-radius:0!important;
+  clip-path:polygon(5px 0,calc(100% - 5px) 0,100% 5px,100% calc(100% - 5px),calc(100% - 5px) 100%,5px 100%,0 calc(100% - 5px),0 5px)!important;
+}
+.global-asset-record-date{border-radius:0!important}
+.reorder-row,
+.tablewrap,
+.history-scroll{
+  clip-path:polygon(5px 0,calc(100% - 5px) 0,100% 5px,100% calc(100% - 5px),calc(100% - 5px) 100%,5px 100%,0 calc(100% - 5px),0 5px)!important;
+}
