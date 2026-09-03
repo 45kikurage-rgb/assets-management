@@ -881,11 +881,13 @@ function drawChart(){
  ctx.fillStyle='#6b7280';[0,Math.floor((arr.length-1)/2),arr.length-1].forEach(i=>{const x=pad.l+w*i/(arr.length-1);ctx.fillText(arr[i].date.slice(5),Math.max(pad.l,x-16),rect.height-10)});
 }
 function updateGlobalActionbar(name){
- const bar=$('globalActionbar'), assetBtn=$('assetSaveRecord'), lenderBtn=$('syncDebts');
+ const bar=$('globalActionbar'), assetBtn=$('assetSaveRecord'), assetDate=$('assetRecordDate'), lenderBtn=$('syncDebts');
  // ホームは閲覧専用なので操作バー自体を表示しない。
  bar.classList.toggle('home-hidden',name==='home');
+ bar.classList.toggle('asset-mode',name==='assets');
  // その他のタブでは取得・送信を共通表示し、左端だけタブ別操作に切り替える。
  assetBtn.classList.toggle('visible',name==='assets');
+ assetDate.classList.toggle('visible',name==='assets');
  lenderBtn.classList.toggle('visible',name==='lenders');
 }
 function showTab(name){
@@ -978,7 +980,7 @@ if('serviceWorker' in navigator && location.protocol!=='file:'){
  });
  window.addEventListener('load',async()=>{
   try{
-   const registration=await navigator.serviceWorker.register('./sw.js?v=20260902r',{updateViaCache:'none'});
+   const registration=await navigator.serviceWorker.register('./sw.js?v=20260903all',{updateViaCache:'none'});
    await registration.update();
   }catch(e){console.warn('Service Worker update skipped:',e)}
  });
