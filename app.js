@@ -740,6 +740,85 @@ function drawMonthlyDeltaChart(){
 }
 let homeTrendDays=90;
 let homeTrendMode='month';
+let homeTrendKind='asset';
+
+function recordedAssetValue(record,name){
+ const items=Array.isArray(record?.assets)?record.assets:[];
+ const matches=items.filter(item=>String(item?.name||'').trim()===name);
+ if(!matches.length)return null;
+ return matches.reduce((sum,item)=>sum+num(item.value),0);
+}
+
+function getStakeTrendPoints(){
+ const all=[...state.records]
+  .sort((a,b)=>a.date.localeCompare(b.date))
+  .map(record=>({date:record.date,value:recordedAssetValue(record,'ステーク')}))
+  .filter(point=>point.value!==null);
+ if(homeTrendMode!=='month'){
+  if(!all.length)return [];
+  const end=new Date(all[all.length-1].date+'T00:00:00');
+  const start=new Date(end);start.setDate(start.getDate()-homeTrendDays);
+  return all.filter(point=>new Date(point.date+'T00:00:00')>=start);
+ }
+ const now=new Date(),y=now.getFullYear(),m=now.getMonth();
+ const monthStart=`${y}-${String(m+1).padStart(2,'0')}-01`;
+ const monthEndDate=new Date(y,m+1,0);
+ const monthEnd=`${y}-${String(m+1).padStart(2,'0')}-${String(monthEndDate.getDate()).padStart(2,'0')}`;
+ const current=all.filter(point=>point.date>=monthStart&&point.date<=monthEnd);
+ const before=all.filter(point=>point.date<monthStart).at(-1);
+ if(!before)return current;
+ const firstDay=new Date(monthStart+'T00:00:00');
+ const beforeDay=new Date(before.date+'T00:00:00');
+ const daysBefore=Math.round((firstDay-beforeDay)/(24*60*60*1000));
+ return daysBefore<=3?[before,...current]:current;
+}
+
+function drawHomeStakeChart(){
+ const split=document.querySelector('#page-home .home-split-charts');
+ const assetPanel=document.querySelector('#page-home .home-asset-panel');
+ const netPanel=document.querySelector('#page-home .home-net-panel');
+ if(split)split.classList.add('month-mode');
+ if(assetPanel)assetPanel.setAttribute('aria-hidden','true');
+ if(netPanel)netPanel.removeAttribute('aria-hidden');
+ const netLabel=$('homeNetLabel');if(netLabel)netLabel.textContent='ステーク残高';
+ const points=getStakeTrendPoints();
+ const latest=points.length?points[points.length-1]:null;
+ const nLatest=$('homeNetLatest');if(nLatest)nLatest.textContent=latest?fmt(latest.value):'—';
+ const c=$('homeNetChart');if(!c)return;
+ const ctx=c.getContext('2d'),dpr=devicePixelRatio||1,rect=c.getBoundingClientRect();if(rect.width<10)return;
+ c.width=Math.max(1,Math.round(rect.width*dpr));c.height=Math.max(1,Math.round(rect.height*dpr));ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,rect.width,rect.height);
+ const box=c.closest('.home-trend-box');if(box)box.classList.toggle('is-empty',points.length<2);
+ if(points.length<2){
+  ctx.fillStyle='rgba(255,255,255,.72)';ctx.font='11px sans-serif';
+  ctx.fillText(points.length?'ステーク残高をもう1件記録すると表示されます':'ステークの残高記録がありません',12,28);return;
+ }
+ let min=Math.min(...points.map(point=>point.value)),max=Math.max(...points.map(point=>point.value));
+ if(min===max){const margin=Math.max(1,Math.abs(min)*.05);min-=margin;max+=margin}
+ else{const margin=Math.max((max-min)*.12,1);min-=margin;max+=margin}
+ const pad={l:64,r:12,t:10,b:28},w=rect.width-pad.l-pad.r,h=rect.height-pad.t-pad.b;
+ ctx.font='10px sans-serif';ctx.textBaseline='middle';
+ for(let i=0;i<5;i++){
+  const value=max-(max-min)*i/4,y=pad.t+h*i/4;
+  ctx.strokeStyle='rgba(255,255,255,.11)';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(pad.l+w,y);ctx.stroke();
+  ctx.fillStyle='rgba(255,255,255,.70)';ctx.fillText(Math.round(value).toLocaleString('ja-JP'),2,y);
+ }
+ let axisStart,axisEnd,leftLabel,rightLabel;
+ if(homeTrendMode==='month'){
+  const now=new Date(),y=now.getFullYear(),m=now.getMonth();
+  axisStart=new Date(y,m,0);axisEnd=new Date(y,m+1,0);
+  leftLabel='先月末';rightLabel=`${String(m+1).padStart(2,'0')}/${String(axisEnd.getDate()).padStart(2,'0')}`;
+ }else{
+  axisStart=new Date(points[0].date+'T00:00:00');axisEnd=new Date(points.at(-1).date+'T00:00:00');
+  leftLabel=points[0].date.slice(5).replace('-','/');rightLabel=points.at(-1).date.slice(5).replace('-','/');
+ }
+ const axisSpan=Math.max(1,axisEnd-axisStart);
+ const xOf=point=>pad.l+w*Math.max(0,Math.min(1,(new Date(point.date+'T00:00:00')-axisStart)/axisSpan));
+ const yOf=point=>pad.t+h*(max-point.value)/(max-min);
+ ctx.strokeStyle='#22c8e5';ctx.lineWidth=3;ctx.lineJoin='round';ctx.lineCap='round';ctx.beginPath();points.forEach((point,index)=>{const x=xOf(point),y=yOf(point);index?ctx.lineTo(x,y):ctx.moveTo(x,y)});ctx.stroke();
+ points.forEach(point=>{const x=xOf(point),y=yOf(point);ctx.beginPath();ctx.arc(x,y,4,0,Math.PI*2);ctx.fillStyle='#35e5d2';ctx.fill();ctx.strokeStyle='rgba(255,255,255,.85)';ctx.lineWidth=1;ctx.stroke()});
+ ctx.fillStyle='rgba(255,255,255,.72)';ctx.textBaseline='alphabetic';ctx.font='10px sans-serif';
+ ctx.fillText(leftLabel,Math.max(2,pad.l-20),rect.height-7);ctx.fillText(rightLabel,Math.max(pad.l,rect.width-42),rect.height-7);
+}
 
 function getCurrentMonthNetDelta(){
  const now=new Date();
@@ -837,6 +916,9 @@ function drawHomeTrendChart(){
  const split=document.querySelector('#page-home .home-split-charts');
  const assetPanel=document.querySelector('#page-home .home-asset-panel');
  const netPanel=document.querySelector('#page-home .home-net-panel');
+ const titleText=$('homeTrendTitleText');if(titleText)titleText.textContent=homeTrendKind==='stake'?'ステーク残高推移':'資産推移';
+ const title=$('homeTrendTitle');if(title){title.setAttribute('aria-pressed',String(homeTrendKind==='stake'));title.setAttribute('aria-label',homeTrendKind==='stake'?'資産推移へ戻す':'ステーク残高推移へ切り替え')}
+ if(homeTrendKind==='stake'){drawHomeStakeChart();return;}
  const netLabel=$('homeNetLabel');if(netLabel)netLabel.textContent='純資産額';
  if(homeTrendMode==='month'){drawHomeMonthNetChart();return;}
  if(split)split.classList.remove('month-mode');
@@ -940,6 +1022,10 @@ document.getElementById('editGoal')?.addEventListener('click',()=>{const cur=loc
 document.getElementById('homeRefresh')?.addEventListener('click',()=>{renderAll();toast('最新の表示に更新しました')});
 document.querySelector('.goal-card')?.addEventListener('click',()=>document.getElementById('editGoal')?.click());
 document.querySelectorAll('#homeRangeBtns button').forEach(b=>b.addEventListener('click',()=>{homeTrendMode=b.dataset.mode==='month'?'month':'range';if(homeTrendMode==='range')homeTrendDays=Number(b.dataset.days)||90;document.querySelectorAll('#homeRangeBtns button').forEach(x=>x.classList.toggle('active',x===b));drawHomeTrendChart()}));
+const homeTrendTitle=$('homeTrendTitle');
+const toggleHomeTrendKind=()=>{homeTrendKind=homeTrendKind==='asset'?'stake':'asset';drawHomeTrendChart()};
+homeTrendTitle?.addEventListener('click',toggleHomeTrendKind);
+homeTrendTitle?.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleHomeTrendKind()}});
 window.addEventListener('resize',()=>{if(state.activeTab==='trend')drawChart();drawMonthlyDeltaChart();if(state.activeTab==='home')drawHomeTrendChart()});$('exportCsv').onclick=exportCsvFn;$('importCsv').onchange=e=>e.target.files[0]&&importCsvFn(e.target.files[0]);$('closeEdit').onclick=()=>$('editModal').classList.remove('open');$('saveEdit').onclick=saveEditFn;$('deleteEdit').onclick=()=>{if(confirm('この記録を削除しますか？')){state.records.splice(editingIndex,1);persist();$('editModal').classList.remove('open');renderAll()}};
 document.querySelectorAll('.navbtn').forEach(b=>b.onclick=()=>showTab(b.dataset.tab));
 
@@ -980,7 +1066,7 @@ if('serviceWorker' in navigator && location.protocol!=='file:'){
  });
  window.addEventListener('load',async()=>{
   try{
-   const registration=await navigator.serviceWorker.register('./sw.js?v=20260903corners',{updateViaCache:'none'});
+   const registration=await navigator.serviceWorker.register('./sw.js?v=20260907stake',{updateViaCache:'none'});
    await registration.update();
   }catch(e){console.warn('Service Worker update skipped:',e)}
  });
