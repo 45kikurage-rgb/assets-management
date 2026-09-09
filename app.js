@@ -704,7 +704,7 @@ function drawMonthlyDeltaChart(){
  if(d.base===null){
   $('monthBaseText').textContent='前月末基準：基準となる過去記録がありません';
   $('monthDeltaNow').textContent='—';$('monthDeltaNow').className='month-delta-now';
-  ctx.fillStyle='rgba(255,255,255,.72)';ctx.font='14px sans-serif';ctx.fillText('前月末以前の記録を1件保存すると表示できます',18,34);return;
+  ctx.fillStyle='rgba(255,255,255,.72)';ctx.font='14px "Corporate Logo Rounded", sans-serif';ctx.fillText('前月末以前の記録を1件保存すると表示できます',18,34);return;
  }
  $('monthBaseText').textContent=`前月末基準：${fmt(d.base)}（${d.baseRec.date}の最新記録）`;
  const last=d.points.length?d.points[d.points.length-1]:{delta:0};
@@ -715,11 +715,11 @@ function drawMonthlyDeltaChart(){
  const pad={l:66,r:14,t:18,b:34},w=rect.width-pad.l-pad.r,h=rect.height-pad.t-pad.b;
  if(points.length<2){
   ctx.strokeStyle='rgba(255,255,255,.18)';ctx.beginPath();ctx.moveTo(pad.l,pad.t+h/2);ctx.lineTo(pad.l+w,pad.t+h/2);ctx.stroke();
-  ctx.fillStyle='rgba(255,255,255,.72)';ctx.font='13px sans-serif';ctx.fillText('今月の残高を記録すると増減が表示されます',18,34);return;
+  ctx.fillStyle='rgba(255,255,255,.72)';ctx.font='13px "Corporate Logo Rounded", sans-serif';ctx.fillText('今月の残高を記録すると増減が表示されます',18,34);return;
  }
  let vals=points.map(p=>p.delta);let min=Math.min(0,...vals),max=Math.max(0,...vals);let span=max-min;if(span===0)span=1;
  const margin=Math.max(span*.14,1000);min-=margin;max+=margin;span=max-min;
- ctx.font='11px sans-serif';ctx.textBaseline='middle';
+ ctx.font='11px "Corporate Logo Rounded", sans-serif';ctx.textBaseline='middle';
  for(let i=0;i<5;i++){
   const v=max-span*i/4,y=pad.t+h*i/4;
   ctx.strokeStyle='rgba(255,255,255,.12)';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(pad.l+w,y);ctx.stroke();
@@ -734,7 +734,7 @@ function drawMonthlyDeltaChart(){
  ctx.beginPath();points.forEach((p,i)=>{const x=xOf(p),y=yOf(p);i?ctx.lineTo(x,y):ctx.moveTo(x,y)});ctx.lineTo(xOf(points.at(-1)),zeroY);ctx.lineTo(xOf(points[0]),zeroY);ctx.closePath();ctx.fillStyle=grad;ctx.fill();
  ctx.strokeStyle='#f6c719';ctx.lineWidth=3;ctx.lineJoin='round';ctx.lineCap='round';ctx.beginPath();points.forEach((p,i)=>{const x=xOf(p),y=yOf(p);i?ctx.lineTo(x,y):ctx.moveTo(x,y)});ctx.stroke();
  points.slice(1).forEach(p=>{const x=xOf(p),y=yOf(p);ctx.beginPath();ctx.arc(x,y,4,0,Math.PI*2);ctx.fillStyle=p.delta>=0?'#35e5d2':'#ff8c95';ctx.fill();ctx.strokeStyle='rgba(255,255,255,.85)';ctx.lineWidth=1;ctx.stroke()});
- ctx.fillStyle='rgba(255,255,255,.72)';ctx.textBaseline='alphabetic';ctx.font='11px sans-serif';
+ ctx.fillStyle='rgba(255,255,255,.72)';ctx.textBaseline='alphabetic';ctx.font='11px "Corporate Logo Rounded", sans-serif';
  const ticks=[1,Math.min(10,daysInMonth),Math.min(20,daysInMonth),daysInMonth];
  [...new Set(ticks)].forEach(day=>{const x=pad.l+w*(day-1)/Math.max(1,daysInMonth-1);ctx.fillText(`${day}日`,Math.max(pad.l-2,Math.min(x-10,pad.l+w-22)),rect.height-9)});
 }
@@ -789,14 +789,14 @@ function drawHomeStakeChart(){
  c.width=Math.max(1,Math.round(rect.width*dpr));c.height=Math.max(1,Math.round(rect.height*dpr));ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,rect.width,rect.height);
  const box=c.closest('.home-trend-box');if(box)box.classList.toggle('is-empty',points.length<2);
  if(points.length<2){
-  ctx.fillStyle='rgba(255,255,255,.72)';ctx.font='11px sans-serif';
+  ctx.fillStyle='rgba(255,255,255,.72)';ctx.font='11px "Corporate Logo Rounded", sans-serif';
   ctx.fillText(points.length?'ステーク残高をもう1件記録すると表示されます':'ステークの残高記録がありません',12,28);return;
  }
  let min=Math.min(...points.map(point=>point.value)),max=Math.max(...points.map(point=>point.value));
  if(min===max){const margin=Math.max(1,Math.abs(min)*.05);min-=margin;max+=margin}
  else{const margin=Math.max((max-min)*.12,1);min-=margin;max+=margin}
  const pad={l:64,r:12,t:10,b:28},w=rect.width-pad.l-pad.r,h=rect.height-pad.t-pad.b;
- ctx.font='10px sans-serif';ctx.textBaseline='middle';
+ ctx.font='10px "Corporate Logo Rounded", sans-serif';ctx.textBaseline='middle';
  for(let i=0;i<5;i++){
   const value=max-(max-min)*i/4,y=pad.t+h*i/4;
   ctx.strokeStyle='rgba(255,255,255,.11)';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(pad.l+w,y);ctx.stroke();
@@ -816,7 +816,7 @@ function drawHomeStakeChart(){
  const yOf=point=>pad.t+h*(max-point.value)/(max-min);
  ctx.strokeStyle='#22c8e5';ctx.lineWidth=3;ctx.lineJoin='round';ctx.lineCap='round';ctx.beginPath();points.forEach((point,index)=>{const x=xOf(point),y=yOf(point);index?ctx.lineTo(x,y):ctx.moveTo(x,y)});ctx.stroke();
  points.forEach(point=>{const x=xOf(point),y=yOf(point);ctx.beginPath();ctx.arc(x,y,4,0,Math.PI*2);ctx.fillStyle='#35e5d2';ctx.fill();ctx.strokeStyle='rgba(255,255,255,.85)';ctx.lineWidth=1;ctx.stroke()});
- ctx.fillStyle='rgba(255,255,255,.72)';ctx.textBaseline='alphabetic';ctx.font='10px sans-serif';
+ ctx.fillStyle='rgba(255,255,255,.72)';ctx.textBaseline='alphabetic';ctx.font='10px "Corporate Logo Rounded", sans-serif';
  ctx.fillText(leftLabel,Math.max(2,pad.l-20),rect.height-7);ctx.fillText(rightLabel,Math.max(pad.l,rect.width-42),rect.height-7);
 }
 
@@ -877,19 +877,19 @@ function drawHomeMonthNetChart(){
  c.width=Math.max(1,Math.round(rect.width*dpr));c.height=Math.max(1,Math.round(rect.height*dpr));ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,rect.width,rect.height);
  const box=c.closest('.home-trend-box');if(box)box.classList.toggle('is-empty',d.base===null||d.points.length<2);
  if(d.base===null){
-   ctx.fillStyle='rgba(255,255,255,.72)';ctx.font='12px sans-serif';
+   ctx.fillStyle='rgba(255,255,255,.72)';ctx.font='12px "Corporate Logo Rounded", sans-serif';
    ctx.fillText('基準データがありません',12,28);
-   ctx.font='10px sans-serif';ctx.fillText('前月末付近または当月月初の記録が必要です',12,48);return;
+   ctx.font='10px "Corporate Logo Rounded", sans-serif';ctx.fillText('前月末付近または当月月初の記録が必要です',12,48);return;
  }
  const pts=d.points;
  if(pts.length<2){
    ctx.strokeStyle='rgba(255,255,255,.15)';ctx.beginPath();ctx.moveTo(52,rect.height/2);ctx.lineTo(rect.width-10,rect.height/2);ctx.stroke();
-   ctx.fillStyle='rgba(255,255,255,.72)';ctx.font='11px sans-serif';ctx.fillText('当月の残高を記録すると増減が表示されます',12,28);return;
+   ctx.fillStyle='rgba(255,255,255,.72)';ctx.font='11px "Corporate Logo Rounded", sans-serif';ctx.fillText('当月の残高を記録すると増減が表示されます',12,28);return;
  }
  let vals=pts.map(p=>p.delta);let min=Math.min(0,...vals),max=Math.max(0,...vals);let span=max-min;if(span===0)span=1;
  const margin=Math.max(span*.14,1000);min-=margin;max+=margin;span=max-min;
  const pad={l:64,r:12,t:10,b:28},w=rect.width-pad.l-pad.r,h=rect.height-pad.t-pad.b;
- ctx.font='10px sans-serif';ctx.textBaseline='middle';
+ ctx.font='10px "Corporate Logo Rounded", sans-serif';ctx.textBaseline='middle';
  for(let i=0;i<5;i++){
    const v=max-span*i/4,y=pad.t+h*i/4;
    ctx.strokeStyle='rgba(255,255,255,.11)';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(pad.l+w,y);ctx.stroke();
@@ -902,13 +902,13 @@ function drawHomeMonthNetChart(){
  const yOf=p=>pad.t+h*(max-p.delta)/span;
  ctx.strokeStyle='#22c8e5';ctx.lineWidth=3;ctx.lineJoin='round';ctx.lineCap='round';ctx.beginPath();pts.forEach((p,i)=>{const x=xOf(p),y=yOf(p);i?ctx.lineTo(x,y):ctx.moveTo(x,y)});ctx.stroke();
  pts.forEach((p,i)=>{if(i===0&&p.synthetic)return;const x=xOf(p),y=yOf(p);ctx.beginPath();ctx.arc(x,y,4,0,Math.PI*2);ctx.fillStyle=p.delta>=0?'#35e5d2':'#ff8c95';ctx.fill();ctx.strokeStyle='rgba(255,255,255,.85)';ctx.lineWidth=1;ctx.stroke()});
- ctx.fillStyle='rgba(255,255,255,.72)';ctx.textBaseline='alphabetic';ctx.font='10px sans-serif';
+ ctx.fillStyle='rgba(255,255,255,.72)';ctx.textBaseline='alphabetic';ctx.font='10px "Corporate Logo Rounded", sans-serif';
  ctx.fillText('先月末',Math.max(2,pad.l-20),rect.height-7);
  const endLabel=`${String(d.m+1).padStart(2,'0')}/${String(d.monthEnd.getDate()).padStart(2,'0')}`;
  ctx.fillText(endLabel,Math.max(pad.l,rect.width-42),rect.height-7);
  // 基準が当月最初の記録なら、採用日を小さく明示。
  if(d.baseType==='month-first'){
-   ctx.fillStyle='rgba(255,255,255,.55)';ctx.font='9px sans-serif';ctx.fillText(`基準:${d.baseRec.date.slice(5).replace('-','/')}`,pad.l+4,12);
+   ctx.fillStyle='rgba(255,255,255,.55)';ctx.font='9px "Corporate Logo Rounded", sans-serif';ctx.fillText(`基準:${d.baseRec.date.slice(5).replace('-','/')}`,pad.l+4,12);
  }
 }
 
@@ -936,7 +936,7 @@ function drawHomeTrendChart(){
   const ctx=c.getContext('2d'),dpr=devicePixelRatio||1,rect=c.getBoundingClientRect();if(rect.width<10)return;
   c.width=Math.max(1,Math.round(rect.width*dpr));c.height=Math.max(1,Math.round(rect.height*dpr));ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,rect.width,rect.height);
   const box=c.closest('.home-trend-box');if(box)box.classList.toggle('is-empty',arr.length<2);
-  ctx.font='10px sans-serif';ctx.fillStyle='rgba(255,255,255,.70)';
+  ctx.font='10px "Corporate Logo Rounded", sans-serif';ctx.fillStyle='rgba(255,255,255,.70)';
   if(arr.length<2){ctx.fillText('2件以上記録すると表示されます',10,24);return}
   const vals=arr.map(r=>Number(r[key])||0);let min=Math.min(...vals),max=Math.max(...vals);if(min===max){const d=Math.max(1,Math.abs(min)*.05);min-=d;max+=d}const raw=max-min;min-=raw*.10;max+=raw*.10;
   const pad={l:58,r:10,t:8,b:25},w=rect.width-pad.l-pad.r,h=rect.height-pad.t-pad.b;
@@ -944,7 +944,7 @@ function drawHomeTrendChart(){
   const xOf=i=>pad.l+w*i/(arr.length-1),yOf=v=>pad.t+h*(max-v)/(max-min);
   ctx.strokeStyle=color;ctx.lineWidth=2.5;ctx.lineJoin='round';ctx.lineCap='round';ctx.beginPath();arr.forEach((r,i)=>{const x=xOf(i),y=yOf(Number(r[key])||0);i?ctx.lineTo(x,y):ctx.moveTo(x,y)});ctx.stroke();
   arr.forEach((r,i)=>{const x=xOf(i),y=yOf(Number(r[key])||0);ctx.beginPath();ctx.arc(x,y,3,0,Math.PI*2);ctx.fillStyle=color;ctx.fill();ctx.strokeStyle='rgba(255,255,255,.75)';ctx.lineWidth=.8;ctx.stroke()});
-  ctx.fillStyle='rgba(255,255,255,.70)';ctx.font='9px sans-serif';[0,arr.length-1].forEach(i=>{const x=xOf(i),lab=arr[i].date.slice(5).replace('-','/');ctx.fillText(lab,Math.max(pad.l-2,Math.min(x-10,pad.l+w-24)),rect.height-6)});
+  ctx.fillStyle='rgba(255,255,255,.70)';ctx.font='9px "Corporate Logo Rounded", sans-serif';[0,arr.length-1].forEach(i=>{const x=xOf(i),lab=arr[i].date.slice(5).replace('-','/');ctx.fillText(lab,Math.max(pad.l-2,Math.min(x-10,pad.l+w-24)),rect.height-6)});
  }
  drawOne('homeAssetChart','asset','#f6c719');
  drawOne('homeNetChart','net','#22c8e5');
@@ -955,7 +955,7 @@ function drawChart(){
  const c=$('chart'),ctx=c.getContext('2d'),dpr=devicePixelRatio||1,rect=c.getBoundingClientRect();if(rect.width<10)return;
  c.width=Math.max(1,rect.width*dpr);c.height=Math.max(1,rect.height*dpr);ctx.scale(dpr,dpr);ctx.clearRect(0,0,rect.width,rect.height);
  let arr=[...state.records].sort((a,b)=>a.date.localeCompare(b.date));if($('range').value!=='all')arr=arr.slice(-Number($('range').value));
- const pad={l:58,r:14,t:16,b:34},w=rect.width-pad.l-pad.r,h=rect.height-pad.t-pad.b;ctx.strokeStyle='#e5e7eb';ctx.fillStyle='#6b7280';ctx.font='12px sans-serif';
+ const pad={l:58,r:14,t:16,b:34},w=rect.width-pad.l-pad.r,h=rect.height-pad.t-pad.b;ctx.strokeStyle='#e5e7eb';ctx.fillStyle='#6b7280';ctx.font='12px "Corporate Logo Rounded", sans-serif';
  if(arr.length<2){ctx.fillText('2件以上記録するとグラフが表示されます',18,30);return}
  let vals=arr.map(x=>x.net),min=Math.min(...vals),max=Math.max(...vals);if(min===max){min-=1;max+=1}
  for(let i=0;i<5;i++){const y=pad.t+h*i/4;ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(pad.l+w,y);ctx.stroke();const v=max-(max-min)*i/4;ctx.fillText(Math.round(v).toLocaleString('ja-JP'),4,y+4)}
@@ -1042,6 +1042,7 @@ $('recordDate').value=today();$('assetRecordDate').value=today();$('todayLabel')
 homeTrendMode='month';
 document.querySelectorAll('#homeRangeBtns button').forEach(b=>b.classList.toggle('active',b.dataset.mode==='month'));
 showTab('home');
+if(document.fonts?.ready)document.fonts.ready.then(()=>{drawMonthlyDeltaChart();drawHomeTrendChart();if(state.activeTab==='trend')drawChart()});
 // 接続キー設定済みの端末だけ、起動時にサーバーの最新データを静かに取得します。
 setTimeout(()=>loadStateFromServer({silent:true}),250);
 
@@ -1066,7 +1067,7 @@ if('serviceWorker' in navigator && location.protocol!=='file:'){
  });
  window.addEventListener('load',async()=>{
   try{
-   const registration=await navigator.serviceWorker.register('./sw.js?v=20260907stake',{updateViaCache:'none'});
+   const registration=await navigator.serviceWorker.register('./sw.js?v=20260909-corporate-rounded',{updateViaCache:'none'});
    await registration.update();
   }catch(e){console.warn('Service Worker update skipped:',e)}
  });

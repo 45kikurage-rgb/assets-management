@@ -1,9 +1,10 @@
-const CACHE = 'asset-manager-v4-20260909-readable-type2';
+const CACHE = 'asset-manager-v4-20260909-corporate-rounded';
 const CORE = [
   './',
   './index.html',
-  './styles.css?v=20260909-readable-type2',
-  './app.js?v=20260907stake',
+  './styles.css?v=20260909-corporate-rounded',
+  './app.js?v=20260909-corporate-rounded',
+  './fonts/Corporate-Logo-Rounded-Bold-ver3.woff2',
   './manifest.webmanifest?v=20260907stake',
   './home-scene.jpg',
   './treasure-icon.png',
