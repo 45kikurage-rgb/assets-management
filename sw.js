@@ -1,8 +1,8 @@
-const CACHE = 'asset-manager-v3-20260907stake';
+const CACHE = 'asset-manager-v4-20260909-readable-type2';
 const CORE = [
   './',
   './index.html',
-  './styles.css?v=20260907stake',
+  './styles.css?v=20260909-readable-type2',
   './app.js?v=20260907stake',
   './manifest.webmanifest?v=20260907stake',
   './home-scene.jpg',
