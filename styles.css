@@ -1055,7 +1055,7 @@ button,input,select,textarea,option,output{font-family:inherit!important;font-sy
 h1,h2,h3,.home-brand-text,.home-trend-title,.section-head,.label,.value,.big{font-weight:700}
 .muted,.note,.field label,.home-updated,.hero-sub,.goal-meta,.home-menu-btn small{font-weight:600}
 .big,.value,.money,.goal-pct,.home-mini-title strong,.history-diff,
-td:not(:first-child),input[type="number"],input[type="date"],.pill{
+td:not(:first-child),.pill{
   transform:scaleY(1.08);
   transform-origin:center;
 }
