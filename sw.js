@@ -1,16 +1,16 @@
-const CACHE = 'asset-manager-v4-20260909-corporate-rounded';
+const CACHE = "assets-management-20260914-white-splash";
 const CORE = [
   './',
   './index.html',
   './styles.css?v=20260909-corporate-rounded',
   './app.js?v=20260909-corporate-rounded',
   './fonts/Corporate-Logo-Rounded-Bold-ver3.woff2',
-  './manifest.webmanifest?v=20260907stake',
+  './manifest.webmanifest?v=20260914-white-splash',
   './home-scene.jpg',
   './treasure-icon.png',
-  './icon-192.png?v=20260907stake',
-  './icon-512.png?v=20260907stake',
-  './icon-maskable.png?v=20260907stake'
+  './icon-192.png?v=20260914-white-splash',
+  './icon-512.png?v=20260914-white-splash',
+  './icon-maskable.png?v=20260914-white-splash'
 ];
 
 self.addEventListener('install', event => {

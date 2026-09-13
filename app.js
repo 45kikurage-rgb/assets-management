@@ -1067,7 +1067,7 @@ if('serviceWorker' in navigator && location.protocol!=='file:'){
  });
  window.addEventListener('load',async()=>{
   try{
-   const registration=await navigator.serviceWorker.register('./sw.js?v=20260909-corporate-rounded',{updateViaCache:'none'});
+   const registration=await navigator.serviceWorker.register('./sw.js?v=20260914-white-splash',{updateViaCache:'none'});
    await registration.update();
   }catch(e){console.warn('Service Worker update skipped:',e)}
  });
