@@ -1,9 +1,9 @@
-const CACHE = "assets-management-20260914-white-splash";
+const CACHE = "assets-management-20260914-stake-start";
 const CORE = [
   './',
   './index.html',
   './styles.css?v=20260909-corporate-rounded',
-  './app.js?v=20260909-corporate-rounded',
+  './app.js?v=20260914-stake-start',
   './fonts/Corporate-Logo-Rounded-Bold-ver3.woff2',
   './manifest.webmanifest?v=20260914-white-splash',
   './home-scene.jpg',

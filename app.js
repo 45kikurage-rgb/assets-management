@@ -741,6 +741,9 @@ function drawMonthlyDeltaChart(){
 let homeTrendDays=90;
 let homeTrendMode='month';
 let homeTrendKind='asset';
+// ステーク残高推移は、この日の最新記録を最初の実績として扱う。
+// 「今日」を都度計算すると翌日に開始点も移動してしまうため、運用開始日を固定する。
+const STAKE_TREND_START_DATE='2026-09-14';
 
 function recordedAssetValue(record,name){
  const items=Array.isArray(record?.assets)?record.assets:[];
@@ -753,7 +756,7 @@ function getStakeTrendPoints(){
  const all=[...state.records]
   .sort((a,b)=>a.date.localeCompare(b.date))
   .map(record=>({date:record.date,value:recordedAssetValue(record,'ステーク')}))
-  .filter(point=>point.value!==null);
+  .filter(point=>point.value!==null&&point.date>=STAKE_TREND_START_DATE);
  if(homeTrendMode!=='month'){
   if(!all.length)return [];
   const end=new Date(all[all.length-1].date+'T00:00:00');
@@ -787,10 +790,10 @@ function drawHomeStakeChart(){
  const c=$('homeNetChart');if(!c)return;
  const ctx=c.getContext('2d'),dpr=devicePixelRatio||1,rect=c.getBoundingClientRect();if(rect.width<10)return;
  c.width=Math.max(1,Math.round(rect.width*dpr));c.height=Math.max(1,Math.round(rect.height*dpr));ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,rect.width,rect.height);
- const box=c.closest('.home-trend-box');if(box)box.classList.toggle('is-empty',points.length<2);
- if(points.length<2){
+ const box=c.closest('.home-trend-box');if(box)box.classList.toggle('is-empty',points.length===0);
+ if(!points.length){
   ctx.fillStyle='rgba(255,255,255,.72)';ctx.font='11px "Corporate Logo Rounded", sans-serif';
-  ctx.fillText(points.length?'ステーク残高をもう1件記録すると表示されます':'ステークの残高記録がありません',12,28);return;
+  ctx.fillText('ステークの残高記録がありません',12,28);return;
  }
  let min=Math.min(...points.map(point=>point.value)),max=Math.max(...points.map(point=>point.value));
  if(min===max){const margin=Math.max(1,Math.abs(min)*.05);min-=margin;max+=margin}
@@ -807,6 +810,12 @@ function drawHomeStakeChart(){
   const now=new Date(),y=now.getFullYear(),m=now.getMonth();
   axisStart=new Date(y,m,0);axisEnd=new Date(y,m+1,0);
   leftLabel='先月末';rightLabel=`${String(m+1).padStart(2,'0')}/${String(axisEnd.getDate()).padStart(2,'0')}`;
+  const stakeStart=new Date(STAKE_TREND_START_DATE+'T00:00:00');
+  const monthStart=new Date(y,m,1);
+  if(stakeStart>=monthStart&&stakeStart<=axisEnd){
+   axisStart=stakeStart;
+   leftLabel=STAKE_TREND_START_DATE.slice(5).replace('-','/');
+  }
  }else{
   axisStart=new Date(points[0].date+'T00:00:00');axisEnd=new Date(points.at(-1).date+'T00:00:00');
   leftLabel=points[0].date.slice(5).replace('-','/');rightLabel=points.at(-1).date.slice(5).replace('-','/');
