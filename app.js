@@ -511,7 +511,10 @@ function verifyTransfers(){
  // 両親分のみ、2026/07/04の振込を2026年6月支払い分として扱う。
  // 他の借入先や他の月の明細には影響させない。
  if(ym==='2026-06'){
-  const parentsJuly4=transferCheck.rows.filter(r=>!r.used&&r.date==='2026-07-04'&&r.amount===500000);
+  const parentsJuly4=transferCheck.rows.filter(r=>{
+   const d=String(r.date||r.designatedDate||'').replace(/\//g,'-');
+   return !r.used&&d.startsWith('2026-07-04')&&r.amount===500000;
+  });
   for(const r of parentsJuly4){if(!tx.some(x=>x.id===r.id))tx.push({...r,used:false,norm:normalizeTransferText(r.content),monthOverride:'2026-06'});}
  }
  const lenders=state.lenders.filter(l=>String(l.name||'').trim());
