@@ -1034,6 +1034,17 @@ $('cancelReorder').onclick=closeReorder;
 $('reorderModal').addEventListener('click',e=>{if(e.target===$('reorderModal'))closeReorder()});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('reorderModal').classList.contains('open'))closeReorder()});
 $('addLender').onclick=()=>{if(state.lenders.length>=MAX_LENDERS){toast('借入先は13件までです');return}state.lenders.push({id:uid(),name:'',account:'',totalRepayment:0,monthlyPayment:0,remaining:0,finishMonth:'',repayMonth:ymNow(),paidMonths:[],schedule:{}});persist();renderLenders()};
+$('bulkRepayMonth').value=state.lenders[0]?.repayMonth||ymNow();
+$('bulkRepayMonth').onchange=e=>{
+ const ym=e.target.value||ymNow();
+ state.lenders.forEach(x=>{x.repayMonth=ym});
+ transferCheck.month=ym;
+ const vm=$('verifyMonth');if(vm)vm.value=ym;
+ persist();
+ if(transferCheck.rows.length)verifyTransfers();else renderTransferCheck();
+ renderLenders();
+ toast(`${Number(ym.slice(5,7))}月に一括変更しました`);
+};
 $('syncDebts').onclick=syncDebts;$('saveRecord').onclick=saveRecord;$('serverSaveFab').onclick=saveStateToServer;$('serverLoadFab').onclick=()=>loadStateFromServer({manual:true});
 $('assetSaveRecord').onclick=()=>{
  const d=$('assetRecordDate').value||today();
