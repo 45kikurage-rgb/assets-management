@@ -1150,7 +1150,7 @@ $('serverSaveFab').addEventListener('pointerdown',()=>{
 $('recordDate').value=today();$('assetRecordDate').value=today();$('todayLabel').textContent=today();$('verifyMonth').value=transferCheck.month||ymNow();renderAll();renderTransferCheck();state.activeTab='home';
 homeTrendMode='month';
 document.querySelectorAll('#homeRangeBtns button').forEach(b=>b.classList.toggle('active',b.dataset.mode==='month'));
-showTab('home');
+showTab(new URLSearchParams(location.search).has('shared')?'transfer':'home');
 if(document.fonts?.ready)document.fonts.ready.then(()=>{drawMonthlyDeltaChart();drawHomeTrendChart();if(state.activeTab==='trend')drawChart()});
 // 接続キー設定済みの端末だけ、起動時にサーバーの最新データを静かに取得します。
 setTimeout(()=>loadStateFromServer({silent:true}),250);
