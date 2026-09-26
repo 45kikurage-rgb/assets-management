@@ -147,7 +147,13 @@ function normalize(raw){
   for(let i=0;i<current.length && merged.length<MAX_LENDERS;i++){
    if(!used.has(i) && String(current[i]?.name||'').trim())merged.push(current[i]);
   }
-  s.lenders=merged.slice(0,MAX_LENDERS);
+ s.lenders=merged.slice(0,MAX_LENDERS);
+ }
+ // 2026年9月分はCSV確認から再判定するため、旧来の手動済み状態を解除する。
+ // 一度だけ実行し、以後ユーザーが反映した状態は保持する。
+ if(!s.migrations?.sep2026TransferReset){
+  s.lenders.forEach(x=>{x.paidMonths=(x.paidMonths||[]).filter(m=>m!=='2026-09')});
+  s.migrations={...(s.migrations||{}),sep2026TransferReset:true};
  }
  s.lenders.forEach(x=>{
   x.id=x.id||uid();
@@ -298,6 +304,8 @@ function lenderHtml(x,i){
  const ym=x.repayMonth||ymNow();
  const paid=(x.paidMonths||[]).includes(ym);
  const payment=paymentFor(x,ym);
+ const transferResult=transferCheck.fileName&&transferCheck.results.find(r=>r.l.id===x.id);
+ const transferLabel=transferResult?`${transferResult.tx?.designatedDate?Number(transferResult.tx.designatedDate.slice(5,7))+'月'+Number(transferResult.tx.designatedDate.slice(8,10))+'日 ':''}${transferResult.tx?.procedureStatus||'未確認'}`:null;
  return `<div class="lender" data-id="${x.id}">
  <div class="lender-title editable-title" role="button" tabindex="0" title="タップして名称を編集">
    <span class="lender-no">No.${String(i+1).padStart(2,'0')}</span>
@@ -313,7 +321,7 @@ function lenderHtml(x,i){
   <div class="field"><label>対象月</label><input class="repayMonth" type="month" value="${ym}"></div>
  </div>
  <div class="lender-actions">
-  <button class="small ${paid?'success':'warn'} pay" type="button" ${paid?'disabled':''}>${paid?`${Number(ym.slice(5,7))}月 返済済み`:`${Number(ym.slice(5,7))}月に返済した`}</button>
+  <button class="small ${transferResult?.status==='ok'?'success':transferResult?'warn':paid?'success':'warn'} pay" type="button" ${paid?'disabled':''}>${transferLabel|| (paid?`${Number(ym.slice(5,7))}月 返済済み`:`${Number(ym.slice(5,7))}月に返済した`)}</button>
  </div>
  <div class="lender-compact-bottom">
   <button class="small danger remove" type="button">内容クリア</button>
@@ -425,9 +433,21 @@ function parseTransferCsv(text){
  const idxDate=head.findIndex(x=>x==='日付');
  const idxContent=head.findIndex(x=>x==='内容');
  const idxOut=head.findIndex(x=>x.includes('出金金額'));
- if(idxDate<0||idxContent<0||idxOut<0)throw new Error('SMBC取引明細CSVの列を確認できません');
+ const idxDestination=head.findIndex(x=>x==='振込先');
+ const idxDesignated=head.findIndex(x=>x==='振込指定日');
+ const idxTransferAmount=head.findIndex(x=>x.includes('振込金額'));
+ const idxProcedure=head.findIndex(x=>x==='手続状況');
+ if(idxDestination>=0&&idxDesignated>=0&&idxTransferAmount>=0&&idxProcedure>=0){
+  return rows.map((r,i)=>({
+   id:i,date:String(r[idxDesignated]||'').trim(),ym:csvDateToYm(r[idxDesignated]),
+   designatedDate:String(r[idxDesignated]||'').trim(),procedureStatus:String(r[idxProcedure]||'').trim(),
+   content:String(r[idxDestination]||'').trim(),amount:num(r[idxTransferAmount]),used:false
+  })).filter(x=>x.content&&x.amount>0);
+ }
+ if(idxDate<0||idxContent<0||idxOut<0)throw new Error('対応するCSVの列を確認できません');
  return rows.map((r,i)=>({
-  id:i,date:String(r[idxDate]||'').trim(),ym:csvDateToYm(r[idxDate]),content:String(r[idxContent]||'').trim(),amount:num(r[idxOut]),used:false
+  id:i,date:String(r[idxDate]||'').trim(),ym:csvDateToYm(r[idxDate]),
+  designatedDate:'',procedureStatus:'',content:String(r[idxContent]||'').trim(),amount:num(r[idxOut]),used:false
  })).filter(x=>x.content&&x.content!=='振込手数料'&&x.amount>0);
 }
 function verifyTransfers(){
@@ -494,7 +514,7 @@ async function loadTransferCsv(file){
   const months={};for(const r of rows){if(r.ym)months[r.ym]=(months[r.ym]||0)+1}
   const detected=Object.entries(months).sort((a,b)=>b[1]-a[1])[0]?.[0];
   if(detected){transferCheck.month=detected;$('verifyMonth').value=detected}
-  verifyTransfers();toast('振込CSVを読み込みました');
+  verifyTransfers();renderLenders();toast('振込CSVを読み込みました');
  }catch(e){alert('CSVを読み込めませんでした：'+(e.message||e));}
 }
 function applyVerifiedPayments(){
