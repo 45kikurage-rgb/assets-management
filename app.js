@@ -301,6 +301,29 @@ function paymentFor(x,ym){
  if(x.schedule&&Object.prototype.hasOwnProperty.call(x.schedule,ym))return num(x.schedule[ym]);
  return num(x.monthlyPayment);
 }
+function monthRange(start,end){
+ const result=[];let cur=String(start||'').slice(0,7),last=String(end||'').slice(0,7);
+ if(!/^\d{4}-\d{2}$/.test(cur)||!/^\d{4}-\d{2}$/.test(last)||cur>last)return result;
+ while(cur<=last){
+  result.push(cur);
+  const [y,m]=cur.split('-').map(Number);const d=new Date(y,m,1);d.setMonth(d.getMonth()+1);cur=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+ }
+ return result;
+}
+function refreshBulkRepayMonthOptions(){
+ const select=$('bulkRepayMonth');if(!select)return;
+ const months=state.lenders.flatMap(x=>[
+  x.repayMonth,
+  x.finishMonth,
+  ...Object.keys(x.schedule||{}),
+  ...(x.paidMonths||[])
+ ]).filter(v=>/^\d{4}-\d{2}$/.test(String(v||''))).sort();
+ const start=months[0]||ymNow();
+ const end=months.at(-1)||start;
+ const selected=state.lenders[0]?.repayMonth||ymNow();
+ select.innerHTML=monthRange(start,end).map(ym=>`<option value="${ym}">${ym.slice(0,4)}年${ym.slice(5,7)}月</option>`).join('');
+ select.value=monthRange(start,end).includes(selected)?selected:end;
+}
 function lenderHtml(x,i){
  const ym=x.repayMonth||ymNow();
  const paid=(x.paidMonths||[]).includes(ym);
@@ -331,6 +354,7 @@ function lenderHtml(x,i){
  </div>`;
 }
 function renderLenders(){
+ refreshBulkRepayMonthOptions();
  const registered=state.lenders.filter(x=>String(x.name||'').trim()).length;
  $('lenderCount').textContent=`${registered}/${MAX_LENDERS}`;
  $('addLender').disabled=state.lenders.length>=MAX_LENDERS;
