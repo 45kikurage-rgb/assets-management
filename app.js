@@ -329,7 +329,7 @@ function lenderHtml(x,i){
  const paid=(x.paidMonths||[]).includes(ym);
  const payment=paymentFor(x,ym);
  const transferResult=transferCheck.fileName&&transferCheck.month===ym&&transferCheck.results.find(r=>r.l.id===x.id);
- const transferLabel=transferResult?`${transferResult.tx?.designatedDate?Number(transferResult.tx.designatedDate.slice(5,7))+'月'+Number(transferResult.tx.designatedDate.slice(8,10))+'日 ':''}${transferResult.tx?.procedureStatus||'未確認'}`:null;
+ const transferLabel=transferResult?`${transferResult.tx?.designatedDate?Number(transferResult.tx.designatedDate.slice(5,7))+'月'+Number(transferResult.tx.designatedDate.slice(8,10))+'日 ':''}${Number(x.remaining||0)===0&&transferResult.tx?.procedureStatus==='手続済'?'完済済':(transferResult.tx?.procedureStatus||'未確認')}`:null;
  return `<div class="lender" data-id="${x.id}">
  <div class="lender-title editable-title" role="button" tabindex="0" title="タップして名称を編集">
    <span class="lender-no">No.${String(i+1).padStart(2,'0')}</span>
