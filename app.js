@@ -467,14 +467,21 @@ function parseTransferCsv(text){
  const idxPayment=head.findIndex(x=>x.includes('お支払金額'));
  const idxDeposit=head.findIndex(x=>x.includes('お預り金額'));
  const idxMemo=head.findIndex(x=>x==='メモ');
- if(idxBankDate>=0&&idxPayment>=0&&idxDeposit>=0){
+ // 横浜銀行CSVはCP932のため、環境によって見出しだけ文字化けする場合があります。
+ // その場合も、日付形式と列位置から同じ明細形式として読み込みます。
+ const bankStatementByPosition=idxBankDate<0&&rows[0]?.length>=4&&/^\d{4}-\d{2}-\d{2}$/.test(String(rows[0][0]||''));
+ const bankDateCol=idxBankDate>=0?idxBankDate:0;
+ const paymentCol=idxPayment>=0?idxPayment:1;
+ const depositCol=idxDeposit>=0?idxDeposit:2;
+ const memoCol=idxMemo>=0?idxMemo:4;
+ if((idxBankDate>=0&&idxPayment>=0&&idxDeposit>=0)||bankStatementByPosition){
   return rows.map((r,i)=>{
-   const payment=String(r[idxPayment]||'').trim();
-   const deposit=String(r[idxDeposit]||'').trim();
+   const payment=String(r[paymentCol]||'').trim();
+   const deposit=String(r[depositCol]||'').trim();
    const paymentAmount=/^[-+]?[0-9,]+$/.test(payment)?num(payment):0;
    const depositAmount=/^[-+]?[0-9,]+$/.test(deposit)?num(deposit):0;
-   const content=[paymentAmount? '':payment,depositAmount?'':deposit,String(r[idxMemo]||'').trim()].filter(Boolean).join(' ');
-   return {id:i,date:String(r[idxBankDate]||'').trim(),ym:csvDateToYm(r[idxBankDate]),designatedDate:String(r[idxBankDate]||'').trim(),procedureStatus:'',content,amount:paymentAmount||depositAmount,used:false};
+   const content=[paymentAmount? '':payment,depositAmount?'':deposit,String(r[memoCol]||'').trim()].filter(Boolean).join(' ');
+   return {id:i,date:String(r[bankDateCol]||'').trim(),ym:csvDateToYm(r[bankDateCol]),designatedDate:String(r[bankDateCol]||'').trim(),procedureStatus:'',content,amount:paymentAmount||depositAmount,used:false};
   }).filter(x=>x.content&&x.amount>0);
  }
  const idxDate=head.findIndex(x=>x==='日付');
