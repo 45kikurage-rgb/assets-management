@@ -94,7 +94,7 @@
       <div class="uploadbox">
         <div class="field"><label>確認する月</label><input type="month" id="verifyMonth"></div>
         <div class="field" style="margin-top:10px"><label>SMBC取引明細CSV</label><input type="file" id="transferCsv" accept=".csv,text/csv"></div>
-        <p class="note" style="margin-bottom:0">両親は照合対象外です。振込手数料は自動除外します。CSVに口座番号が含まれないため、照合できるのは「振込先名」と「金額」です。</p>
+        <p class="note" style="margin-bottom:0">振込手数料は自動除外します。CSVの「振込先名」「金額」「振込指定日」「手続状況」で返済先を照合します。</p>
       </div>
       <div class="verify-summary">
         <div class="verify-stat"><span class="label">要振込</span><strong id="verifyRequired">0</strong></div>
