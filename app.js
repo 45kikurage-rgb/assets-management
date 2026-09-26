@@ -508,6 +508,12 @@ function verifyTransfers(){
  const ym=$('verifyMonth').value||transferCheck.month||ymNow();
  transferCheck.month=ym;
  const tx=transferCheck.rows.filter(r=>r.ym===ym).map(r=>({...r,used:false,norm:normalizeTransferText(r.content)}));
+ // 両親分のみ、2026/07/04の振込を2026年6月支払い分として扱う。
+ // 他の借入先や他の月の明細には影響させない。
+ if(ym==='2026-06'){
+  const parentsJuly4=transferCheck.rows.filter(r=>!r.used&&r.date==='2026-07-04'&&r.amount===500000);
+  for(const r of parentsJuly4){if(!tx.some(x=>x.id===r.id))tx.push({...r,used:false,norm:normalizeTransferText(r.content),monthOverride:'2026-06'});}
+ }
  const lenders=state.lenders.filter(l=>String(l.name||'').trim());
  const results=lenders.map(l=>({l,expected:paymentFor(l,ym),status:'pending',tx:null,actual:0,note:''}));
  // 1) recipient + amount exact matches first.
