@@ -306,7 +306,7 @@ function monthRange(start,end){
  if(!/^\d{4}-\d{2}$/.test(cur)||!/^\d{4}-\d{2}$/.test(last)||cur>last)return result;
  while(cur<=last){
   result.push(cur);
-  const [y,m]=cur.split('-').map(Number);const d=new Date(y,m,1);d.setMonth(d.getMonth()+1);cur=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+  const [y,m]=cur.split('-').map(Number);const d=new Date(y,m-1,1);d.setMonth(d.getMonth()+1);cur=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
  }
  return result;
 }
