@@ -558,13 +558,18 @@ function renderTransferCheck(){
  }).join('');
  $('applyVerifiedPayments').disabled=!allOk||req.every(r=>(r.l.paidMonths||[]).includes(ym));
 }
-async function loadTransferCsv(file){
+async function loadTransferCsv(input){
  try{
-  const buf=await file.arrayBuffer();
-  const text=decodeCsvBuffer(buf);
-  const rows=parseTransferCsv(text);
-  if(!rows.length)throw new Error('振込データが見つかりません');
-  transferCheck.rows=rows;transferCheck.fileName=file.name;
+  const files=Array.isArray(input)?input:[input];
+  const parsed=[];
+  for(const file of files){
+   const buf=await file.arrayBuffer();
+   const rows=parseTransferCsv(decodeCsvBuffer(buf));
+   if(rows.length)parsed.push(...rows.map(r=>({...r,sourceFile:file.name})));
+  }
+  if(!parsed.length)throw new Error('振込データが見つかりません');
+  transferCheck.rows=parsed;
+  transferCheck.fileName=files.map(f=>f.name).join('・');
   // CSVに過去月の履歴が含まれていても、現在選択中の照合月は変更しない。
   // 別の月を確認する場合は「確認する月」または一括対象月で選択する。
   transferCheck.month=$('verifyMonth').value||state.lenders[0]?.repayMonth||ymNow();
@@ -1104,7 +1109,7 @@ $('assetSaveRecord').onclick=()=>{
  const d=$('assetRecordDate').value||today();
  $('recordDate').value=d;
  saveRecord();
-};$('transferCsv').onchange=e=>e.target.files[0]&&loadTransferCsv(e.target.files[0]);$('verifyMonth').onchange=e=>{transferCheck.month=e.target.value||ymNow();if(transferCheck.rows.length)verifyTransfers();else renderTransferCheck()};$('applyVerifiedPayments').onclick=applyVerifiedPayments;$('clearTransferCsv').onclick=clearTransferCheck;$('range').onchange=drawChart;
+};$('transferCsv').onchange=e=>e.target.files.length&&loadTransferCsv([...e.target.files]);$('verifyMonth').onchange=e=>{transferCheck.month=e.target.value||ymNow();if(transferCheck.rows.length)verifyTransfers();else renderTransferCheck()};$('applyVerifiedPayments').onclick=applyVerifiedPayments;$('clearTransferCsv').onclick=clearTransferCheck;$('range').onchange=drawChart;
 function renderHomeGoal(){
  const now=new Date(), month=now.getMonth()+1; const a=totals().a;
  const goal=Number(localStorage.getItem('asset_tracker_month_goal')||0);
