@@ -434,7 +434,10 @@ function normalizeTransferText(s){
  return String(s||'').normalize('NFKC').toUpperCase().replace(/[\s　＊*・\.\-ー_()（）株式会社合同会社]/g,'').replace(/シユ/g,'シュ').replace(/ジヤ/g,'ジャ').replace(/フア/g,'ファ').replace(/カイシユウ/g,'カイシュウ');
 }
 function aliasesFor(l){
- const a=TRANSFER_ALIASES[l.id]||[];
+ const a=[...(TRANSFER_ALIASES[l.id]||[])];
+ // 口座番号は会社名の表記ゆれに左右されない最優先の照合キー。
+ const accountNumbers=String(l.account||'').match(/\d{6,8}/g)||[];
+ a.push(...accountNumbers);
  if(a.length)return a.map(normalizeTransferText);
  const n=normalizeTransferText(l.name);
  return n?[n]:[];
