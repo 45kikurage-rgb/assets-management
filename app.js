@@ -456,8 +456,27 @@ function csvDateToYm(v){
  const m=String(v||'').match(/(\d{4})[\/-](\d{1,2})/);return m?`${m[1]}-${String(m[2]).padStart(2,'0')}`:'';
 }
 function parseTransferCsv(text){
- const rows=parseCsv(text.replace(/^\uFEFF/,''));if(!rows.length)throw new Error('CSVが空です');
+ const clean=text.replace(/^\uFEFF/,'');
+ const firstLine=clean.split(/\r?\n/,1)[0]||'';
+ const rows=firstLine.includes('\t')
+  ? clean.split(/\r?\n/).filter(Boolean).map(line=>line.split('\t'))
+  : parseCsv(clean);
+ if(!rows.length)throw new Error('CSVが空です');
  const head=rows.shift().map(x=>String(x).trim());
+ const idxBankDate=head.findIndex(x=>x==='お取引日付');
+ const idxPayment=head.findIndex(x=>x.includes('お支払金額'));
+ const idxDeposit=head.findIndex(x=>x.includes('お預り金額'));
+ const idxMemo=head.findIndex(x=>x==='メモ');
+ if(idxBankDate>=0&&idxPayment>=0&&idxDeposit>=0){
+  return rows.map((r,i)=>{
+   const payment=String(r[idxPayment]||'').trim();
+   const deposit=String(r[idxDeposit]||'').trim();
+   const paymentAmount=/^[-+]?[0-9,]+$/.test(payment)?num(payment):0;
+   const depositAmount=/^[-+]?[0-9,]+$/.test(deposit)?num(deposit):0;
+   const content=[paymentAmount? '':payment,depositAmount?'':deposit,String(r[idxMemo]||'').trim()].filter(Boolean).join(' ');
+   return {id:i,date:String(r[idxBankDate]||'').trim(),ym:csvDateToYm(r[idxBankDate]),designatedDate:String(r[idxBankDate]||'').trim(),procedureStatus:'',content,amount:paymentAmount||depositAmount,used:false};
+  }).filter(x=>x.content&&x.amount>0);
+ }
  const idxDate=head.findIndex(x=>x==='日付');
  const idxContent=head.findIndex(x=>x==='内容');
  const idxOut=head.findIndex(x=>x.includes('出金金額'));
@@ -1139,6 +1158,14 @@ if('serviceWorker' in navigator && location.protocol!=='file:'){
    const registration=await navigator.serviceWorker.register('./sw.js?v=20260914-white-splash',{updateViaCache:'none'});
    await registration.update();
   }catch(e){console.warn('Service Worker update skipped:',e)}
+ });
+}
+if('serviceWorker' in navigator){
+ navigator.serviceWorker.addEventListener('message',e=>{
+  if(e.data?.type==='shared-transfer-file'&&e.data.file){
+   showTab('transfer');
+   loadTransferCsv(e.data.file);
+  }
  });
 }
 
