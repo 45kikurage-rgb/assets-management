@@ -32,6 +32,18 @@ self.addEventListener('activate', event => {
 });
 
 self.addEventListener('fetch', event => {
+  if (event.request.method === 'POST') {
+    event.respondWith((async () => {
+      const data = await event.request.formData();
+      const file = data.get('file');
+      const clients = await self.clients.matchAll({type:'window', includeUncontrolled:true});
+      let client = clients[0];
+      if (!client) client = await self.clients.openWindow('./?shared=1');
+      if (client && file instanceof File) client.postMessage({type:'shared-transfer-file', file});
+      return Response.redirect(new URL('./?shared=1', event.request.url), 303);
+    })());
+    return;
+  }
   if (event.request.method !== 'GET') return;
 
   event.respondWith(
