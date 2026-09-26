@@ -81,7 +81,7 @@
 
   <section id="page-lenders" class="tabpage">
     <div class="card">
-      <div class="section-head"><h2>借入先一覧 <span class="pill" id="lenderCount">0/13</span></h2><button class="small" id="addLender">＋ 借入先追加</button></div>
+      <div class="section-head"><h2>借入先一覧 <span class="pill" id="lenderCount">0/13</span></h2><div class="actions"><select class="small" id="bulkRepayMonth" aria-label="対象月を一括変更"><option value="2026-08">2026年08月</option><option value="2026-09" selected>2026年09月</option></select><button class="small" id="addLender">＋ 借入先追加</button></div></div>
       <div id="lenderRows"></div>
       <div class="subtot"><span>返済総額 合計</span><span id="lenderGrandTotal">¥0</span></div><div class="subtot"><span>返済残額 合計</span><span id="lenderRemainTotal">¥0</span></div>
       <p class="note">「今月返済済み」を押すと、その月の返済金額を返済残額から1回だけ減算します。反映ボタンを押すと最新の返済残額を借入タブへ同期します。</p>
