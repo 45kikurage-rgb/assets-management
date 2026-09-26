@@ -328,7 +328,7 @@ function lenderHtml(x,i){
  const ym=x.repayMonth||ymNow();
  const paid=(x.paidMonths||[]).includes(ym);
  const payment=paymentFor(x,ym);
- const transferResult=transferCheck.fileName&&transferCheck.results.find(r=>r.l.id===x.id);
+ const transferResult=transferCheck.fileName&&transferCheck.month===ym&&transferCheck.results.find(r=>r.l.id===x.id);
  const transferLabel=transferResult?`${transferResult.tx?.designatedDate?Number(transferResult.tx.designatedDate.slice(5,7))+'月'+Number(transferResult.tx.designatedDate.slice(8,10))+'日 ':''}${transferResult.tx?.procedureStatus||'未確認'}`:null;
  return `<div class="lender" data-id="${x.id}">
  <div class="lender-title editable-title" role="button" tabindex="0" title="タップして名称を編集">
@@ -536,9 +536,10 @@ async function loadTransferCsv(file){
   const rows=parseTransferCsv(text);
   if(!rows.length)throw new Error('振込データが見つかりません');
   transferCheck.rows=rows;transferCheck.fileName=file.name;
-  const months={};for(const r of rows){if(r.ym)months[r.ym]=(months[r.ym]||0)+1}
-  const detected=Object.entries(months).sort((a,b)=>b[1]-a[1])[0]?.[0];
-  if(detected){transferCheck.month=detected;$('verifyMonth').value=detected}
+  // CSVに過去月の履歴が含まれていても、現在選択中の照合月は変更しない。
+  // 別の月を確認する場合は「確認する月」または一括対象月で選択する。
+  transferCheck.month=$('verifyMonth').value||state.lenders[0]?.repayMonth||ymNow();
+  $('verifyMonth').value=transferCheck.month;
   verifyTransfers();renderLenders();toast('振込CSVを読み込みました');
  }catch(e){alert('CSVを読み込めませんでした：'+(e.message||e));}
 }
